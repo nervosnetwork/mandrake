@@ -41,8 +41,8 @@ Simply put, it's a drawing tool for manipulating a tree.
   2. The canvas view. It renders an AST tree.
     - When an AST node is right-clicked, it might need to show a context memu for certain quick actions.
     - When an AST node is selected or editable part of the node is clicked, the property panel (see below) will display its properties, the inline editor will allow direct modifications to some properties.
-  3. A left property panel. When a node is selected, the panel shows properties that can be edited.
-  4. A toolbar which have some action buttons for quick use.
+  3. A right property panel. When a node is selected, the panel shows properties that can be edited.
+  4. A toolbar which has some action buttons for quick use.
 
 ### Framework
 
