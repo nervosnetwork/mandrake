@@ -1,7 +1,9 @@
 GUI for animagus
 --------------
 
-Design and implement a GUI application to help use animagus.
+Design and implement a GUI application to help people use animagus.
+
+The GUI app allows dapp developers to design AST and serialize to protocol buffers.
 
 ## Users
 
@@ -24,6 +26,7 @@ Design and implement a GUI application to help use animagus.
 * Undo/Redo.
 * Save the canvas/project to file.
 * Load a canvas/project from file.
+* Configure and start Animagus from UI.
 
 ![](images/animagus.png)
 
