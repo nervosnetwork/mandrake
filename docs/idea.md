@@ -1,5 +1,5 @@
 GUI for animagus
---------------
+================
 
 Design and implement a GUI application to help people use animagus.
 
@@ -46,7 +46,7 @@ The GUI app allows dapp developers to design AST and serialize to protocol buffe
 ## Schedule
 
   * ~ April 24, 2020
-    - Collect requirements
+    - Collect requirements, deciding on goals
     - Experiment and do research
     - Evaluate Flutter, Skia, etc.
   * May 1 ~ June 19
