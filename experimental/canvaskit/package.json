@@ -1,0 +1,18 @@
+{
+  "name": "canvaskit-test",
+  "version": "0.1.0",
+  "description": "Experiment CanvasKit WASM",
+  "private": true,
+  "scripts": {
+    "start": "serve",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "James Chen",
+  "license": "MIT",
+  "dependencies": {
+    "canvaskit-wasm": "^0.14.0"
+  },
+  "devDependencies": {
+    "serve": "^11.3.0"
+  }
+}
