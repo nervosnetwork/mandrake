@@ -16,14 +16,14 @@
   <h1>Test CanvasKit WASM</h1>
   <canvas id="field" width=1024 height=768></canvas>
 
-  <!--<script src="https://unpkg.com/canvaskit-wasm@0.3.0/bin/canvaskit.js"></script>-->
+  <!--<script src="https://unpkg.com/canvaskit-wasm@0.14.0/bin/canvaskit.js"></script>-->
   <script type="text/javascript" src="/node_modules/canvaskit-wasm/bin/canvaskit.js"></script>
   <script>
     var CanvasKit = null;
 
     CanvasKitInit({
       locateFile: (file) => '/node_modules/canvaskit-wasm/bin/'+file,
-      //locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.3.0/bin/'+file,
+      //locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.14.0/bin/'+file,
     }).ready().then((CK) => {
       CanvasKit = CK;
       console.log("canvaskit-wasm loaded.");
