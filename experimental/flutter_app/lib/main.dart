@@ -49,42 +49,56 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+/// https://stackoverflow.com/questions/59054080/how-to-draw-custom-shape-in-flutter-and-drag-that-shape-around
 class _MyHomePageState extends State<MyHomePage> {
+  var xPos = 0.0;
+  var yPos = 0.0;
+  final width = 100.0;
+  final height = 100.0;
+  bool _dragging = false;
+
+  /// Is the point (x, y) inside the rect?
+  bool _insideRect(double x, double y) =>
+      x >= xPos && x <= xPos + width && y >= yPos && y <= yPos + height;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomPaint(
-        painter: MyPainter(),
-          child: Center(
-            child: Text(
-              "Test painting",
-            ),
-          ),
+    return GestureDetector(
+      onPanStart: (details) => _dragging = _insideRect(
+        details.globalPosition.dx,
+        details.globalPosition.dy,
+      ),
+      onPanEnd: (details) {
+        _dragging = false;
+      },
+      onPanUpdate: (details) {
+        if (_dragging) {
+          setState(() {
+            xPos += details.delta.dx;
+            yPos += details.delta.dy;
+          });
+        }
+      },
+      child: Container(
+        color: Colors.white,
+        child: CustomPaint(
+          painter: RectanglePainter(Rect.fromLTWH(xPos, yPos, width, height)),
+          child: Container(),
+        ),
       ),
     );
   }
 }
 
-class MyPainter extends CustomPainter {
+class RectanglePainter extends CustomPainter {
+  RectanglePainter(this.rect);
+  final Rect rect;
+
   @override
   void paint(Canvas canvas, Size size) {
-    var paint = Paint();
-    paint.color = Colors.amber;
-    paint.strokeWidth = 5;
-    canvas.drawLine(
-      Offset(0, size.height / 2),
-      Offset(size.width, size.height / 2),
-      paint,
-    );
-
-    paint.color = Colors.blue;
-    paint.style = PaintingStyle.stroke;
-    canvas.drawCircle(Offset(size.width / 2, size.height / 2), size.width / 4, paint);
+    canvas.drawRect(rect, Paint());
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
-  }
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
