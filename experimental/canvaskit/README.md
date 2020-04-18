@@ -2,8 +2,11 @@
 
 ## Dependencies
 
-* [http-server](https://www.npmjs.com/package/http-server)
+* Node
 
 ## Start the http page
 
-`npm start`
+```shell
+npm install
+npm start
+```

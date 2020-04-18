@@ -42,6 +42,7 @@ The GUI app allows dapp developers to design AST and serialize to protocol buffe
   - HTML Canvas
   - Skia
   - SwiftUI
+  - Flutter CustomPainter
 
 ## Schedule
 
