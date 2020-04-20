@@ -38,9 +38,16 @@ Simply put, it's a drawing tool for manipulating a tree.
 
 * The main UI consists of 4 parts, similar to a common drawing app:
   1. A left library panel. It lists all kinds of AST nodes that user can drag on to the canvas.
-  2. The canvas view. It renders an AST tree.
+  2. The canvas view. It renders an AST editing view.
     - When an AST node is right-clicked, it might need to show a context memu for certain quick actions.
     - When an AST node is selected or editable part of the node is clicked, the property panel (see below) will display its properties, the inline editor will allow direct modifications to some properties.
+    - It might become inpractical to draw the whole AST tree. Take this [udt](https://github.com/xxuejie/animagus/tree/master/examples/udt) design for example:
+    ![udt](images/udt-ast.png)
+    To place and draw this, we need to divide the AST tree to smaller components, such as:
+      * The root view. It draws the AST root containing one or more calls. It can collapse these calls that the root view could be rendered as a small high level view.
+      * Call view. A call view contains a single node as tree. A call view is a specical node view that can only be referenced by the root view.
+      * Node view. A node view can be either a leaf, or a tree. Then it can be referenced from other nodes.
+    - Although described above as inpractical, we perhaps can have another readonly canvas (view) to draw the whole AST root tree, with all non-leaf nodes expanding. It could support zooming and scrolling.
   3. A right property panel. When a node is selected, the panel shows properties that can be edited.
   4. A toolbar which has some action buttons for quick use.
 
