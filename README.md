@@ -1,3 +1,3 @@
-# animagus-gui
+# mandrake
 
-Codename mandrake.
+The Animagus GUI.
