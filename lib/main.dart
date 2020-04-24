@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'ast_tree_page.dart';
 
 void main() {
   runApp(MandrakeApp());
@@ -32,15 +33,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Booting',
-            ),
-          ],
-        ),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: AstTreePage(),
+          )
+        ],
       ),
     );
   }

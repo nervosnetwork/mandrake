@@ -97,9 +97,9 @@ Value executionNode(Value queryCellNode) {
   return result;
 }
 
-Root buildRoot(String name, Value node) {
+Root buildRoot(String callName, Value node) {
   Call call = Call();
-  call.name = name;
+  call.name = callName;
   call.result = node;
   Root result = Root();
   result.calls.add(call);
