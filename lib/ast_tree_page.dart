@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:convert/convert.dart';
 
 import 'protos/ast.pb.dart';
@@ -13,9 +12,28 @@ class AstRoot {
 
 class AstNode {
   final Value value;
-  AstNode(this.value);
+  final Stream stream;
+  final Call call;
+  AstNode(this.value, {this.stream, this.call});
+
+  Value node() {
+    if (call != null) {
+      return call.result;
+    }
+    if (stream != null) {
+      return stream.filter;
+    }
+    return value;
+  }
 
   String title() {
+    if (call != null) {
+      return call.name;
+    }
+    if (stream != null) {
+      return stream.name;
+    }
+
     String type = value.t.toString();
     if (value.hasU()) {
       return '$type(${value.u.toString()})';
@@ -28,6 +46,8 @@ class AstNode {
     return type;
   }
 }
+
+final double nodeVerticalMargin = 10;
 
 class AstTreePage extends StatelessWidget {
   final AstRoot astRoot =
@@ -70,12 +90,13 @@ Widget branchShape(String label) {
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       child: Text(label),
     ),
-    margin: EdgeInsets.all(10),
+    margin: EdgeInsets.all(nodeVerticalMargin),
   );
 }
 
 Widget nodeShape(String label, [Color decorationColor = Colors.white]) {
   return Container(
+    constraints: BoxConstraints(maxWidth: 200),
     decoration: BoxDecoration(
       color: decorationColor,
       border: Border.all(color: Colors.black, width: 1),
@@ -85,22 +106,7 @@ Widget nodeShape(String label, [Color decorationColor = Colors.white]) {
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       child: Text(label),
     ),
-    margin: EdgeInsets.all(10),
-  );
-}
-
-// A call or stream view.
-Widget branchView(String name, Value node) {
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      branchShape(name),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: node.children.map((e) => NodeView(AstNode(e))).toList(),
-      ),
-    ],
+    margin: EdgeInsets.all(nodeVerticalMargin),
   );
 }
 
@@ -111,7 +117,7 @@ class RootNodeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         nodeShape(root.name, Colors.blue[100]),
         Row(
@@ -123,7 +129,7 @@ class RootNodeView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: root.astRoot.streams
-                    .map((e) => branchView(e.name, e.filter))
+                    .map((e) => NodeView(AstNode(null, stream: e)))
                     .toList(),
               ),
             ]),
@@ -132,7 +138,7 @@ class RootNodeView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: root.astRoot.calls
-                    .map((e) => branchView(e.name, e.result))
+                    .map((e) => NodeView(AstNode(null, call: e)))
                     .toList(),
               ),
             ]),
@@ -159,55 +165,92 @@ class NodeView extends StatefulWidget {
 class _NodeViewState extends State<NodeView> {
   final AstNode node;
   final List<GlobalKey> _childKeys = [];
+  final List<Offset> _edgeEnds = [];
+  Future<List<Offset>> _edgesCalculation;
 
   _NodeViewState(this.node);
 
   @override
-  Widget build(BuildContext context) {
-    SchedulerBinding.instance.addPostFrameCallback(postFrameCallback);
+  void initState() {
+    _edgesCalculation = Future<List<Offset>>.delayed(Duration(milliseconds: 20), () => _edgeEnds);
+    super.initState();
+  }
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+  @override
+  Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback(postFrameCallback);
+
+    return Stack(
       children: [
-        nodeShape(node.title()),
-        Row(
+        FutureBuilder<List<Offset>>(
+          future: _edgesCalculation,
+          builder: (BuildContext context, AsyncSnapshot<List<Offset>> snapshot) {
+            if (snapshot.hasData) {
+              return CustomPaint(
+                painter: EdgePainter(snapshot.data),
+              );
+            }
+            return SizedBox();
+          }
+        ),
+        Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: node.value.children.map((e) {
-            final childView = NodeView(
-              AstNode(e),
-              key: GlobalKey(),
-            );
-            _childKeys.add(childView.key);
-            return childView;
-          }).toList(),
+          children: [
+            node.value == null ? branchShape(node.title()) : nodeShape(node.title()),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: node.node().children.map((e) {
+                final childView = NodeView(
+                  AstNode(e),
+                  key: GlobalKey(),
+                );
+                _childKeys.add(childView.key);
+                return childView;
+              }).toList(),
+            ),
+          ],
         ),
       ],
     );
   }
 
   void postFrameCallback(_) {
-    List<Widget> edges = _childKeys.map((e) {
-      var context = e.currentContext;
-      var renderedObject = context.findRenderObject() as RenderBox;
-      var pos = renderedObject.localToGlobal(Offset.zero);
-      print('pos: (${pos.dx}, ${pos.dy})');
-      print('size: (${context.size.width}, ${context.size.height})');
-      return Positioned(
-        left: pos.dx,
-        top: pos.dy,
-        child: Text('edges'),
-      );
-    }).toList();
-
-    var edgesOverlay = OverlayEntry(builder: (context) {
-      return Stack(
-        children: edges,
-      );
-    });
-
-    Overlay.of(context).insert(edgesOverlay);
+    final insideVerticalOffset = 15;
+    List<Offset> ends = _childKeys.map((e) {
+      var childContext = e.currentContext;
+      if (childContext == null) {
+        return null;
+      }
+      var renderedObject = childContext.findRenderObject() as RenderBox;
+      var pos = renderedObject.localToGlobal(Offset.zero, ancestor: this.context.findRenderObject());
+      return Offset(pos.dx + childContext.size.width / 2, pos.dy + nodeVerticalMargin + insideVerticalOffset);
+    }).where((w) => w != null).toList();
+    _edgeEnds.clear();
+    // Add current node's center point as edges' start.
+    _edgeEnds.add(Offset(context.size.width / 2, nodeVerticalMargin + insideVerticalOffset));
+    _edgeEnds.addAll(ends);
   }
+}
+
+class EdgePainter extends CustomPainter {
+  final List<Offset> points; // First one is start, the others ends.
+  EdgePainter(this.points);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black54
+      ..strokeWidth = 1
+      ..strokeCap = StrokeCap.round;
+    final start = points.first;
+    for (var point in points.sublist(1)) {
+      canvas.drawLine(start, point, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
 class CanvasLayer extends StatelessWidget {
