@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:convert/convert.dart';
+import 'package:flutter/rendering.dart';
 
 import 'protos/ast.pb.dart';
 import 'ast_example.dart';
@@ -89,22 +90,25 @@ class AstValue extends AstNode {
   List<AstNode> get children => value.children.map((e) => AstValue(e)).toList();
 }
 
-final double nodeVerticalMargin = 10;
+const double nodeVerticalMargin = 10;
 
 class AstTreePage extends StatelessWidget {
-  final AstRoot astRoot =
-      AstRoot('balance', buildRoot('balance', executionNode(queryCellNode())));
+  final AstRoot astRoot = AstRoot('simple_udt', simpleUdt());
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints.expand(),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Container(color: Colors.blue[300]),
-          NodeView(astRoot),
-        ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal, // TODO: support vertical scroll.
+      child: Container(
+        width: 1800,
+        height: 1200,
+        child: Stack(
+          //fit: StackFit.expand,
+          children: [
+            Container(color: Colors.blue[300]),
+            NodeView(astRoot),
+          ],
+        ),
       ),
     );
   }
@@ -143,7 +147,8 @@ Widget nodeShape(String label, [Color decorationColor = Colors.white]) {
 class NodeView extends StatefulWidget {
   final AstNode node;
 
-  const NodeView(this.node, {
+  const NodeView(
+    this.node, {
     Key key,
   }) : super(key: key);
 
@@ -163,7 +168,8 @@ class _NodeViewState extends State<NodeView> {
 
   @override
   void initState() {
-    _edgesCalculation = Future<List<Offset>>.delayed(Duration(milliseconds: 20), () => _edgeEnds);
+    _edgesCalculation = Future<List<Offset>>.delayed(
+        Duration(milliseconds: 20), () => _edgeEnds);
     super.initState();
   }
 
@@ -174,20 +180,22 @@ class _NodeViewState extends State<NodeView> {
     return Stack(
       children: [
         FutureBuilder<List<Offset>>(
-          future: _edgesCalculation,
-          builder: (BuildContext context, AsyncSnapshot<List<Offset>> snapshot) {
-            if (snapshot.hasData) {
-              return CustomPaint(
-                painter: EdgePainter(snapshot.data),
-              );
-            }
-            return SizedBox();
-          }
-        ),
+            future: _edgesCalculation,
+            builder:
+                (BuildContext context, AsyncSnapshot<List<Offset>> snapshot) {
+              if (snapshot.hasData) {
+                return CustomPaint(
+                  painter: EdgePainter(snapshot.data),
+                );
+              }
+              return SizedBox();
+            }),
         Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            (node is AstStream || node is AstCall) ? branchShape(node.name) : nodeShape(node.name),
+            (node is AstStream || node is AstCall)
+                ? branchShape(node.name)
+                : nodeShape(node.name),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,16 +215,20 @@ class _NodeViewState extends State<NodeView> {
   }
 
   void postFrameCallback(_) {
-    final insideVerticalOffset = 15;
-    List<Offset> ends = _childKeys.where((e) => e.currentContext != null).map((e) {
+    const insideVerticalOffset = 15;
+    List<Offset> ends =
+        _childKeys.where((e) => e.currentContext != null).map((e) {
       var childContext = e.currentContext;
       var renderedObject = childContext.findRenderObject() as RenderBox;
-      var pos = renderedObject.localToGlobal(Offset.zero, ancestor: this.context.findRenderObject());
-      return Offset(pos.dx + childContext.size.width / 2, pos.dy + nodeVerticalMargin + insideVerticalOffset);
+      var pos = renderedObject.localToGlobal(Offset.zero,
+          ancestor: this.context.findRenderObject());
+      return Offset(pos.dx + childContext.size.width / 2,
+          pos.dy + nodeVerticalMargin + insideVerticalOffset);
     }).toList();
     _edgeEnds.clear();
     // Add current node's center point as edges' start.
-    _edgeEnds.add(Offset(context.size.width / 2, nodeVerticalMargin + insideVerticalOffset));
+    _edgeEnds.add(Offset(
+        context.size.width / 2, nodeVerticalMargin + insideVerticalOffset));
     _edgeEnds.addAll(ends);
   }
 }
