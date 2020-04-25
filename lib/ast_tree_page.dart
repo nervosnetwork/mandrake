@@ -16,17 +16,17 @@ class AstNode {
   final Call call;
   AstNode(this.value, {this.stream, this.call});
 
-  Value node() {
+  List<Value> get children {
     if (call != null) {
-      return call.result;
+      return [call.result];
     }
     if (stream != null) {
-      return stream.filter;
+      return [stream.filter];
     }
-    return value;
+    return value.children;
   }
 
-  String title() {
+  String get title {
     if (call != null) {
       return call.name;
     }
@@ -196,11 +196,11 @@ class _NodeViewState extends State<NodeView> {
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            node.value == null ? branchShape(node.title()) : nodeShape(node.title()),
+            node.value == null ? branchShape(node.title) : nodeShape(node.title),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: node.node().children.map((e) {
+              children: node.children.map((e) {
                 final childView = NodeView(
                   AstNode(e),
                   key: GlobalKey(),
