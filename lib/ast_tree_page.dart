@@ -4,36 +4,75 @@ import 'package:convert/convert.dart';
 import 'protos/ast.pb.dart';
 import 'ast_example.dart';
 
-class AstRoot {
-  final String name;
-  final Root astRoot;
-  AstRoot(this.name, this.astRoot);
+class AstNode {
+  String get name => throw UnimplementedError;
+  List<AstNode> get children => throw UnimplementedError;
 }
 
-class AstNode {
-  final Value value;
-  final Stream stream;
-  final Call call;
-  AstNode(this.value, {this.stream, this.call});
+class AstRoot extends AstNode {
+  final String name;
+  final Root root;
+  AstRoot(this.name, this.root);
 
-  List<Value> get children {
-    if (call != null) {
-      return [call.result];
-    }
-    if (stream != null) {
-      return [stream.filter];
-    }
-    return value.children;
+  @override
+  List<AstNode> get children {
+    return [
+      AstStreams(root.streams),
+      AstCalls(root.calls),
+    ];
   }
+}
 
-  String get title {
-    if (call != null) {
-      return call.name;
-    }
-    if (stream != null) {
-      return stream.name;
-    }
+class AstStreams extends AstNode {
+  final List<Stream> streams;
+  AstStreams(this.streams);
 
+  @override
+  String get name => 'streams';
+
+  @override
+  List<AstNode> get children => streams.map((e) => AstStream(e)).toList();
+}
+
+class AstStream extends AstNode {
+  final Stream stream;
+  AstStream(this.stream);
+
+  @override
+  String get name => stream.name;
+
+  @override
+  List<AstNode> get children => [AstValue(stream.filter)];
+}
+
+class AstCalls extends AstNode {
+  final List<Call> calls;
+  AstCalls(this.calls);
+
+  @override
+  String get name => 'calls';
+
+  @override
+  List<AstNode> get children => calls.map((e) => AstCall(e)).toList();
+}
+
+class AstCall extends AstNode {
+  final Call call;
+  AstCall(this.call);
+
+  @override
+  String get name => call.name;
+
+  @override
+  List<AstNode> get children => [AstValue(call.result)];
+}
+
+class AstValue extends AstNode {
+  final Value value;
+  AstValue(this.value);
+
+  @override
+  String get name {
     String type = value.t.toString();
     if (value.hasU()) {
       return '$type(${value.u.toString()})';
@@ -45,6 +84,9 @@ class AstNode {
 
     return type;
   }
+
+  @override
+  List<AstNode> get children => value.children.map((e) => AstValue(e)).toList();
 }
 
 final double nodeVerticalMargin = 10;
@@ -60,22 +102,10 @@ class AstTreePage extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          CanvasLayer(),
-          NodesLayer(astRoot),
+          Container(color: Colors.blue[300]),
+          NodeView(astRoot),
         ],
       ),
-    );
-  }
-}
-
-class NodesLayer extends StatelessWidget {
-  final AstRoot astRoot;
-  NodesLayer(this.astRoot);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: RootNodeView(astRoot),
     );
   }
 }
@@ -108,45 +138,6 @@ Widget nodeShape(String label, [Color decorationColor = Colors.white]) {
     ),
     margin: EdgeInsets.all(nodeVerticalMargin),
   );
-}
-
-class RootNodeView extends StatelessWidget {
-  final AstRoot root;
-  RootNodeView(this.root);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        nodeShape(root.name, Colors.blue[100]),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(children: [
-              nodeShape('streams'),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: root.astRoot.streams
-                    .map((e) => NodeView(AstNode(null, stream: e)))
-                    .toList(),
-              ),
-            ]),
-            Column(children: [
-              nodeShape('calls'),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: root.astRoot.calls
-                    .map((e) => NodeView(AstNode(null, call: e)))
-                    .toList(),
-              ),
-            ]),
-          ],
-        ),
-      ],
-    );
-  }
 }
 
 class NodeView extends StatefulWidget {
@@ -194,15 +185,15 @@ class _NodeViewState extends State<NodeView> {
           }
         ),
         Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            node.value == null ? branchShape(node.title) : nodeShape(node.title),
+            (node is AstStream || node is AstCall) ? branchShape(node.name) : nodeShape(node.name),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: node.children.map((e) {
+              children: node.children.map((child) {
                 final childView = NodeView(
-                  AstNode(e),
+                  child,
                   key: GlobalKey(),
                 );
                 _childKeys.add(childView.key);
@@ -217,15 +208,12 @@ class _NodeViewState extends State<NodeView> {
 
   void postFrameCallback(_) {
     final insideVerticalOffset = 15;
-    List<Offset> ends = _childKeys.map((e) {
+    List<Offset> ends = _childKeys.where((e) => e.currentContext != null).map((e) {
       var childContext = e.currentContext;
-      if (childContext == null) {
-        return null;
-      }
       var renderedObject = childContext.findRenderObject() as RenderBox;
       var pos = renderedObject.localToGlobal(Offset.zero, ancestor: this.context.findRenderObject());
       return Offset(pos.dx + childContext.size.width / 2, pos.dy + nodeVerticalMargin + insideVerticalOffset);
-    }).where((w) => w != null).toList();
+    }).toList();
     _edgeEnds.clear();
     // Add current node's center point as edges' start.
     _edgeEnds.add(Offset(context.size.width / 2, nodeVerticalMargin + insideVerticalOffset));
@@ -251,13 +239,4 @@ class EdgePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
-}
-
-class CanvasLayer extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.blue[300],
-    );
-  }
 }
