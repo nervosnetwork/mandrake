@@ -5,9 +5,9 @@ import 'package:flutter/rendering.dart';
 import 'protos/ast.pb.dart';
 import 'ast_example.dart';
 
-class AstNode {
-  String get name => throw UnimplementedError;
-  List<AstNode> get children => throw UnimplementedError;
+abstract class AstNode {
+  String get name;
+  List<AstNode> get children;
 }
 
 class AstRoot extends AstNode {
@@ -15,23 +15,14 @@ class AstRoot extends AstNode {
   final Root root;
   AstRoot(this.name, this.root);
 
-  @override
-  List<AstNode> get children {
-    return [
-      AstStreams(root.streams),
-      AstCalls(root.calls),
-    ];
-  }
+  List<AstNode> get children => [AstStreams(root.streams), AstCalls(root.calls)];
 }
 
 class AstStreams extends AstNode {
   final List<Stream> streams;
   AstStreams(this.streams);
 
-  @override
   String get name => 'streams';
-
-  @override
   List<AstNode> get children => streams.map((e) => AstStream(e)).toList();
 }
 
@@ -39,10 +30,7 @@ class AstStream extends AstNode {
   final Stream stream;
   AstStream(this.stream);
 
-  @override
   String get name => stream.name;
-
-  @override
   List<AstNode> get children => [AstValue(stream.filter)];
 }
 
@@ -50,10 +38,7 @@ class AstCalls extends AstNode {
   final List<Call> calls;
   AstCalls(this.calls);
 
-  @override
   String get name => 'calls';
-
-  @override
   List<AstNode> get children => calls.map((e) => AstCall(e)).toList();
 }
 
@@ -61,10 +46,7 @@ class AstCall extends AstNode {
   final Call call;
   AstCall(this.call);
 
-  @override
   String get name => call.name;
-
-  @override
   List<AstNode> get children => [AstValue(call.result)];
 }
 
@@ -72,7 +54,6 @@ class AstValue extends AstNode {
   final Value value;
   AstValue(this.value);
 
-  @override
   String get name {
     String type = value.t.toString();
     if (value.hasU()) {
@@ -86,11 +67,10 @@ class AstValue extends AstNode {
     return type;
   }
 
-  @override
   List<AstNode> get children => value.children.map((e) => AstValue(e)).toList();
 }
 
-const double nodeVerticalMargin = 10;
+const double nodeVerticalMargin = 15;
 
 class AstTreePage extends StatelessWidget {
   final AstRoot astRoot = AstRoot('simple_udt', simpleUdt());
