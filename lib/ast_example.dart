@@ -1,6 +1,3 @@
-import 'dart:ffi';
-import 'dart:typed_data';
-
 import 'package:fixnum/fixnum.dart';
 import 'package:convert/convert.dart';
 
@@ -106,7 +103,7 @@ Root buildRoot(String callName, Value node) {
   return result;
 }
 
-Uint8List output() {
+List<int> output() {
   Root root = buildRoot(
     'balance',
     executionNode(queryCellNode())
