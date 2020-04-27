@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'ast_tree_page.dart';
+import 'galaxy.dart';
 
 void main() {
   runApp(MandrakeApp());
@@ -33,13 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: AstTreePage(),
-          )
-        ],
-      ),
+      body: GalaxyView(),
     );
   }
 }
