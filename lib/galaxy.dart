@@ -15,7 +15,7 @@ class _GalaxyState extends State<GalaxyView> {
     setState(() {
       bodies.clear();
 
-      for (var i = 0; i < 1000; i++) {
+      for (var i = 0; i < 2000; i++) {
         bodies.add(
           _Body(
             Random().nextDouble() * 30,
@@ -45,16 +45,29 @@ class _GalaxyState extends State<GalaxyView> {
           color: Colors.black54,
         ),
         Listener(
-          child: CustomPaint(
-            size: size,
-            painter: _BodyPainter(bodies, canvasSize, offset),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: CustomPaint(
+              size: size,
+              painter: _BodyPainter(bodies, canvasSize, offset),
+            ),
           ),
           onPointerMove: onPointerMove,
           onPointerUp: onPointerUp,
         ),
+        IgnorePointer(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.yellow,
+                width: 20,
+              ),
+            ),
+          ),
+        ),
         Positioned(
-          right: 10,
-          bottom: 10,
+          right: 30,
+          bottom: 25,
           child: FlatButton(
             color: Colors.white,
             onPressed: _createBodies,
@@ -76,8 +89,7 @@ class _GalaxyState extends State<GalaxyView> {
     });
   }
 
-  void onPointerUp(PointerUpEvent event) {
-  }
+  void onPointerUp(PointerUpEvent event) {}
 }
 
 class _Body {
@@ -117,14 +129,31 @@ class _BodyPainter extends CustomPainter {
       ..strokeWidth = 1;
 
     paint.color = Colors.blue[300];
-    canvas.drawRect(Rect.fromPoints(offset, canvasSize.bottomRight(offset)), paint);
+    canvas.drawRect(
+        Rect.fromPoints(offset, canvasSize.bottomRight(offset)), paint);
     paint.color = Colors.yellow;
     canvas.drawLine(
         offset, offset + Offset(canvasSize.width, canvasSize.height), paint);
-    canvas.drawLine(
-        offset + Offset(canvasSize.width, 0), offset + Offset(0, canvasSize.height), paint);
+    canvas.drawLine(offset + Offset(canvasSize.width, 0),
+        offset + Offset(0, canvasSize.height), paint);
 
     for (var body in bodies) {
+      if (offset.dx + body.center.dx + body.radius / 2 < 0) {
+        continue;
+      }
+
+      if (offset.dx + body.center.dx - body.radius / 2 > size.width) {
+        continue;
+      }
+
+      if (offset.dy + body.center.dy + body.radius / 2 < 0) {
+        continue;
+      }
+
+      if (offset.dy + body.center.dy - body.radius / 2 > size.height) {
+        continue;
+      }
+
       paint.color = body.color;
       paint.style = PaintingStyle.fill;
       canvas.drawCircle(offset + body.center, body.radius, paint);
@@ -132,23 +161,23 @@ class _BodyPainter extends CustomPainter {
       paint.style = PaintingStyle.stroke;
       canvas.drawCircle(offset + body.center, body.radius, paint);
 
-      TextSpan span = TextSpan(
-        text: '(${body.center.dx.toInt()}, ${body.center.dy.toInt()})',
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 9,
-        ),
-      );
-      TextPainter textPainter = TextPainter(text: span, textDirection: TextDirection.ltr);
-      textPainter.layout();
-      textPainter.paint(canvas, offset + body.center);
+      // TextSpan span = TextSpan(
+      //   text: '(${body.center.dx.toInt()}, ${body.center.dy.toInt()})',
+      //   style: TextStyle(
+      //     color: Colors.black,
+      //     fontSize: 9,
+      //   ),
+      // );
+      // TextPainter textPainter = TextPainter(text: span, textDirection: TextDirection.ltr);
+      // textPainter.layout();
+      // textPainter.paint(canvas, offset + body.center);
     }
   }
 
   @override
   bool shouldRepaint(_BodyPainter oldDelegate) {
-    return bodies != oldDelegate.bodies
-      || canvasSize != oldDelegate.canvasSize
-      || offset != oldDelegate.offset;
+    return bodies != oldDelegate.bodies ||
+        canvasSize != oldDelegate.canvasSize ||
+        offset != oldDelegate.offset;
   }
 }
