@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'experimental/galaxy.dart';
+import 'editor.dart';
 
 void main() {
   runApp(MandrakeApp());
@@ -33,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GalaxyView(),
+      body: Editor(),
     );
   }
 }
