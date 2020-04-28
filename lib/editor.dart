@@ -51,21 +51,10 @@ class _DesignEditorState extends State<DesignEditor> {
   Offset canvasOffset = Offset.zero;
   final List<Graph> graphs = [];
 
-  double get _left {
-    return _canvasMargin + canvasOffset.dx;
-  }
-
-  double get _top {
-    return _canvasMargin + canvasOffset.dy;
-  }
-
-  double get _right {
-    return _canvasMargin - canvasOffset.dx;
-  }
-
-  double get _bottom {
-    return _canvasMargin - canvasOffset.dy;
-  }
+  double get _left => _canvasMargin + canvasOffset.dx;
+  double get _top => _canvasMargin + canvasOffset.dy;
+  double get _right => _canvasMargin - canvasOffset.dx;
+  double get _bottom => _canvasMargin - canvasOffset.dy;
 
   @override
   Widget build(BuildContext context) {
@@ -74,106 +63,88 @@ class _DesignEditorState extends State<DesignEditor> {
         Container(
           color: Colors.grey[400],
         ),
-        _canvasLayer(context),
-        _edgesLayer(context),
-        _graphsLayer(context),
-        _dragTargetLayer(context),
+        Positioned(
+          left: _left,
+          top: _top,
+          right: _right,
+          bottom: _bottom,
+          child: Stack(
+            children: [
+              _canvasLayer(context),
+              _edgesLayer(context),
+              _graphsLayer(context),
+              _dragTargetLayer(context),
+            ],
+          ),
+        ),
       ],
     );
   }
 
   Widget _canvasLayer(BuildContext context) {
-    return Positioned(
-      left: _left,
-      top: _top,
-      right: _right,
-      bottom: _bottom,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey,
-              offset: Offset(0, 2),
-              blurRadius: 5,
-            ),
-          ],
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey,
+            offset: Offset(0, 2),
+            blurRadius: 5,
+          ),
+        ],
       ),
     );
   }
 
   Widget _edgesLayer(BuildContext context) {
-    return Positioned(
-      left: _left,
-      top: _top,
-      right: _right,
-      bottom: _bottom,
-      child: CustomPaint(
-        painter: _EdgesPainter(canvasOffset),
-        child: Container(),
-      ),
+    return CustomPaint(
+      painter: _EdgesPainter(),
+      child: Container(),
     );
   }
 
   Widget _graphsLayer(BuildContext context) {
-    return Positioned(
-      left: _left,
-      top: _top,
-      right: _right,
-      bottom: _bottom,
-      child: Listener(
-        child: CustomPaint(
-          painter: _GraphsPainter(canvasOffset, graphs),
-          child: Container(),
-        ),
-        onPointerMove: (event) {
-          setState(() {
-            canvasOffset += event.delta;
-          });
-        },
-        onPointerUp: (event) {
-          print('on pointer up');
-        },
+    return Listener(
+      child: CustomPaint(
+        painter: _GraphsPainter(graphs),
+        child: Container(),
       ),
+      onPointerMove: (event) {
+        setState(() {
+          canvasOffset += event.delta;
+        });
+      },
+      onPointerUp: (event) {
+        print('on pointer up');
+      },
     );
   }
 
   Widget _dragTargetLayer(BuildContext context) {
-    return Positioned(
-      left: _left,
-      top: _top,
-      right: _right,
-      bottom: _bottom,
-      child: DragTarget<String>(
-        onWillAccept: (data) {
-          print('data = $data onWillAccept');
-          return data != null;
-        },
-        onAccept: (data) {
-          // Draggable.onDragEnd gets called after DragTarget.onDragAccept. That
-          // doesn't leave us the proper drop position.
-          // Note flutter already has a PR to include the offset for onDragAccept.
-          Future.delayed(Duration(milliseconds: 20), () {
-            final renderBox = context.findRenderObject() as RenderBox;
-            final pos = renderBox.globalToLocal(editorBag.lastDropOffset) -
-                canvasOffset;
-            setState(() {
-              graphs.add(Graph(pos));
-            });
+    return DragTarget<String>(
+      onWillAccept: (data) {
+        print('data = $data onWillAccept');
+        return data != null;
+      },
+      onAccept: (data) {
+        // Draggable.onDragEnd gets called after DragTarget.onDragAccept. That
+        // doesn't leave us the proper drop position.
+        // Note flutter already has a PR to include the offset for onDragAccept.
+        Future.delayed(Duration(milliseconds: 20), () {
+          final renderBox = context.findRenderObject() as RenderBox;
+          final pos =
+              renderBox.globalToLocal(editorBag.lastDropOffset) - canvasOffset;
+          setState(() {
+            graphs.add(Graph(pos));
           });
-        },
-        builder: (context, candidateData, rejectedData) => Container(),
-      ),
+        });
+      },
+      builder: (context, candidateData, rejectedData) => Container(),
     );
   }
 }
 
 class _EdgesPainter extends CustomPainter {
-  final Offset offset;
-
-  _EdgesPainter(this.offset);
-
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint()
@@ -193,16 +164,13 @@ class _EdgesPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_EdgesPainter oldPainter) {
-    return offset != oldPainter.offset;
-  }
+  bool shouldRepaint(_EdgesPainter oldPainter) => false;
 }
 
 class _GraphsPainter extends CustomPainter {
-  final Offset offset;
   final List<Graph> graphs;
 
-  _GraphsPainter(this.offset, this.graphs);
+  _GraphsPainter(this.graphs);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -218,6 +186,6 @@ class _GraphsPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_GraphsPainter oldPainter) {
-    return offset != oldPainter.offset || graphs != oldPainter.graphs;
+    return graphs != oldPainter.graphs;
   }
 }
