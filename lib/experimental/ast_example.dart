@@ -46,13 +46,13 @@ Value queryCellNode() {
   argsTest.children.add(args);
   argsTest.children.add(argsValue);
 
-  Value and = Value();
+  var and = Value();
   and.t = Value_Type.AND;
   and.children.add(codeHashTest);
   and.children.add(hashTypeTest);
   and.children.add(argsTest);
 
-  Value result = Value();
+  var result = Value();
   result.t = Value_Type.QUERY_CELLS;
   result.children.add(and);
   return result;
@@ -84,7 +84,7 @@ Value executionNode(Value queryCellNode) {
   capacities.t = Value_Type.MAP;
   capacities.children.addAll([getCapacity, queryCellNode]);
 
-  Value result = Value();
+  final result = Value();
   result.t = Value_Type.REDUCE;
   result.children.addAll([
     addBalance,
@@ -95,16 +95,16 @@ Value executionNode(Value queryCellNode) {
 }
 
 Root buildRoot(String callName, Value node) {
-  Call call = Call();
+  final call = Call();
   call.name = callName;
   call.result = node;
-  Root result = Root();
+  final result = Root();
   result.calls.add(call);
   return result;
 }
 
 List<int> output() {
-  Root root = buildRoot(
+  final root = buildRoot(
     'balance',
     executionNode(queryCellNode())
   );

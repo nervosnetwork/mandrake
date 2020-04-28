@@ -11,7 +11,7 @@ class _GalaxyState extends State<GalaxyView> {
   final canvasSize = Size(4096, 2160);
   Offset offset = Offset.zero;
 
-  _createBodies() {
+  void _createBodies() {
     setState(() {
       bodies.clear();
 
@@ -37,7 +37,7 @@ class _GalaxyState extends State<GalaxyView> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    var size = MediaQuery.of(context).size;
 
     return Stack(
       children: [

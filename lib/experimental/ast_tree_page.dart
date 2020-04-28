@@ -11,18 +11,23 @@ abstract class AstNode {
 }
 
 class AstRoot extends AstNode {
+  @override
   final String name;
   final Root root;
   AstRoot(this.name, this.root);
 
-  List<AstNode> get children => [AstStreams(root.streams), AstCalls(root.calls)];
+  @override
+  List<AstNode> get children =>
+      [AstStreams(root.streams), AstCalls(root.calls)];
 }
 
 class AstStreams extends AstNode {
   final List<Stream> streams;
   AstStreams(this.streams);
 
+  @override
   String get name => 'streams';
+  @override
   List<AstNode> get children => streams.map((e) => AstStream(e)).toList();
 }
 
@@ -30,7 +35,9 @@ class AstStream extends AstNode {
   final Stream stream;
   AstStream(this.stream);
 
+  @override
   String get name => stream.name;
+  @override
   List<AstNode> get children => [AstValue(stream.filter)];
 }
 
@@ -38,7 +45,9 @@ class AstCalls extends AstNode {
   final List<Call> calls;
   AstCalls(this.calls);
 
+  @override
   String get name => 'calls';
+  @override
   List<AstNode> get children => calls.map((e) => AstCall(e)).toList();
 }
 
@@ -46,7 +55,9 @@ class AstCall extends AstNode {
   final Call call;
   AstCall(this.call);
 
+  @override
   String get name => call.name;
+  @override
   List<AstNode> get children => [AstValue(call.result)];
 }
 
@@ -54,8 +65,9 @@ class AstValue extends AstNode {
   final Value value;
   AstValue(this.value);
 
+  @override
   String get name {
-    String type = value.t.toString();
+    var type = value.t.toString();
     if (value.hasU()) {
       return '$type(${value.u.toString()})';
     }
@@ -67,6 +79,7 @@ class AstValue extends AstNode {
     return type;
   }
 
+  @override
   List<AstNode> get children => value.children.map((e) => AstValue(e)).toList();
 }
 
@@ -196,12 +209,11 @@ class _NodeViewState extends State<NodeView> {
 
   void postFrameCallback(_) {
     const insideVerticalOffset = 15;
-    List<Offset> ends =
-        _childKeys.where((e) => e.currentContext != null).map((e) {
+    var ends = _childKeys.where((e) => e.currentContext != null).map((e) {
       var childContext = e.currentContext;
       var renderedObject = childContext.findRenderObject() as RenderBox;
       var pos = renderedObject.localToGlobal(Offset.zero,
-          ancestor: this.context.findRenderObject());
+          ancestor: context.findRenderObject());
       return Offset(pos.dx + childContext.size.width / 2,
           pos.dy + nodeVerticalMargin + insideVerticalOffset);
     }).toList();
