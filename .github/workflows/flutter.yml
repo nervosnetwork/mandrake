@@ -18,5 +18,7 @@ jobs:
         channel: 'beta'
     - name: Install Dependencies
       run: flutter pub get
+    - name: Lint
+      run: flutter analyze
     - name: Run tests
       run: flutter test
