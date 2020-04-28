@@ -147,7 +147,8 @@ class _DesignCanvasPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     var paint = Paint()
       ..isAntiAlias = true
-      ..strokeWidth = 1;
+      ..strokeWidth = 1
+      ..color = Colors.black;
 
     for (var graph in graphs) {
       canvas.drawCircle(offset + graph.pos, 30, paint);
