@@ -1,7 +1,7 @@
 import 'package:fixnum/fixnum.dart';
 import 'package:convert/convert.dart';
 
-import 'protos/ast.pb.dart';
+import '../protos/ast.pb.dart';
 
 // The [animagus balance](https://github.com/xxuejie/animagus/tree/master/examples/balance) example.
 

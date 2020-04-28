@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'galaxy.dart';
+import 'experimental/galaxy.dart';
 
 void main() {
   runApp(MandrakeApp());

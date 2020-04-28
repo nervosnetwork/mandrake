@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:convert/convert.dart';
 import 'package:flutter/rendering.dart';
 
-import 'protos/ast.pb.dart';
+import '../protos/ast.pb.dart';
 import 'ast_example.dart';
 
 abstract class AstNode {
@@ -78,7 +78,7 @@ class AstTreePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      scrollDirection: Axis.horizontal, // TODO: support vertical scroll.
+      scrollDirection: Axis.horizontal,
       child: Container(
         width: 1800,
         height: 1200,
