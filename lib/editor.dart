@@ -53,16 +53,21 @@ class _DesignEditorState extends State<DesignEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final left = _canvasMargin + canvasOffset.dx;
+    final top = _canvasMargin + canvasOffset.dy;
+    final right = _canvasMargin - canvasOffset.dx;
+    final bottom = _canvasMargin - canvasOffset.dy;
+
     return Stack(
       children: [
         Container(
           color: Colors.grey[400],
         ),
         Positioned(
-          left: _canvasMargin + canvasOffset.dx,
-          top: _canvasMargin + canvasOffset.dy,
-          right: _canvasMargin - canvasOffset.dx,
-          bottom: _canvasMargin - canvasOffset.dy,
+          left: left,
+          top: top,
+          right: right,
+          bottom: bottom,
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -87,10 +92,16 @@ class _DesignEditorState extends State<DesignEditor> {
           onPointerMove: onPointerMove,
           onPointerUp: onPointerUp,
         ),
-        DragTarget<String>(
-          onWillAccept: onDragWillAccept,
-          onAccept: onDragAccept,
-          builder: (context, candidateData, rejectedData) => Container(),
+        Positioned(
+          left: left,
+          top: top,
+          right: right,
+          bottom: bottom,
+          child: DragTarget<String>(
+            onWillAccept: onDragWillAccept,
+            onAccept: onDragAccept,
+            builder: (context, candidateData, rejectedData) => Container(),
+          ),
         ),
       ],
     );
@@ -107,7 +118,8 @@ class _DesignEditorState extends State<DesignEditor> {
     // Note flutter already has a PR to include the offset for onDragAccept.
     Future.delayed(Duration(milliseconds: 20), () {
       final renderBox = context.findRenderObject() as RenderBox;
-      final pos = renderBox.globalToLocal(editorBag.lastDropOffset) - canvasOffset;
+      final pos =
+          renderBox.globalToLocal(editorBag.lastDropOffset) - canvasOffset;
       setState(() {
         graphs.add(Graph(pos));
       });
