@@ -51,97 +51,158 @@ class _DesignEditorState extends State<DesignEditor> {
   Offset canvasOffset = Offset.zero;
   final List<Graph> graphs = [];
 
+  double get _left {
+    return _canvasMargin + canvasOffset.dx;
+  }
+
+  double get _top {
+    return _canvasMargin + canvasOffset.dy;
+  }
+
+  double get _right {
+    return _canvasMargin - canvasOffset.dx;
+  }
+
+  double get _bottom {
+    return _canvasMargin - canvasOffset.dy;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final left = _canvasMargin + canvasOffset.dx;
-    final top = _canvasMargin + canvasOffset.dy;
-    final right = _canvasMargin - canvasOffset.dx;
-    final bottom = _canvasMargin - canvasOffset.dy;
-
     return Stack(
       children: [
         Container(
           color: Colors.grey[400],
         ),
-        Positioned(
-          left: left,
-          top: top,
-          right: right,
-          bottom: bottom,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey,
-                  offset: Offset(0, 2),
-                  blurRadius: 5,
-                ),
-              ],
-            ),
-          ),
-        ),
-        Listener(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: CustomPaint(
-              painter: _DesignCanvasPainter(canvasOffset, graphs),
-              child: Container(),
-            ),
-          ),
-          onPointerMove: onPointerMove,
-          onPointerUp: onPointerUp,
-        ),
-        Positioned(
-          left: left,
-          top: top,
-          right: right,
-          bottom: bottom,
-          child: DragTarget<String>(
-            onWillAccept: onDragWillAccept,
-            onAccept: onDragAccept,
-            builder: (context, candidateData, rejectedData) => Container(),
-          ),
-        ),
+        _canvasLayer(context),
+        _edgesLayer(context),
+        _graphsLayer(context),
+        _dragTargetLayer(context),
       ],
     );
   }
 
-  bool onDragWillAccept(String data) {
-    print('data = $data onWillAccept');
-    return data != null;
+  Widget _canvasLayer(BuildContext context) {
+    return Positioned(
+      left: _left,
+      top: _top,
+      right: _right,
+      bottom: _bottom,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey,
+              offset: Offset(0, 2),
+              blurRadius: 5,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  void onDragAccept(String data) {
-    // Draggable.onDragEnd gets called after DragTarget.onDragAccept. That
-    // doesn't leave us the proper drop position.
-    // Note flutter already has a PR to include the offset for onDragAccept.
-    Future.delayed(Duration(milliseconds: 20), () {
-      final renderBox = context.findRenderObject() as RenderBox;
-      final pos =
-          renderBox.globalToLocal(editorBag.lastDropOffset) - canvasOffset;
-      setState(() {
-        graphs.add(Graph(pos));
-      });
-    });
+  Widget _edgesLayer(BuildContext context) {
+    return Positioned(
+      left: _left,
+      top: _top,
+      right: _right,
+      bottom: _bottom,
+      child: CustomPaint(
+        painter: _EdgesPainter(canvasOffset),
+        child: Container(),
+      ),
+    );
   }
 
-  void onPointerMove(PointerMoveEvent event) {
-    setState(() {
-      canvasOffset += event.delta;
-    });
+  Widget _graphsLayer(BuildContext context) {
+    return Positioned(
+      left: _left,
+      top: _top,
+      right: _right,
+      bottom: _bottom,
+      child: Listener(
+        child: CustomPaint(
+          painter: _GraphsPainter(canvasOffset, graphs),
+          child: Container(),
+        ),
+        onPointerMove: (event) {
+          setState(() {
+            canvasOffset += event.delta;
+          });
+        },
+        onPointerUp: (event) {
+          print('on pointer up');
+        },
+      ),
+    );
   }
 
-  void onPointerUp(PointerUpEvent event) {
-    print('on pointer up');
+  Widget _dragTargetLayer(BuildContext context) {
+    return Positioned(
+      left: _left,
+      top: _top,
+      right: _right,
+      bottom: _bottom,
+      child: DragTarget<String>(
+        onWillAccept: (data) {
+          print('data = $data onWillAccept');
+          return data != null;
+        },
+        onAccept: (data) {
+          // Draggable.onDragEnd gets called after DragTarget.onDragAccept. That
+          // doesn't leave us the proper drop position.
+          // Note flutter already has a PR to include the offset for onDragAccept.
+          Future.delayed(Duration(milliseconds: 20), () {
+            final renderBox = context.findRenderObject() as RenderBox;
+            final pos = renderBox.globalToLocal(editorBag.lastDropOffset) -
+                canvasOffset;
+            setState(() {
+              graphs.add(Graph(pos));
+            });
+          });
+        },
+        builder: (context, candidateData, rejectedData) => Container(),
+      ),
+    );
   }
 }
 
-class _DesignCanvasPainter extends CustomPainter {
+class _EdgesPainter extends CustomPainter {
+  final Offset offset;
+
+  _EdgesPainter(this.offset);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..isAntiAlias = true
+      ..strokeWidth = 1
+      ..color = Colors.black12;
+
+    for (var i = 20; i < size.width; i += 20) {
+      canvas.drawLine(
+          Offset(i.toDouble(), 0), Offset(i.toDouble(), size.height), paint);
+    }
+
+    for (var i = 20; i < size.height; i += 20) {
+      canvas.drawLine(
+          Offset(0, i.toDouble()), Offset(size.width, i.toDouble()), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_EdgesPainter oldPainter) {
+    return offset != oldPainter.offset;
+  }
+}
+
+class _GraphsPainter extends CustomPainter {
   final Offset offset;
   final List<Graph> graphs;
 
-  _DesignCanvasPainter(this.offset, this.graphs);
+  _GraphsPainter(this.offset, this.graphs);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -151,12 +212,12 @@ class _DesignCanvasPainter extends CustomPainter {
       ..color = Colors.black;
 
     for (var graph in graphs) {
-      canvas.drawCircle(offset + graph.pos, 30, paint);
+      canvas.drawCircle(graph.pos, 30, paint);
     }
   }
 
   @override
-  bool shouldRepaint(_DesignCanvasPainter oldPainter) {
+  bool shouldRepaint(_GraphsPainter oldPainter) {
     return offset != oldPainter.offset || graphs != oldPainter.graphs;
   }
 }
