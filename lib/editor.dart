@@ -178,26 +178,3 @@ class _EdgesPainter extends CustomPainter {
   @override
   bool shouldRepaint(_EdgesPainter oldPainter) => false;
 }
-
-class _GraphsPainter extends CustomPainter {
-  final List<Graph> graphs;
-
-  _GraphsPainter(this.graphs);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    var paint = Paint()
-      ..isAntiAlias = true
-      ..strokeWidth = 1
-      ..color = Colors.black;
-
-    for (var graph in graphs) {
-      canvas.drawCircle(graph.pos, 30, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_GraphsPainter oldPainter) {
-    return graphs != oldPainter.graphs;
-  }
-}
