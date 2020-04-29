@@ -23,13 +23,13 @@ class _ObjectPanelState extends State<ObjectPanel> {
               children: [
                 Draggable(
                   child: _TestItem(),
-                  feedback: _TestItem(),
+                  feedback: _FeedbackTestItem(),
                   onDragEnd: onDragEnd,
                   data: '<dragging item>',
                 ),
                 Draggable(
                   child: _TestItem(),
-                  feedback: _TestItem(),
+                  feedback: _FeedbackTestItem(),
                   onDragEnd: onDragEnd,
                   data: '<dragging item>',
                 ),
@@ -51,8 +51,19 @@ class _TestItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Icon(
-      Icons.memory,
+      Icons.tag_faces,
       size: 48,
+    );
+  }
+}
+
+class _FeedbackTestItem extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Icons.tag_faces,
+      size: 48,
+      color: Colors.grey,
     );
   }
 }

@@ -104,12 +104,24 @@ class _DesignEditorState extends State<DesignEditor> {
   }
 
   Widget _graphsLayer(BuildContext context) {
+    final graphObjects = graphs.map((e) {
+      return Positioned(
+        child: Icon(
+          Icons.tag_faces,
+          size: 48,
+          color: Colors.blue,
+        ),
+        left: e.pos.dx,
+        top: e.pos.dy,
+      );
+    }).toList();
     return Listener(
-      child: CustomPaint(
-        painter: _GraphsPainter(graphs),
-        child: Container(),
+      behavior: HitTestBehavior.opaque,
+      child: Stack(
+        children: graphObjects,
       ),
       onPointerMove: (event) {
+        print('on pointer move');
         setState(() {
           canvasOffset += event.delta;
         });
@@ -135,7 +147,7 @@ class _DesignEditorState extends State<DesignEditor> {
           final pos =
               renderBox.globalToLocal(editorBag.lastDropOffset) - canvasOffset;
           setState(() {
-            graphs.add(Graph(pos));
+            graphs.add(Graph(pos - Offset(20, 20)));
           });
         });
       },
