@@ -32,9 +32,6 @@ class _NodeViewState extends State<NodeView> {
         children: [
           GestureDetector(
             onTap: () {
-              setState(() {
-                selection.select(node);
-              });
             },
             child: Icon(
               Icons.tag_faces,

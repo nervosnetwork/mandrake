@@ -8,7 +8,7 @@ import 'node_view.dart';
 
 class Editor extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() =>_EditorState();
+  State<StatefulWidget> createState() => _EditorState();
 }
 
 class _EditorState extends State<Editor> {
@@ -100,28 +100,60 @@ class _DesignEditorState extends State<DesignEditor> {
   }
 
   Widget _graphsLayer(BuildContext context, Selection selection) {
-    final graphObjects = nodes.map((e) {
+    final nodeViews = nodes.map((e) {
       return NodeView(e, selection);
     }).toList();
 
-    return GestureDetector(
+    final hitTest = (Offset point) {
+      for (final nodeView in nodeViews) {
+        final rect = Rect.fromLTWH(
+          nodeView.node.position.dx,
+          nodeView.node.position.dy,
+          48,
+          48,
+        );
+        if (rect.contains(point)) {
+          return nodeView;
+        }
+      }
+      return null;
+    };
+
+    return Listener(
       behavior: HitTestBehavior.opaque,
       child: Stack(
-        children: graphObjects,
+        children: nodeViews,
       ),
-      onPanUpdate: (drag) {
+      onPointerMove: (event) {
+        // TODO: histest and move objects. Note: inner listener cannot stop
+        // upper listener, nested listeners won't work.
+        // On the other side, GestureDetector has a delay which makes dragging
+        // feel unnatural.
         // final selectedNode = selection.selectedNode(nodes);
-        setState(() {
-          canvasOffset += drag.delta;
-        });
+        final nodeView = hitTest(event.localPosition);
+        if (nodeView != null) {
+          setState(() {
+            selection.select(nodeView.node);
+            nodeView.node.position += event.delta;
+          });
+        } else {
+          setState(() {
+            selection.select(null);
+            canvasOffset += event.delta;
+          });
+        }
       },
-      onPanEnd: (drag) {
-        // TODO: clean up
-      },
-      onTap: () {
-        setState(() {
-          selection.select(null);
-        });
+      onPointerDown: (event) {
+        final nodeView = hitTest(event.localPosition);
+        if (nodeView != null) {
+          setState(() {
+            selection.select(nodeView.node);
+          });
+        } else {
+          setState(() {
+            selection.select(null);
+          });
+        }
       },
     );
   }
