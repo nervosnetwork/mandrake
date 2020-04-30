@@ -99,6 +99,9 @@ class _DesignEditorState extends State<DesignEditor> {
     );
   }
 
+  bool _isDragging = false;
+  bool _isDraggingCanvas = false;
+
   Widget _graphsLayer(BuildContext context, Selection selection) {
     final nodeViews = nodes.map((e) {
       return NodeView(e, selection);
@@ -109,11 +112,11 @@ class _DesignEditorState extends State<DesignEditor> {
         final rect = Rect.fromLTWH(
           nodeView.node.position.dx,
           nodeView.node.position.dy,
-          48,
-          48,
+          nodeView.size.width,
+          nodeView.size.height,
         );
         if (rect.contains(point)) {
-          return nodeView;
+          return nodeView.node;
         }
       }
       return null;
@@ -130,30 +133,42 @@ class _DesignEditorState extends State<DesignEditor> {
         // On the other side, GestureDetector has a delay which makes dragging
         // feel unnatural.
         // final selectedNode = selection.selectedNode(nodes);
-        final nodeView = hitTest(event.localPosition);
-        if (nodeView != null) {
+
+        if (!_isDragging) {
+          _isDragging = true;
+          final node = hitTest(event.localPosition);
+          if (node != null) {
+            setState(() {
+              selection.select(node);
+              _isDraggingCanvas = false;
+            });
+          } else {
+            setState(() {
+              selection.select(null);
+              _isDraggingCanvas = true;
+            });
+          }
+        }
+
+        if (_isDraggingCanvas) {
           setState(() {
-            selection.select(nodeView.node);
-            nodeView.node.position += event.delta;
+            canvasOffset += event.delta;
           });
         } else {
           setState(() {
-            selection.select(null);
-            canvasOffset += event.delta;
+            selection.selectedNode(nodes).position += event.delta;
           });
         }
       },
       onPointerDown: (event) {
-        final nodeView = hitTest(event.localPosition);
-        if (nodeView != null) {
-          setState(() {
-            selection.select(nodeView.node);
-          });
-        } else {
-          setState(() {
-            selection.select(null);
-          });
-        }
+        final node = hitTest(event.localPosition);
+        setState(() {
+          selection.select(node);
+        });
+      },
+      onPointerUp: (event) {
+        _isDragging = false;
+        _isDraggingCanvas = false;
       },
     );
   }

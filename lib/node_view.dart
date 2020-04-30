@@ -9,6 +9,8 @@ class NodeView extends StatefulWidget {
 
   NodeView(this.node, this.selection);
 
+  Size get size => Size(48, 48);
+
   @override
   State<StatefulWidget> createState() => _NodeViewState(node, selection);
 }
@@ -17,17 +19,18 @@ class _NodeViewState extends State<NodeView> {
   final Node node;
   final Selection selection;
 
-  bool get isSelected => selection.isNodeSelected(node);
-
   _NodeViewState(this.node, this.selection);
+
+  bool get isSelected => selection.isNodeSelected(node);
+  Size get size => Size(48, 48); // TODO: should calcuate this
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
       left: node.position.dx,
       top: node.position.dy,
-      width: 48,
-      height: 48,
+      width: size.width,
+      height: size.height,
       child: Stack(
         children: [
           GestureDetector(
@@ -35,7 +38,7 @@ class _NodeViewState extends State<NodeView> {
             },
             child: Icon(
               Icons.tag_faces,
-              size: 48,
+              size: size.width,
               color: Colors.pink,
             ),
           ),
