@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'models/graph.dart';
 import 'models/editor_bag.dart';
+import 'models/node.dart';
+import 'models/selection.dart';
 import 'object_panel.dart';
+import 'node_view.dart';
 
 class Editor extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    return _EditorState();
-  }
+  State<StatefulWidget> createState() =>_EditorState();
 }
 
 class _EditorState extends State<Editor> {
@@ -49,12 +49,8 @@ class DesignEditor extends StatefulWidget {
 class _DesignEditorState extends State<DesignEditor> {
   final double _canvasMargin = 20;
   Offset canvasOffset = Offset.zero;
-  final List<Graph> graphs = [];
-
-  double get _left => _canvasMargin + canvasOffset.dx;
-  double get _top => _canvasMargin + canvasOffset.dy;
-  double get _right => _canvasMargin - canvasOffset.dx;
-  double get _bottom => _canvasMargin - canvasOffset.dy;
+  final List<Node> nodes = [];
+  final Selection selection = Selection();
 
   @override
   Widget build(BuildContext context) {
@@ -64,15 +60,15 @@ class _DesignEditorState extends State<DesignEditor> {
           color: Colors.grey[400],
         ),
         Positioned(
-          left: _left,
-          top: _top,
-          right: _right,
-          bottom: _bottom,
+          left: _canvasMargin + canvasOffset.dx,
+          top: _canvasMargin + canvasOffset.dy,
+          right: _canvasMargin - canvasOffset.dx,
+          bottom: _canvasMargin - canvasOffset.dy,
           child: Stack(
             children: [
               _canvasLayer(context),
               _edgesLayer(context),
-              _graphsLayer(context),
+              _graphsLayer(context, selection),
               _dragTargetLayer(context),
             ],
           ),
@@ -103,31 +99,29 @@ class _DesignEditorState extends State<DesignEditor> {
     );
   }
 
-  Widget _graphsLayer(BuildContext context) {
-    final graphObjects = graphs.map((e) {
-      return Positioned(
-        child: Icon(
-          Icons.tag_faces,
-          size: 48,
-          color: Colors.blue,
-        ),
-        left: e.pos.dx,
-        top: e.pos.dy,
-      );
+  Widget _graphsLayer(BuildContext context, Selection selection) {
+    final graphObjects = nodes.map((e) {
+      return NodeView(e, selection);
     }).toList();
-    return Listener(
+
+    return GestureDetector(
       behavior: HitTestBehavior.opaque,
       child: Stack(
         children: graphObjects,
       ),
-      onPointerMove: (event) {
-        print('on pointer move');
+      onPanUpdate: (drag) {
+        // final selectedNode = selection.selectedNode(nodes);
         setState(() {
-          canvasOffset += event.delta;
+          canvasOffset += drag.delta;
         });
       },
-      onPointerUp: (event) {
-        print('on pointer up');
+      onPanEnd: (drag) {
+        // TODO: clean up
+      },
+      onTap: () {
+        setState(() {
+          selection.select(null);
+        });
       },
     );
   }
@@ -144,10 +138,11 @@ class _DesignEditorState extends State<DesignEditor> {
         // Note flutter already has a PR to include the offset for onDragAccept.
         Future.delayed(Duration(milliseconds: 20), () {
           final renderBox = context.findRenderObject() as RenderBox;
-          final pos =
-              renderBox.globalToLocal(editorBag.lastDropOffset) - canvasOffset;
+          final dropPos = renderBox.globalToLocal(editorBag.lastDropOffset);
           setState(() {
-            graphs.add(Graph(pos - Offset(20, 20)));
+            final node = Node(dropPos - canvasOffset - Offset(20, 20));
+            nodes.add(node);
+            selection.select(node);
           });
         });
       },
