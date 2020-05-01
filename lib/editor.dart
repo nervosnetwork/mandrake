@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-import 'models/editor_bag.dart';
 import 'models/node.dart';
 import 'models/selection.dart';
 import 'object_panel.dart';
@@ -221,22 +220,15 @@ class _DesignEditorState extends State<DesignEditor> {
         print('data = $data onWillAccept');
         return data != null;
       },
-      onAccept: (data) {
-        // Draggable.onDragEnd gets called after DragTarget.onDragAccept. That
-        // doesn't leave us the proper drop position.
-        // Note flutter already has a PR to include the offset for onDragAccept.
-        Future.delayed(Duration(milliseconds: 20), () {
-          final renderBox = context.findRenderObject() as RenderBox;
-          final dropPos = renderBox.globalToLocal(editorBag.lastDropOffset);
-          setState(() {
-            final pos = (dropPos -
-                    Offset(_canvasMargin, _canvasMargin) -
-                    canvasOffset) /
-                zoomScale;
-            final node = Node(pos);
-            nodes.add(node);
-            selection.select(node);
-          });
+      onAcceptWithDetails: (details) {
+        final renderBox = context.findRenderObject() as RenderBox;
+        final dropPos = renderBox.globalToLocal(details.offset);
+        final canvasMargin = Offset(_canvasMargin, _canvasMargin);
+        final pos = (dropPos - canvasMargin - canvasOffset) / zoomScale;
+        setState(() {
+          final node = Node(pos);
+          nodes.add(node);
+          selection.select(node);
         });
       },
       builder: (context, candidateData, rejectedData) => Container(),

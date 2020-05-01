@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'models/editor_bag.dart';
-
 class ObjectPanel extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _ObjectPanelState();
@@ -22,13 +20,11 @@ class _ObjectPanelState extends State<ObjectPanel> {
                 Draggable(
                   child: _NodeTemplate(),
                   feedback: _DragFeedbackObject(),
-                  onDragEnd: onDragEnd,
                   data: '<dragging item>',
                 ),
                 Draggable(
                   child: _NodeTemplate(),
                   feedback: _DragFeedbackObject(),
-                  onDragEnd: onDragEnd,
                   data: '<dragging item>',
                 ),
               ],
@@ -36,12 +32,6 @@ class _ObjectPanelState extends State<ObjectPanel> {
         ],
       ),
     );
-  }
-
-  void onDragEnd(DraggableDetails drag) {
-    if (drag.wasAccepted) {
-      editorBag.lastDropOffset = drag.offset;
-    }
   }
 }
 
