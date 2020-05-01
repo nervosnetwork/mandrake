@@ -4,9 +4,7 @@ import 'models/editor_bag.dart';
 
 class ObjectPanel extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    return _ObjectPanelState();
-  }
+  State<StatefulWidget> createState() => _ObjectPanelState();
 }
 
 class _ObjectPanelState extends State<ObjectPanel> {
@@ -22,14 +20,14 @@ class _ObjectPanelState extends State<ObjectPanel> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Draggable(
-                  child: _TestItem(),
-                  feedback: _FeedbackTestItem(),
+                  child: _NodeTemplate(),
+                  feedback: _DragFeedbackObject(),
                   onDragEnd: onDragEnd,
                   data: '<dragging item>',
                 ),
                 Draggable(
-                  child: _TestItem(),
-                  feedback: _FeedbackTestItem(),
+                  child: _NodeTemplate(),
+                  feedback: _DragFeedbackObject(),
                   onDragEnd: onDragEnd,
                   data: '<dragging item>',
                 ),
@@ -47,23 +45,28 @@ class _ObjectPanelState extends State<ObjectPanel> {
   }
 }
 
-class _TestItem extends StatelessWidget {
+class _NodeTemplate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      Icons.tag_faces,
-      size: 48,
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(width: 1, color: Colors.black),
+      ),
+      width: 80,
+      height: 40,
     );
   }
 }
 
-class _FeedbackTestItem extends StatelessWidget {
+class _DragFeedbackObject extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      Icons.tag_faces,
-      size: 48,
-      color: Colors.grey,
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(width: 1, color: Colors.black),
+      ),
+      width: 80,
+      height: 40,
     );
   }
 }

@@ -108,7 +108,7 @@ class _DesignEditorState extends State<DesignEditor> {
     }).toList();
 
     final hitTest = (Offset point) {
-      for (final nodeView in nodeViews) {
+      for (final nodeView in nodeViews.reversed) {
         final rect = Rect.fromLTWH(
           nodeView.node.position.dx,
           nodeView.node.position.dy,
@@ -187,7 +187,7 @@ class _DesignEditorState extends State<DesignEditor> {
           final renderBox = context.findRenderObject() as RenderBox;
           final dropPos = renderBox.globalToLocal(editorBag.lastDropOffset);
           setState(() {
-            final node = Node(dropPos - canvasOffset - Offset(20, 20));
+            final node = Node(dropPos - canvasOffset - Offset(_canvasMargin, _canvasMargin));
             nodes.add(node);
             selection.select(node);
           });

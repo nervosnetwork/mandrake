@@ -9,7 +9,7 @@ class NodeView extends StatefulWidget {
 
   NodeView(this.node, this.selection);
 
-  Size get size => Size(48, 48);
+  Size get size => Size(120, 200);
 
   @override
   State<StatefulWidget> createState() => _NodeViewState(node, selection);
@@ -22,7 +22,7 @@ class _NodeViewState extends State<NodeView> {
   _NodeViewState(this.node, this.selection);
 
   bool get isSelected => selection.isNodeSelected(node);
-  Size get size => Size(48, 48); // TODO: should calcuate this
+  Size get size => Size(120, 200); // TODO: should calculate this
 
   @override
   Widget build(BuildContext context) {
@@ -33,20 +33,36 @@ class _NodeViewState extends State<NodeView> {
       height: size.height,
       child: Stack(
         children: [
+          Container(
+            color: Colors.grey[300],
+          ),
+          Container(
+            height: 30,
+            width: double.infinity,
+            color: Colors.green,
+            child: Center(
+              child: Text(
+                "I'm a node",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
           GestureDetector(
-            onTap: () {
-            },
-            child: Icon(
-              Icons.tag_faces,
-              size: size.width,
-              color: Colors.pink,
+            onTap: () {},
+            child: Container(),
+          ),
+          IgnorePointer(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(width: 1, color: Colors.black54),
+              ),
             ),
           ),
           if (isSelected)
             IgnorePointer(
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(width: 1, color: Colors.blue[800]),
+                  border: Border.all(width: 2, color: Colors.blue[800]),
                 ),
               ),
             )
