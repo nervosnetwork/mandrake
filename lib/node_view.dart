@@ -39,7 +39,7 @@ class _NodeViewState extends State<NodeView> {
           Container(
             height: 30,
             width: double.infinity,
-            color: Colors.green,
+            color: Colors.purple[300],
             child: Center(
               child: Text(
                 "I'm a node",
@@ -54,7 +54,7 @@ class _NodeViewState extends State<NodeView> {
           IgnorePointer(
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(width: 1, color: Colors.black54),
+                border: Border.all(width: 1, color: Colors.grey),
               ),
             ),
           ),
@@ -62,7 +62,7 @@ class _NodeViewState extends State<NodeView> {
             IgnorePointer(
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(width: 2, color: Colors.blue[800]),
+                  border: Border.all(width: 2, color: Colors.blue[700]),
                 ),
               ),
             )

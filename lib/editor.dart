@@ -250,7 +250,7 @@ class _CanvasGridPainter extends CustomPainter {
     var paint = Paint()
       ..isAntiAlias = true
       ..strokeWidth = 1
-      ..color = Colors.black12;
+      ..color = Color(0xFFE3F2FD);
 
     for (var i = 20; i < size.width; i += 20) {
       canvas.drawLine(
