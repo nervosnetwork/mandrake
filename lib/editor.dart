@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'models/editor_bag.dart';
@@ -47,10 +48,12 @@ class DesignEditor extends StatefulWidget {
 }
 
 class _DesignEditorState extends State<DesignEditor> {
-  final double _canvasMargin = 20;
-  Offset canvasOffset = Offset.zero;
   final List<Node> nodes = [];
   final Selection selection = Selection();
+
+  final double _canvasMargin = 20;
+  Offset canvasOffset = Offset.zero;
+  double zoomScale = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -60,16 +63,53 @@ class _DesignEditorState extends State<DesignEditor> {
           color: Colors.grey[400],
         ),
         Positioned(
-          left: _canvasMargin + canvasOffset.dx,
-          top: _canvasMargin + canvasOffset.dy,
-          right: _canvasMargin - canvasOffset.dx,
-          bottom: _canvasMargin - canvasOffset.dy,
-          child: Stack(
+          left: _canvasMargin,
+          top: _canvasMargin,
+          right: _canvasMargin,
+          bottom: _canvasMargin,
+          child: Transform(
+            transform: Matrix4.translationValues(
+              canvasOffset.dx,
+              canvasOffset.dy,
+              0,
+            )..scale(zoomScale, zoomScale, 1),
+            child: Stack(
+              children: [
+                _canvasLayer(context),
+                _edgesLayer(context),
+                _graphsLayer(context, selection),
+                _dragTargetLayer(context),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: _canvasMargin,
+          right: _canvasMargin,
+          height: 40,
+          child: Row(
             children: [
-              _canvasLayer(context),
-              _edgesLayer(context),
-              _graphsLayer(context, selection),
-              _dragTargetLayer(context),
+              Text('${(zoomScale * 100).toInt()}%'),
+              IconButton(
+                icon: Icon(Icons.zoom_out),
+                onPressed: zoomScale > 0.2
+                    ? () => {
+                          setState(() {
+                            zoomScale = max(0.2, zoomScale - 0.2);
+                          })
+                        }
+                    : null,
+              ),
+              IconButton(
+                icon: Icon(Icons.zoom_in),
+                onPressed: zoomScale < 2
+                    ? () => {
+                          setState(() {
+                            zoomScale = min(2, zoomScale + 0.2);
+                          })
+                        }
+                    : null,
+              ),
             ],
           ),
         ),
@@ -158,7 +198,7 @@ class _DesignEditorState extends State<DesignEditor> {
           });
         } else {
           setState(() {
-            selection.selectedNode(nodes).position += event.delta;
+            selection.selectedNode(nodes).position += event.delta / zoomScale;
           });
         }
       },
@@ -189,8 +229,11 @@ class _DesignEditorState extends State<DesignEditor> {
           final renderBox = context.findRenderObject() as RenderBox;
           final dropPos = renderBox.globalToLocal(editorBag.lastDropOffset);
           setState(() {
-            final node = Node(
-                dropPos - canvasOffset - Offset(_canvasMargin, _canvasMargin));
+            final pos = (dropPos -
+                    Offset(_canvasMargin, _canvasMargin) -
+                    canvasOffset) /
+                zoomScale;
+            final node = Node(pos);
             nodes.add(node);
             selection.select(node);
           });

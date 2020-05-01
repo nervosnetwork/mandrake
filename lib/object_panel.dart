@@ -11,7 +11,7 @@ class _ObjectPanelState extends State<ObjectPanel> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white30,
+      color: Colors.white,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
