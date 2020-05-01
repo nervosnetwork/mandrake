@@ -89,12 +89,16 @@ class _DesignEditorState extends State<DesignEditor> {
           ),
         ],
       ),
+      child: CustomPaint(
+        painter: _CanvasGridPainter(),
+        child: Container(),
+      ),
     );
   }
 
   Widget _edgesLayer(BuildContext context) {
     return CustomPaint(
-      painter: _EdgesPainter(),
+      painter: _EdgesPainter(nodes),
       child: Container(),
     );
   }
@@ -128,12 +132,10 @@ class _DesignEditorState extends State<DesignEditor> {
         children: nodeViews,
       ),
       onPointerMove: (event) {
-        // TODO: histest and move objects. Note: inner listener cannot stop
-        // upper listener, nested listeners won't work.
+        // HisTest and move objects. Note: inner listener cannot stop  outer
+        // listener; nested listeners won't work.
         // On the other side, GestureDetector has a delay which makes dragging
         // feel unnatural.
-        // final selectedNode = selection.selectedNode(nodes);
-
         if (!_isDragging) {
           _isDragging = true;
           final node = hitTest(event.localPosition);
@@ -187,7 +189,8 @@ class _DesignEditorState extends State<DesignEditor> {
           final renderBox = context.findRenderObject() as RenderBox;
           final dropPos = renderBox.globalToLocal(editorBag.lastDropOffset);
           setState(() {
-            final node = Node(dropPos - canvasOffset - Offset(_canvasMargin, _canvasMargin));
+            final node = Node(
+                dropPos - canvasOffset - Offset(_canvasMargin, _canvasMargin));
             nodes.add(node);
             selection.select(node);
           });
@@ -198,7 +201,7 @@ class _DesignEditorState extends State<DesignEditor> {
   }
 }
 
-class _EdgesPainter extends CustomPainter {
+class _CanvasGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint()
@@ -208,12 +211,43 @@ class _EdgesPainter extends CustomPainter {
 
     for (var i = 20; i < size.width; i += 20) {
       canvas.drawLine(
-          Offset(i.toDouble(), 0), Offset(i.toDouble(), size.height), paint);
+        Offset(i.toDouble(), 0),
+        Offset(i.toDouble(), size.height),
+        paint,
+      );
     }
 
     for (var i = 20; i < size.height; i += 20) {
       canvas.drawLine(
-          Offset(0, i.toDouble()), Offset(size.width, i.toDouble()), paint);
+        Offset(0, i.toDouble()),
+        Offset(size.width, i.toDouble()),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_CanvasGridPainter oldPainter) => false;
+}
+
+class _EdgesPainter extends CustomPainter {
+  List<Node> nodes;
+  _EdgesPainter(this.nodes);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..isAntiAlias = true
+      ..strokeWidth = 1
+      ..color = Colors.purple;
+
+    // Draw a test edge between the first two nodes.
+    if (nodes.length > 1) {
+      canvas.drawLine(
+        nodes[0].position + Offset(30, 180),
+        nodes[1].position + Offset(0, 20),
+        paint,
+      );
     }
   }
 
