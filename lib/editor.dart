@@ -89,7 +89,7 @@ class _DesignEditorState extends State<DesignEditor> {
           height: 40,
           child: Row(
             children: [
-              Text('${(zoomScale * 100).toInt()}%'),
+              Text('${(zoomScale * 100).round().toInt()}%'),
               IconButton(
                 icon: Icon(Icons.zoom_out),
                 onPressed: zoomScale > 0.2
