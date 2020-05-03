@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ObjectPanel extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _ObjectPanelState();
+  _ObjectPanelState createState() => _ObjectPanelState();
 }
 
 class _ObjectPanelState extends State<ObjectPanel> {

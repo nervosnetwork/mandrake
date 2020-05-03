@@ -12,23 +12,18 @@ class NodeView extends StatefulWidget {
   Size get size => Size(120, 200);
 
   @override
-  State<StatefulWidget> createState() => _NodeViewState(node, selection);
+  _NodeViewState createState() => _NodeViewState();
 }
 
 class _NodeViewState extends State<NodeView> {
-  final Node node;
-  final Selection selection;
-
-  _NodeViewState(this.node, this.selection);
-
-  bool get isSelected => selection.isNodeSelected(node);
+  bool get isSelected => widget.selection.isNodeSelected(widget.node);
   Size get size => Size(120, 200); // TODO: should calculate this
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: node.position.dx,
-      top: node.position.dy,
+      left: widget.node.position.dx,
+      top: widget.node.position.dy,
       width: size.width,
       height: size.height,
       child: Stack(

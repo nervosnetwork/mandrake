@@ -8,7 +8,7 @@ import 'node_view.dart';
 
 class Editor extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _EditorState();
+  _EditorState createState() => _EditorState();
 }
 
 class _EditorState extends State<Editor> {
@@ -41,9 +41,7 @@ class _EditorState extends State<Editor> {
 
 class DesignEditor extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    return _DesignEditorState();
-  }
+  _DesignEditorState createState() => _DesignEditorState();
 }
 
 class _DesignEditorState extends State<DesignEditor> {
@@ -76,7 +74,7 @@ class _DesignEditorState extends State<DesignEditor> {
               children: [
                 _canvasLayer(context),
                 _edgesLayer(context),
-                _graphsLayer(context, selection),
+                _graphsLayer(context),
                 _dragTargetLayer(context),
               ],
             ),
@@ -145,7 +143,7 @@ class _DesignEditorState extends State<DesignEditor> {
   bool _isDragging = false;
   bool _isDraggingCanvas = false;
 
-  Widget _graphsLayer(BuildContext context, Selection selection) {
+  Widget _graphsLayer(BuildContext context) {
     final nodeViews = nodes.map((e) {
       return NodeView(e, selection);
     }).toList();
