@@ -271,16 +271,29 @@ class _EdgesPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     var paint = Paint()
       ..isAntiAlias = true
-      ..strokeWidth = 1
-      ..color = Colors.purple;
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke
+      ..color = Colors.green;
 
-    // Draw a test edge between the first two nodes.
-    if (nodes.length > 1) {
-      canvas.drawLine(
-        nodes[0].position + Offset(30, 180),
-        nodes[1].position + Offset(0, 20),
-        paint,
+    // Draw a test edge between every two nodes.
+    for (var i = 0; i < nodes.length - 1; i++) {
+      final path = Path();
+      final start = nodes[i].position + Offset(120, 15);
+      final end = nodes[i + 1].position + Offset(0, 15);
+      final distance = (end - start).distance;
+      final offset = distance * 0.25;
+
+      path.moveTo(start.dx, start.dy);
+      path.cubicTo(
+        start.dx + offset,// (end.dx > start.dx ? offset : -offset),
+        start.dy,// + (end.dy > start.dy ? offset : -offset),
+        end.dx - offset, //(end.dx > start.dx ? offset : -offset),
+        end.dy,// - (end.dy > start.dy ? offset : -offset),
+        end.dx,
+        end.dy,
       );
+
+      canvas.drawPath(path, paint);
     }
   }
 
