@@ -287,10 +287,10 @@ class _EdgesPainter extends CustomPainter {
 
       path.moveTo(start.dx, start.dy);
       path.cubicTo(
-        start.dx + offset,// (end.dx > start.dx ? offset : -offset),
-        start.dy,// + (end.dy > start.dy ? offset : -offset),
+        start.dx + offset, // (end.dx > start.dx ? offset : -offset),
+        start.dy, // + (end.dy > start.dy ? offset : -offset),
         end.dx - offset, //(end.dx > start.dx ? offset : -offset),
-        end.dy,// - (end.dy > start.dy ? offset : -offset),
+        end.dy, // - (end.dy > start.dy ? offset : -offset),
         end.dx,
         end.dy,
       );
