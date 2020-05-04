@@ -269,6 +269,8 @@ class _EdgesPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+
     var paint = Paint()
       ..isAntiAlias = true
       ..strokeWidth = 2
