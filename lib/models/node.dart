@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'dart:ui' show Offset;
 import 'package:uuid/uuid.dart';
 
 class Node {

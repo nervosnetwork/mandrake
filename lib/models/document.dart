@@ -1,5 +1,6 @@
 import 'dart:collection';
-import 'package:flutter/material.dart';
+import 'dart:ui' show Offset;
+import 'package:flutter/foundation.dart';
 
 import 'node.dart';
 
@@ -14,6 +15,7 @@ class Document extends ChangeNotifier {
   }
 
   void moveNodePosition(Node node, Offset offset) {
+    assert(nodes.contains(node));
     node.position += offset;
     notifyListeners();
   }

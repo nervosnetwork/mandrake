@@ -5,7 +5,7 @@ import 'node.dart';
 class Selection extends ChangeNotifier {
   String _selectedNodeId;
 
-  bool isNodeSelected(Node node) => _selectedNodeId == node.id;
+  bool isNodeSelected(Node node) => node != null && _selectedNodeId == node.id;
   Node selectedNode(List<Node> nodes) {
     return nodes.firstWhere((node) => isNodeSelected(node), orElse: () => null);
   }
