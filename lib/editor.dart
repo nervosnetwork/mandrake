@@ -4,14 +4,16 @@ import 'package:provider/provider.dart';
 
 import 'models/document.dart';
 import 'models/selection.dart';
-import 'models/node.dart';
+
 import 'object_panel.dart';
+import 'editor_views/canvas_layer.dart';
+import 'editor_views/edges_layer.dart';
+import 'editor_views/drag_target_layer.dart';
 import 'node_views/node_view.dart';
 
-const double _objectPanelWidth = 240;
-const double _canvasMargin = 20;
-
 class Editor extends StatelessWidget {
+  final double _objectPanelWidth = 240;
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (buildContext, constraints) {
@@ -46,6 +48,7 @@ class _DesignEditorState extends State<DesignEditor> {
   Offset canvasOffset = Offset.zero;
   double zoomScale = 1;
 
+  final double _canvasMargin = 20;
   bool _isDragging = false;
   bool _isDraggingCanvas = false;
 
@@ -74,10 +77,10 @@ class _DesignEditorState extends State<DesignEditor> {
               )..scale(zoomScale, zoomScale, 1),
               child: Stack(
                 children: [
-                  _CanvasLayer(),
-                  _EdgesLayer(),
+                  CanvasLayer(),
+                  EdgesLayer(),
                   _graphsLayer(context),
-                  _DragTargetLayer(),
+                  DragTargetLayer(),
                 ],
               ),
             ),
@@ -184,148 +187,42 @@ class _DesignEditorState extends State<DesignEditor> {
     return Positioned(
       bottom: _canvasMargin,
       right: _canvasMargin,
-      height: 40,
-      child: Row(
+      width: 36,
+      child: Column(
         children: [
-          Text('${(zoomScale * 100).round().toInt()}%'),
-          IconButton(
-            icon: Icon(Icons.zoom_out),
-            onPressed: zoomOutPressed(),
+          Text(
+            '${(zoomScale * 100).round().toInt()}%',
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 12,
+            ),
           ),
-          IconButton(
-            icon: Icon(Icons.zoom_in),
-            onPressed: zoomInPressed(),
+          SizedBox(height: 4),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Column(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.zoom_in),
+                  onPressed: zoomInPressed(),
+                ),
+                Divider(
+                  indent: 4,
+                  endIndent: 4,
+                  height: 1,
+                ),
+                IconButton(
+                  icon: Icon(Icons.zoom_out),
+                  onPressed: zoomOutPressed(),
+                ),
+              ],
+            ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _CanvasLayer extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey,
-            offset: Offset(0, 2),
-            blurRadius: 5,
-          ),
-        ],
-      ),
-      child: CustomPaint(
-        painter: _CanvasGridPainter(),
-        child: Container(),
-      ),
-    );
-  }
-}
-
-class _CanvasGridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    var paint = Paint()
-      ..isAntiAlias = true
-      ..strokeWidth = 1
-      ..color = Color(0xFFE3F2FD);
-
-    for (var i = 20; i < size.width; i += 20) {
-      canvas.drawLine(
-        Offset(i.toDouble(), 0),
-        Offset(i.toDouble(), size.height),
-        paint,
-      );
-    }
-
-    for (var i = 20; i < size.height; i += 20) {
-      canvas.drawLine(
-        Offset(0, i.toDouble()),
-        Offset(size.width, i.toDouble()),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_CanvasGridPainter oldPainter) => false;
-}
-
-class _EdgesLayer extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<Document>(builder: (context, document, child) {
-      return CustomPaint(
-        painter: _EdgesPainter(document.nodes),
-        child: Container(),
-      );
-    });
-  }
-}
-
-class _EdgesPainter extends CustomPainter {
-  List<Node> nodes;
-  _EdgesPainter(this.nodes);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
-
-    var paint = Paint()
-      ..isAntiAlias = true
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke
-      ..color = Colors.green;
-
-    // Draw a test edge between every two nodes.
-    for (var i = 0; i < nodes.length - 1; i++) {
-      final path = Path();
-      final start = nodes[i].position + Offset(120, 15);
-      final end = nodes[i + 1].position + Offset(0, 15);
-      final distance = (end - start).distance;
-      final offset = distance * 0.25;
-
-      path.moveTo(start.dx, start.dy);
-      path.cubicTo(
-        start.dx + offset, // (end.dx > start.dx ? offset : -offset),
-        start.dy, // + (end.dy > start.dy ? offset : -offset),
-        end.dx - offset, //(end.dx > start.dx ? offset : -offset),
-        end.dy, // - (end.dy > start.dy ? offset : -offset),
-        end.dx,
-        end.dy,
-      );
-
-      canvas.drawPath(path, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_EdgesPainter oldPainter) => false;
-}
-
-class _DragTargetLayer extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer2<Document, Selection>(
-      builder: (_, document, selection, child) {
-        return DragTarget<String>(
-          onWillAccept: (data) {
-            print('data = $data onWillAccept');
-            return data != null;
-          },
-          onAcceptWithDetails: (details) {
-            final renderBox = context.findRenderObject() as RenderBox;
-            final pos = renderBox.globalToLocal(details.offset);
-
-            final node = Node(pos);
-            document.addNode(node);
-            selection.select(node);
-          },
-          builder: (context, candidateData, rejectedData) => Container(),
-        );
-      },
     );
   }
 }
