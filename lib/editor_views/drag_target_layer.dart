@@ -8,24 +8,23 @@ import '../models/node.dart';
 class DragTargetLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer2<Document, Selection>(
-      builder: (_, document, selection, child) {
-        return DragTarget<String>(
-          onWillAccept: (data) {
-            print('data = $data onWillAccept');
-            return data != null;
-          },
-          onAcceptWithDetails: (details) {
-            final renderBox = context.findRenderObject() as RenderBox;
-            final pos = renderBox.globalToLocal(details.offset);
+    final document = Provider.of<Document>(context, listen: false);
+    final selection = Provider.of<Selection>(context, listen: false);
 
-            final node = Node(pos);
-            document.addNode(node);
-            selection.select(node);
-          },
-          builder: (context, candidateData, rejectedData) => Container(),
-        );
+    return DragTarget<String>(
+      onWillAccept: (data) {
+        print('data = $data onWillAccept');
+        return data != null;
       },
+      onAcceptWithDetails: (details) {
+        final renderBox = context.findRenderObject() as RenderBox;
+        final pos = renderBox.globalToLocal(details.offset);
+
+        final node = Node(pos);
+        document.addNode(node);
+        selection.select(node);
+      },
+      builder: (context, candidateData, rejectedData) => Container(),
     );
   }
 }

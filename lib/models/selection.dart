@@ -11,7 +11,9 @@ class Selection extends ChangeNotifier {
   }
 
   void select(Node node) {
-    _selectedNodeId = node?.id;
-    notifyListeners();
+    if (_selectedNodeId != node?.id) {
+      _selectedNodeId = node?.id;
+      notifyListeners();
+    }
   }
 }
