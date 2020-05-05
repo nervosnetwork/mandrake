@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'package:flutter/material.dart';
 
 import 'node.dart';
@@ -5,7 +6,7 @@ import 'node.dart';
 class Document extends ChangeNotifier {
   final List<Node> _nodes = [];
 
-  List<Node> get nodes => _nodes;
+  UnmodifiableListView<Node> get nodes => UnmodifiableListView(_nodes);
 
   void addNode(Node node) {
     _nodes.add(node);
