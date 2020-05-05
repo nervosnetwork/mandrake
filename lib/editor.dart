@@ -1,19 +1,17 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import 'models/node.dart';
+import 'models/document.dart';
 import 'models/selection.dart';
+import 'models/node.dart';
 import 'object_panel.dart';
-import 'node_view.dart';
+import 'node_views/node_view.dart';
 
-class Editor extends StatefulWidget {
-  @override
-  _EditorState createState() => _EditorState();
-}
+const double _objectPanelWidth = 240;
+const double _canvasMargin = 20;
 
-class _EditorState extends State<Editor> {
-  final double objectPanelWidth = 240;
-
+class Editor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (buildContext, constraints) {
@@ -21,7 +19,7 @@ class _EditorState extends State<Editor> {
         children: [
           Positioned(
             top: 0,
-            left: objectPanelWidth,
+            left: _objectPanelWidth,
             right: 0,
             bottom: 0,
             child: DesignEditor(),
@@ -29,7 +27,7 @@ class _EditorState extends State<Editor> {
           Positioned(
             top: 0,
             left: 0,
-            right: constraints.maxWidth - objectPanelWidth,
+            right: constraints.maxWidth - _objectPanelWidth,
             bottom: 0,
             child: ObjectPanel(),
           ),
@@ -45,76 +43,168 @@ class DesignEditor extends StatefulWidget {
 }
 
 class _DesignEditorState extends State<DesignEditor> {
-  final List<Node> nodes = [];
-  final Selection selection = Selection();
-
-  final double _canvasMargin = 20;
   Offset canvasOffset = Offset.zero;
   double zoomScale = 1;
 
+  bool _isDragging = false;
+  bool _isDraggingCanvas = false;
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          color: Colors.grey[400],
-        ),
-        Positioned(
-          left: _canvasMargin,
-          top: _canvasMargin,
-          right: _canvasMargin,
-          bottom: _canvasMargin,
-          child: Transform(
-            transform: Matrix4.translationValues(
-              canvasOffset.dx,
-              canvasOffset.dy,
-              0,
-            )..scale(zoomScale, zoomScale, 1),
-            child: Stack(
-              children: [
-                _canvasLayer(context),
-                _edgesLayer(context),
-                _graphsLayer(context),
-                _dragTargetLayer(context),
-              ],
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<Document>(create: (_) => Document()),
+        ChangeNotifierProvider<Selection>(create: (_) => Selection()),
+      ],
+      child: Stack(
+        children: [
+          Container(
+            color: Colors.grey[400],
+          ),
+          Positioned(
+            left: _canvasMargin,
+            top: _canvasMargin,
+            right: _canvasMargin,
+            bottom: _canvasMargin,
+            child: Transform(
+              transform: Matrix4.translationValues(
+                canvasOffset.dx,
+                canvasOffset.dy,
+                0,
+              )..scale(zoomScale, zoomScale, 1),
+              child: Stack(
+                children: [
+                  _CanvasLayer(),
+                  _EdgesLayer(),
+                  _graphsLayer(context),
+                  _DragTargetLayer(),
+                ],
+              ),
             ),
           ),
-        ),
-        Positioned(
-          bottom: _canvasMargin,
-          right: _canvasMargin,
-          height: 40,
-          child: Row(
-            children: [
-              Text('${(zoomScale * 100).round().toInt()}%'),
-              IconButton(
-                icon: Icon(Icons.zoom_out),
-                onPressed: zoomScale > 0.2
-                    ? () => {
-                          setState(() {
-                            zoomScale = max(0.2, zoomScale - 0.2);
-                          })
-                        }
-                    : null,
-              ),
-              IconButton(
-                icon: Icon(Icons.zoom_in),
-                onPressed: zoomScale < 2
-                    ? () => {
-                          setState(() {
-                            zoomScale = min(2, zoomScale + 0.2);
-                          })
-                        }
-                    : null,
-              ),
-            ],
-          ),
-        ),
-      ],
+          _zoomControls(),
+        ],
+      ),
     );
   }
 
-  Widget _canvasLayer(BuildContext context) {
+  Widget _graphsLayer(BuildContext context) {
+    return Consumer2<Document, Selection>(builder: (context, document, selection, child) {
+      final nodeViews = document.nodes.map((e) {
+        return NodeView(e, selection);
+      }).toList();
+
+      final hitTest = (Offset point) {
+        for (final nodeView in nodeViews.reversed) {
+          final rect = Rect.fromLTWH(
+            nodeView.node.position.dx,
+            nodeView.node.position.dy,
+            nodeView.size.width,
+            nodeView.size.height,
+          );
+          if (rect.contains(point)) {
+            return nodeView.node;
+          }
+        }
+        return null;
+      };
+
+      return Listener(
+        behavior: HitTestBehavior.opaque,
+        child: Stack(
+          children: nodeViews,
+        ),
+        onPointerMove: (event) {
+          // HisTest and move objects. Note: inner listener cannot stop  outer
+          // listener; nested listeners won't work.
+          // On the other side, GestureDetector has a delay which makes dragging
+          // feel unnatural.
+          if (!_isDragging) {
+            _isDragging = true;
+            final node = hitTest(event.localPosition);
+            if (node != null) {
+              selection.select(node);
+              setState(() {
+                _isDraggingCanvas = false;
+              });
+            } else {
+              selection.select(null);
+              setState(() {
+                _isDraggingCanvas = true;
+              });
+            }
+          }
+
+          if (_isDraggingCanvas) {
+            setState(() {
+              canvasOffset += event.delta;
+            });
+          } else {
+            document.moveNodePosition(
+              selection.selectedNode(document.nodes),
+              event.delta / zoomScale,
+            );
+          }
+        },
+        onPointerDown: (event) {
+          final node = hitTest(event.localPosition);
+          selection.select(node);
+        },
+        onPointerUp: (event) {
+          _isDragging = false;
+          _isDraggingCanvas = false;
+        },
+      );
+    });
+  }
+
+  Widget _zoomControls() {
+    Function zoomOutPressed() {
+      if ((zoomScale * 100).round() <= 20) {
+        return null;
+      }
+      return () => {
+            setState(() {
+              zoomScale = max(0.2, zoomScale - 0.2);
+            })
+          };
+    }
+
+    Function zoomInPressed() {
+      if ((zoomScale * 100).round() >= 200) {
+        return null;
+      }
+      return () => {
+            setState(() {
+              zoomScale = min(2, zoomScale + 0.2);
+            })
+          };
+    }
+
+    return Positioned(
+      bottom: _canvasMargin,
+      right: _canvasMargin,
+      height: 40,
+      child: Row(
+        children: [
+          Text('${(zoomScale * 100).round().toInt()}%'),
+          IconButton(
+            icon: Icon(Icons.zoom_out),
+            onPressed: zoomOutPressed(),
+          ),
+          IconButton(
+            icon: Icon(Icons.zoom_in),
+            onPressed: zoomInPressed(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CanvasLayer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -130,106 +220,6 @@ class _DesignEditorState extends State<DesignEditor> {
         painter: _CanvasGridPainter(),
         child: Container(),
       ),
-    );
-  }
-
-  Widget _edgesLayer(BuildContext context) {
-    return CustomPaint(
-      painter: _EdgesPainter(nodes),
-      child: Container(),
-    );
-  }
-
-  bool _isDragging = false;
-  bool _isDraggingCanvas = false;
-
-  Widget _graphsLayer(BuildContext context) {
-    final nodeViews = nodes.map((e) {
-      return NodeView(e, selection);
-    }).toList();
-
-    final hitTest = (Offset point) {
-      for (final nodeView in nodeViews.reversed) {
-        final rect = Rect.fromLTWH(
-          nodeView.node.position.dx,
-          nodeView.node.position.dy,
-          nodeView.size.width,
-          nodeView.size.height,
-        );
-        if (rect.contains(point)) {
-          return nodeView.node;
-        }
-      }
-      return null;
-    };
-
-    return Listener(
-      behavior: HitTestBehavior.opaque,
-      child: Stack(
-        children: nodeViews,
-      ),
-      onPointerMove: (event) {
-        // HisTest and move objects. Note: inner listener cannot stop  outer
-        // listener; nested listeners won't work.
-        // On the other side, GestureDetector has a delay which makes dragging
-        // feel unnatural.
-        if (!_isDragging) {
-          _isDragging = true;
-          final node = hitTest(event.localPosition);
-          if (node != null) {
-            setState(() {
-              selection.select(node);
-              _isDraggingCanvas = false;
-            });
-          } else {
-            setState(() {
-              selection.select(null);
-              _isDraggingCanvas = true;
-            });
-          }
-        }
-
-        if (_isDraggingCanvas) {
-          setState(() {
-            canvasOffset += event.delta;
-          });
-        } else {
-          setState(() {
-            selection.selectedNode(nodes).position += event.delta / zoomScale;
-          });
-        }
-      },
-      onPointerDown: (event) {
-        final node = hitTest(event.localPosition);
-        setState(() {
-          selection.select(node);
-        });
-      },
-      onPointerUp: (event) {
-        _isDragging = false;
-        _isDraggingCanvas = false;
-      },
-    );
-  }
-
-  Widget _dragTargetLayer(BuildContext context) {
-    return DragTarget<String>(
-      onWillAccept: (data) {
-        print('data = $data onWillAccept');
-        return data != null;
-      },
-      onAcceptWithDetails: (details) {
-        final renderBox = context.findRenderObject() as RenderBox;
-        final dropPos = renderBox.globalToLocal(details.offset);
-        final canvasMargin = Offset(_canvasMargin, _canvasMargin);
-        final pos = (dropPos - canvasMargin - canvasOffset) / zoomScale;
-        setState(() {
-          final node = Node(pos);
-          nodes.add(node);
-          selection.select(node);
-        });
-      },
-      builder: (context, candidateData, rejectedData) => Container(),
     );
   }
 }
@@ -261,6 +251,18 @@ class _CanvasGridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_CanvasGridPainter oldPainter) => false;
+}
+
+class _EdgesLayer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<Document>(builder: (context, document, child) {
+      return CustomPaint(
+        painter: _EdgesPainter(document.nodes),
+        child: Container(),
+      );
+    });
+  }
 }
 
 class _EdgesPainter extends CustomPainter {
@@ -301,4 +303,29 @@ class _EdgesPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_EdgesPainter oldPainter) => false;
+}
+
+class _DragTargetLayer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer2<Document, Selection>(
+      builder: (_, document, selection, child) {
+        return DragTarget<String>(
+          onWillAccept: (data) {
+            print('data = $data onWillAccept');
+            return data != null;
+          },
+          onAcceptWithDetails: (details) {
+            final renderBox = context.findRenderObject() as RenderBox;
+            final pos = renderBox.globalToLocal(details.offset);
+
+            final node = Node(pos);
+            document.addNode(node);
+            selection.select(node);
+          },
+          builder: (context, candidateData, rejectedData) => Container(),
+        );
+      },
+    );
+  }
 }
