@@ -55,12 +55,8 @@ class Editor extends StatelessWidget {
   }
 }
 
-class DesignEditor extends StatefulWidget {
-  @override
-  _DesignEditorState createState() => _DesignEditorState();
-}
-
-class _DesignEditorState extends State<DesignEditor> {
+/// Graph design core editor.
+class DesignEditor extends StatelessWidget {
   final double _canvasMargin = 20;
 
   @override
