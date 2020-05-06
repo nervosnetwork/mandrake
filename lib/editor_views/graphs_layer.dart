@@ -6,6 +6,7 @@ import '../models/selection.dart';
 import '../models/editor_state.dart';
 
 import '../node_views/node_view.dart';
+import '../utils/edge_path.dart';
 
 class GraphsLayer extends StatefulWidget {
   @override
@@ -15,6 +16,8 @@ class GraphsLayer extends StatefulWidget {
 class _GraphsLayerState extends State<GraphsLayer> {
   bool _isDragging = false;
   bool _isDraggingCanvas = false;
+  bool _isDraggingConnector = false;
+  Offset _startConnectorOffset, _endConnectorOffset;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +47,7 @@ class _GraphsLayerState extends State<GraphsLayer> {
     return Listener(
       behavior: HitTestBehavior.opaque,
       child: Stack(
-        children: nodeViews,
+        children: <Widget>[...nodeViews, ConnectingNodesView(_startConnectorOffset, _endConnectorOffset)],
       ),
       onPointerMove: (event) {
         // HisTest and move objects. Note: inner listener cannot stop  outer
@@ -56,10 +59,16 @@ class _GraphsLayerState extends State<GraphsLayer> {
           selection.select(node);
           _isDraggingCanvas = node == null;
           _isDragging = true;
+          _isDraggingConnector = true; // TODO: hittest
+          _startConnectorOffset = _endConnectorOffset = event.localPosition;
         }
 
         if (_isDraggingCanvas) {
           editorState.moveCanvas(event.delta);
+        } else if (_isDraggingConnector) {
+          setState(() {
+            _endConnectorOffset += event.delta;
+          });
         } else {
           document.moveNodePosition(
             selection.selectedNode(document.nodes),
@@ -74,7 +83,46 @@ class _GraphsLayerState extends State<GraphsLayer> {
       onPointerUp: (event) {
         _isDragging = false;
         _isDraggingCanvas = false;
+        _isDraggingConnector = false;
+        _startConnectorOffset = _endConnectorOffset = null;
       },
     );
   }
+}
+
+class ConnectingNodesView extends StatelessWidget {
+  final Offset start, end;
+  ConnectingNodesView(this.start, this.end);
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _ConnectingNodesPainter(start, end),
+      child: Container(),
+    );
+  }
+}
+
+class _ConnectingNodesPainter extends CustomPainter {
+  final Offset start, end;
+  _ConnectingNodesPainter(this.start, this.end);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (start == null && end == null) {
+      return;
+    }
+
+    var paint = Paint()
+      ..isAntiAlias = true
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke
+      ..color = Colors.red[400];
+
+    final path = EdgePath(start, end).path;
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(_ConnectingNodesPainter old) => false;
 }
