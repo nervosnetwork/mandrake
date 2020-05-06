@@ -66,6 +66,8 @@ class _GraphsLayerState extends State<GraphsLayer> {
         if (_isDraggingCanvas) {
           editorState.moveCanvas(event.delta);
         } else if (_isDraggingConnector) {
+          final target = hitTest(event.localPosition);
+          selection.hover(target);
           setState(() {
             _endConnectorOffset += event.delta;
           });
@@ -83,6 +85,17 @@ class _GraphsLayerState extends State<GraphsLayer> {
       onPointerUp: (event) {
         _isDragging = false;
         _isDraggingCanvas = false;
+
+        if (_isDraggingConnector) {
+          final target = hitTest(event.localPosition);
+          if (target != null && target != selection.selectedNode(document.nodes)) {
+            selection.select(target);
+            // TODO: process connecting
+          }
+          selection.hover(null);
+          setState(() {});
+        }
+
         _isDraggingConnector = false;
         _startConnectorOffset = _endConnectorOffset = null;
       },

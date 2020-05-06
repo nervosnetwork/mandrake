@@ -3,25 +3,51 @@ import 'package:mandrake/models/selection.dart';
 import 'package:mandrake/models/node.dart';
 
 void main() {
-  test('select a node', () {
-    final selection = Selection();
-    final node = Node(Offset(0, 0));
-    selection.select(node);
-    expect(selection.isNodeSelected(node), true);
+  group('select', () {
+    test('select a node', () {
+      final selection = Selection();
+      final node = Node(Offset(0, 0));
+      selection.select(node);
+      expect(selection.isNodeSelected(node), true);
+    });
+
+    test('select null', () {
+      final selection = Selection();
+      final node = null;
+      selection.select(node);
+      expect(selection.isNodeSelected(node), false);
+    });
+
+    test('query selected node providing node collection', () {
+      final selection = Selection();
+      final node = Node(Offset(0, 0));
+      selection.select(node);
+      expect(selection.selectedNode([node]), node);
+      expect(selection.selectedNode([]), null);
+    });
   });
 
-  test('select null', () {
-    final selection = Selection();
-    final node = null;
-    selection.select(node);
-    expect(selection.isNodeSelected(node), false);
-  });
+  group('hover', () {
+    test('hover a node', () {
+      final selection = Selection();
+      final node = Node(Offset(0, 0));
+      selection.hover(node);
+      expect(selection.isNodeHovered(node), true);
+    });
 
-  test('query selected node providing node collection', () {
-    final selection = Selection();
-    final node = Node(Offset(0, 0));
-    selection.select(node);
-    expect(selection.selectedNode([node]), node);
-    expect(selection.selectedNode([]), null);
+    test('hover null', () {
+      final selection = Selection();
+      final node = null;
+      selection.select(node);
+      expect(selection.isNodeHovered(node), false);
+    });
+
+    test('query hovered node providing node collection', () {
+      final selection = Selection();
+      final node = Node(Offset(0, 0));
+      selection.hover(node);
+      expect(selection.hoveredNode([node]), node);
+      expect(selection.hoveredNode([]), null);
+    });
   });
 }

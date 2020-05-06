@@ -17,6 +17,7 @@ class NodeView extends StatefulWidget {
 
 class _NodeViewState extends State<NodeView> {
   bool get isSelected => widget.selection.isNodeSelected(widget.node);
+  bool get isHovered => widget.selection.isNodeHovered(widget.node);
   Size get size => Size(120, 200); // TODO: should calculate this
 
   final double _borderRadius = 5;
@@ -24,6 +25,7 @@ class _NodeViewState extends State<NodeView> {
   final Color _bgColor = Colors.blue[50];
   final Color _borderColor = Colors.blue[300];
   final Color _selectedBorderColor = Color(0xff007aff);
+  final Color _hoveredBorderColor = Colors.red[400];
   final Color _titleColor = Colors.indigo[700];
 
   @override
@@ -71,11 +73,14 @@ class _NodeViewState extends State<NodeView> {
             ),
           ),
         ),
-        if (isSelected)
+        if (isSelected || isHovered)
           IgnorePointer(
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(width: 2, color: _selectedBorderColor),
+                border: Border.all(
+                  width: 2,
+                  color: isSelected ? _selectedBorderColor : _hoveredBorderColor,
+                ),
                 borderRadius: BorderRadius.circular(_borderRadius),
               ),
             ),
