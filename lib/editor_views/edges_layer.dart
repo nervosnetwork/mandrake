@@ -38,7 +38,7 @@ class _EdgesPainter extends CustomPainter {
     for (var i = 0; i < nodes.length - 1; i++) {
       final start = nodes[i].position + Offset(120, 15);
       final end = nodes[i + 1].position + Offset(0, 15);
-      final path = EdgePath(start, end);
+      final path = EdgePath(start, end).path;
 
       canvas.drawPath(path, paint);
     }
