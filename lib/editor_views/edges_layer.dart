@@ -3,7 +3,11 @@ import 'package:provider/provider.dart';
 
 import '../models/document.dart';
 import '../models/node.dart';
+import '../utils/edge_path.dart';
 
+/// Draw edges (between parent and child nodes).
+/// Currently connecting (by dragging connector point from one node to another)
+/// is not handled by this layer.
 class EdgesLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -32,21 +36,9 @@ class _EdgesPainter extends CustomPainter {
 
     // Draw a test edge between every two nodes.
     for (var i = 0; i < nodes.length - 1; i++) {
-      final path = Path();
       final start = nodes[i].position + Offset(120, 15);
       final end = nodes[i + 1].position + Offset(0, 15);
-      final distance = (end - start).distance;
-      final offset = distance * 0.25;
-
-      path.moveTo(start.dx, start.dy);
-      path.cubicTo(
-        start.dx + offset, // (end.dx > start.dx ? offset : -offset),
-        start.dy, // + (end.dy > start.dy ? offset : -offset),
-        end.dx - offset, //(end.dx > start.dx ? offset : -offset),
-        end.dy, // - (end.dy > start.dy ? offset : -offset),
-        end.dx,
-        end.dy,
-      );
+      final path = EdgePath(start, end);
 
       canvas.drawPath(path, paint);
     }

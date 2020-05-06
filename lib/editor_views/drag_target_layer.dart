@@ -5,6 +5,7 @@ import '../models/document.dart';
 import '../models/selection.dart';
 import '../models/node.dart';
 
+/// Accept dragged node template from Object Panel.
 class DragTargetLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
