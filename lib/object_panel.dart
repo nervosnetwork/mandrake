@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
-class ObjectPanel extends StatefulWidget {
-  @override
-  _ObjectPanelState createState() => _ObjectPanelState();
-}
-
-class _ObjectPanelState extends State<ObjectPanel> {
+class ObjectPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).canvasColor,
+        border: Border(
+          right: BorderSide(
+            width: 1,
+            color: Theme.of(context).dividerColor,
+          ),
+        ),
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [

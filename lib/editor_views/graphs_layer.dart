@@ -3,16 +3,11 @@ import 'package:provider/provider.dart';
 
 import '../models/document.dart';
 import '../models/selection.dart';
+import '../models/editor_state.dart';
 
 import '../node_views/node_view.dart';
 
-typedef OnCanvasDragged = Function(Offset offset);
-
 class GraphsLayer extends StatefulWidget {
-  final double zoomScale;
-  final OnCanvasDragged onCanvasDragged;
-  GraphsLayer(this.zoomScale, this.onCanvasDragged);
-
   @override
   _GraphsLayerState createState() => _GraphsLayerState();
 }
@@ -25,6 +20,7 @@ class _GraphsLayerState extends State<GraphsLayer> {
   Widget build(BuildContext context) {
     final document = Provider.of<Document>(context);
     final selection = Provider.of<Selection>(context);
+    final editorState = Provider.of<EditorState>(context, listen: false);
 
     final nodeViews = document.nodes.map((e) {
       return NodeView(e, selection);
@@ -63,11 +59,11 @@ class _GraphsLayerState extends State<GraphsLayer> {
         }
 
         if (_isDraggingCanvas) {
-          widget.onCanvasDragged(event.delta);
+          editorState.moveCanvas(event.delta);
         } else {
           document.moveNodePosition(
             selection.selectedNode(document.nodes),
-            event.delta / widget.zoomScale,
+            event.delta / editorState.zoomScale,
           );
         }
       },
