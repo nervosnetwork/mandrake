@@ -36,12 +36,11 @@ class Document extends ChangeNotifier {
     if (child.nodes.contains(parent)) {
       return false;
     }
-    return _topLevelNodes.contains(child);
+    return _allNodes.contains(parent) && _topLevelNodes.contains(child);
   }
 
   void connectNode({@required Node parent, @required Node child}) {
-    assert(_allNodes.contains(parent));
-    assert(_topLevelNodes.contains(child));
+    assert(canConnect(parent: parent, child: child));
 
     _topLevelNodes.remove(child);
     parent.addChild(child);
