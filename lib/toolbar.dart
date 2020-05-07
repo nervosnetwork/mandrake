@@ -20,6 +20,19 @@ class Toolbar extends StatelessWidget {
         child: Row(
           children: [
             SizedBox(width: 20),
+            IconButton(
+              icon: Icon(Icons.note_add),
+              onPressed: null,
+            ),
+            IconButton(
+              icon: Icon(Icons.file_download),
+              onPressed: null,
+            ),
+            IconButton(
+              icon: Icon(Icons.file_upload),
+              onPressed: null,
+            ),
+            _separator(),
             SizedBox(
               width: 40,
               child: Text(
@@ -42,5 +55,15 @@ class Toolbar extends StatelessWidget {
         ),
       );
     });
+  }
+
+  Widget _separator() {
+    return SizedBox(
+      width: 20,
+      child: VerticalDivider(
+        indent: 8,
+        endIndent: 8,
+      ),
+    );
   }
 }
