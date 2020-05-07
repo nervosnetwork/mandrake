@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/document.dart';
-import '../models/node.dart';
+import '../models/link.dart';
 import '../utils/edge_path.dart';
 
 /// Draw edges (between parent and child nodes).
@@ -13,7 +13,7 @@ class EdgesLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<Document>(builder: (context, document, child) {
       return CustomPaint(
-        painter: _EdgesPainter(document.nodes),
+        painter: _EdgesPainter(document.links),
         child: Container(),
       );
     });
@@ -21,8 +21,8 @@ class EdgesLayer extends StatelessWidget {
 }
 
 class _EdgesPainter extends CustomPainter {
-  List<Node> nodes;
-  _EdgesPainter(this.nodes);
+  List<Link> links;
+  _EdgesPainter(this.links);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -35,9 +35,9 @@ class _EdgesPainter extends CustomPainter {
       ..color = Colors.green;
 
     // Draw a test edge between every two nodes.
-    for (var i = 0; i < nodes.length - 1; i++) {
-      final start = nodes[i].position + Offset(120, 15);
-      final end = nodes[i + 1].position + Offset(0, 15);
+    for (final link in links) {
+      final start = link.parent.position + Offset(120, 15);
+      final end = link.child.position + Offset(0, 15);
       final path = EdgePath(start, end).path;
 
       canvas.drawPath(path, paint);
