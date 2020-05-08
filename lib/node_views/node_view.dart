@@ -5,7 +5,6 @@ import '../models/selection.dart';
 import '../models/node.dart';
 
 import 'root_node_view.dart';
-import 'call_node_view.dart';
 
 class NodeView extends StatefulWidget {
   NodeView(this.node, this.selection);
@@ -17,9 +16,6 @@ class NodeView extends StatefulWidget {
   NodeViewState createState() {
     if (node is RootNode) {
       return RootNodeViewState();
-    }
-    if (node is CallNode) {
-      return CallNodeViewState();
     }
     return NodeViewState();
   }
@@ -40,7 +36,9 @@ class NodeViewState extends State<NodeView> {
   static const Color subtitleColor = Color(0xff757575);
 
   void onAddChildButtonClicked() {
-    print('add child node button clicked');
+    setState(() {
+      widget.node.addSlot('new child');
+    });
   }
 
   BoxDecoration titleDecoration([Color color = titleColor]) {
@@ -67,6 +65,34 @@ class NodeViewState extends State<NodeView> {
       ),
     );
   }
+
+  Widget slot(ChildSlot slot) {
+    return Container(
+      height: widget.node.slotRowHeight,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Spacer(),
+          Container(
+            child: Text(
+              slot.name,
+              maxLines: 1,
+              textAlign: TextAlign.right,
+            ),
+            width: widget.node.size.width - 30,
+          ),
+          SizedBox(width: 4),
+          Icon(
+            Icons.adjust,
+            size: 15,
+          ),
+          SizedBox(width: 4),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> slots() => widget.node.slots.map((s) => slot(s)).toList();
 
   Widget addChildButton([Function onTap]) {
     return Container(
@@ -105,6 +131,7 @@ class NodeViewState extends State<NodeView> {
           ),
         ),
         subtitle('Children'),
+        ...slots(),
         if (widget.node.canAddChild) addChildButton(onAddChildButtonClicked),
       ],
     );

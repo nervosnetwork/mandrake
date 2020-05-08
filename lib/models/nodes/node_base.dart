@@ -17,7 +17,7 @@ abstract class NodeBase {
       titleHeight +
           subtitleHeight +
           actionRowHeight +
-          children.length * childRowHeight +
+          slots.length * slotRowHeight +
           bottomPadding,
     );
   }
@@ -25,10 +25,13 @@ abstract class NodeBase {
   final List<Node> _children = [];
   UnmodifiableListView<Node> get children => UnmodifiableListView(_children);
 
+  final List<ChildSlot> _slots = [];
+  UnmodifiableListView<ChildSlot> get slots => UnmodifiableListView(_slots);
+
   double get titleHeight => 30;
   double get subtitleHeight => 16;
   double get actionRowHeight => 24;
-  double get childRowHeight => 24;
+  double get slotRowHeight => 24;
   double get bottomPadding => 5;
 
   @override
@@ -52,12 +55,36 @@ class Node extends NodeBase {
 
   bool get canAddChild => true;
 
-  void addChild(Node child) {
+  void addChild(Node child, [String slot_id]) {
     assert(canAddChild);
     if (_children.contains(child)) {
       return;
     }
 
     _children.add(child);
+    _fillSlot(child, slot_id);
   }
+
+  ChildSlot addSlot(String name) {
+    final slot = ChildSlot(name: name);
+    _slots.add(slot);
+    return slot;
+  }
+
+  void _fillSlot(Node child, String slot_id) {
+    final slot = slots.firstWhere((s) => s.id == slot_id, orElse: () => null);
+    if (slot != null) {
+      slot.child_id = child.id;
+    }
+  }
+}
+
+/// A slot of a [Node] can either hold a reference to a child, or empty
+/// before connecting to child.
+class ChildSlot {
+  ChildSlot({this.name = '', this.child_id});
+
+  final String id = Uuid().v4();
+  String name;
+  String child_id;
 }

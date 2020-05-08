@@ -15,10 +15,12 @@ class Document extends ChangeNotifier {
 
   Document() {
     final root = RootNode();
+    final slot_id = root.addCallSlot('unnamed call');
     addNode(root);
     final call = Node();
     call.position = root.position + Offset(root.size.width + 100, -50);
-    addNode(call, parent: root);
+    addNode(call);
+    connectNode(parent: root, child: call, slot_id: slot_id);
   }
 
   void addNode(Node node, {Node parent}) {
@@ -50,11 +52,11 @@ class Document extends ChangeNotifier {
     return _allNodes.contains(parent) && _topLevelNodes.contains(child);
   }
 
-  void connectNode({@required Node parent, @required Node child}) {
+  void connectNode({@required Node parent, @required Node child, String slot_id}) {
     assert(canConnect(parent: parent, child: child));
 
     _topLevelNodes.remove(child);
-    parent.addChild(child);
+    parent.addChild(child, slot_id);
 
     _rebuildNodes();
     _rebuildLinks();
