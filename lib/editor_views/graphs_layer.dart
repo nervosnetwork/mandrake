@@ -56,12 +56,17 @@ class _GraphsLayerState extends State<GraphsLayer> {
         // On the other side, GestureDetector has a delay which makes dragging
         // feel unnatural.
         if (!_isDragging) {
+          _isDragging = true;
           final node = hitTest(event.localPosition);
           selection.select(node);
-          _isDraggingCanvas = node == null;
-          _isDragging = true;
-          _isDraggingConnector = false; // TODO: hittest
-          _startConnectorOffset = _endConnectorOffset = event.localPosition;
+          if (node == null) {
+            _isDraggingCanvas = true;
+          } else {
+            _isDraggingCanvas = false;
+            final slot = node.hitTest(event.localPosition - node.position);
+            _isDraggingConnector = slot != null;
+            _startConnectorOffset = _endConnectorOffset = event.localPosition;
+          }
         }
 
         if (_isDraggingCanvas) {
@@ -92,9 +97,10 @@ class _GraphsLayerState extends State<GraphsLayer> {
 
         if (_isDraggingConnector) {
           final source = selection.selectedNode(document.nodes);
+          final slot = source.hitTest(_startConnectorOffset - source.position);
           final target = hitTest(event.localPosition);
           if (document.canConnect(parent: source, child: target)) {
-            document.connectNode(parent: source, child: target);
+            document.connectNode(parent: source, child: target, slot_id: slot?.id);
             selection.select(target);
           }
           selection.hover(null);

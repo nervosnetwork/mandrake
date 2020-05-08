@@ -14,11 +14,7 @@ abstract class NodeBase {
   Size get size {
     return Size(
       120,
-      titleHeight +
-          subtitleHeight +
-          actionRowHeight +
-          slots.length * slotRowHeight +
-          bottomPadding,
+      titleHeight + subtitleHeight + actionRowHeight + slots.length * slotRowHeight + bottomPadding,
     );
   }
 
@@ -65,14 +61,22 @@ class Node extends NodeBase {
     _fillSlot(child, slot_id);
   }
 
+  Offset connectorPosition(Node child) {
+    /// TODO: query child connector start for proper vertical position.
+    return Offset(size.width, 55);
+  }
+
   ChildSlot addSlot(String name) {
     final slot = ChildSlot(name: name);
     _slots.add(slot);
     return slot;
   }
 
+  /// Return a child slot if pointer is inside its add button area.
+  ChildSlot hitTest(Offset position) => null; // TODO: default impl.
+
   void _fillSlot(Node child, String slot_id) {
-    final slot = slots.firstWhere((s) => s.id == slot_id, orElse: () => null);
+    final slot = slots.firstWhere((s) => s.id == slot_id && !s.isConnected, orElse: () => null);
     if (slot != null) {
       slot.child_id = child.id;
     }
@@ -87,4 +91,6 @@ class ChildSlot {
   final String id = Uuid().v4();
   String name;
   String child_id;
+
+  bool get isConnected => child_id != null;
 }

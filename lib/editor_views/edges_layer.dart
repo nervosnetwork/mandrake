@@ -36,7 +36,7 @@ class _EdgesPainter extends CustomPainter {
 
     // Draw a test edge between every two nodes.
     for (final link in links) {
-      final start = link.parent.position + Offset(link.parent.size.width, 55);
+      final start = link.parent.connectorPosition(link.child);
       final end = link.child.position + Offset(0, 15);
       final path = EdgePath(start, end).path;
 
