@@ -13,6 +13,14 @@ class Document extends ChangeNotifier {
   UnmodifiableListView<Node> get nodes => UnmodifiableListView(_allNodes);
   UnmodifiableListView<Link> get links => UnmodifiableListView(_links);
 
+  Document() {
+    final root = RootNode();
+    addNode(root);
+    final call = Node();
+    call.position = root.position + Offset(root.size.width + 100, -50);
+    addNode(call, parent: root);
+  }
+
   void addNode(Node node, {Node parent}) {
     if (parent != null) {
       assert(_allNodes.contains(parent));
@@ -34,6 +42,9 @@ class Document extends ChangeNotifier {
       return false;
     }
     if (child.nodes.contains(parent)) {
+      return false;
+    }
+    if (child is RootNode) {
       return false;
     }
     return _allNodes.contains(parent) && _topLevelNodes.contains(child);

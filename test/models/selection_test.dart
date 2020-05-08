@@ -6,7 +6,7 @@ void main() {
   group('select', () {
     test('select a node', () {
       final selection = Selection();
-      final node = Node(Offset(0, 0));
+      final node = Node('', Offset(0, 0));
       selection.select(node);
       expect(selection.isNodeSelected(node), true);
     });
@@ -20,7 +20,7 @@ void main() {
 
     test('query selected node providing node collection', () {
       final selection = Selection();
-      final node = Node(Offset(0, 0));
+      final node = Node('', Offset(0, 0));
       selection.select(node);
       expect(selection.selectedNode([node]), node);
       expect(selection.selectedNode([]), null);
@@ -30,7 +30,7 @@ void main() {
   group('hover', () {
     test('hover a node', () {
       final selection = Selection();
-      final node = Node(Offset(0, 0));
+      final node = Node('', Offset(0, 0));
       selection.hover(node);
       expect(selection.isNodeHovered(node), true);
     });
@@ -44,7 +44,7 @@ void main() {
 
     test('query hovered node providing node collection', () {
       final selection = Selection();
-      final node = Node(Offset(0, 0));
+      final node = Node('', Offset(0, 0));
       selection.hover(node);
       expect(selection.hoveredNode([node]), node);
       expect(selection.hoveredNode([]), null);

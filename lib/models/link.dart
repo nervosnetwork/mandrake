@@ -6,19 +6,14 @@ class Link {
   final Node parent;
   final Node child;
 
-  Link({@required this.parent, @required this.child}): assert(parent != null && child != null);
+  Link({@required this.parent, @required this.child}) : assert(parent != null && child != null);
 
   @override
   int get hashCode => parent.hashCode + child.hashCode;
 
   @override
   bool operator ==(dynamic other) {
-    if (other.runtimeType != runtimeType) {
-      return false;
-    }
-
-    final Link typed = other;
-    return parent == typed.parent && child == typed.child;
+    return other is Link && parent == other.parent && child == other.child;
   }
 
   static List<Link> linksOf(Node node) {

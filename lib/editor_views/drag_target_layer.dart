@@ -21,7 +21,7 @@ class DragTargetLayer extends StatelessWidget {
         final renderBox = context.findRenderObject() as RenderBox;
         final pos = renderBox.globalToLocal(details.offset);
 
-        final node = Node(pos);
+        final node = Node('New Node', pos);
         document.addNode(node);
         selection.select(node);
       },

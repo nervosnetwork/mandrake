@@ -1,32 +1,114 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../models/selection.dart';
 import '../models/node.dart';
 
+import 'root_node_view.dart';
+import 'call_node_view.dart';
+
 class NodeView extends StatefulWidget {
+  NodeView(this.node, this.selection);
+
   final Node node;
   final Selection selection;
 
-  NodeView(this.node, this.selection);
-
-  Size get size => Size(120, 200);
-
   @override
-  _NodeViewState createState() => _NodeViewState();
+  NodeViewState createState() {
+    if (node is RootNode) {
+      return RootNodeViewState();
+    }
+    if (node is CallNode) {
+      return CallNodeViewState();
+    }
+    return NodeViewState();
+  }
 }
 
-class _NodeViewState extends State<NodeView> {
+class NodeViewState extends State<NodeView> {
   bool get isSelected => widget.selection.isNodeSelected(widget.node);
   bool get isHovered => widget.selection.isNodeHovered(widget.node);
-  Size get size => Size(120, 200); // TODO: should calculate this
+  Size get size => widget.node.size;
 
-  final double _borderRadius = 5;
+  static const double borderRadius = 5;
 
-  final Color _bgColor = Colors.blue[50];
-  final Color _borderColor = Colors.blue[300];
-  final Color _selectedBorderColor = Color(0xff007aff);
-  final Color _hoveredBorderColor = Colors.red[400];
-  final Color _titleColor = Colors.indigo[700];
+  static const Color bgColor = Color(0xffe3f2fd);
+  static const Color borderColor = Color(0xff64b5f6);
+  static const Color selectedBorderColor = Color(0xff007aff);
+  static const Color hoveredBorderColor = Color(0xffef5350);
+  static const Color titleColor = Color(0xff303f9f);
+  static const Color subtitleColor = Color(0xff757575);
+
+  void onAddChildButtonClicked() {
+    print('add child node button clicked');
+  }
+
+  BoxDecoration titleDecoration([Color color = titleColor]) {
+    return BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(borderRadius),
+        topRight: Radius.circular(borderRadius),
+      ),
+    );
+  }
+
+  Widget subtitle(String title) {
+    return Container(
+      height: widget.node.subtitleHeight,
+      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+      color: subtitleColor,
+      child: Text(
+        title,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+        ),
+      ),
+    );
+  }
+
+  Widget addChildButton([Function onTap]) {
+    return Container(
+      height: widget.node.actionRowHeight,
+      child: Wrap(
+        alignment: WrapAlignment.end,
+        children: [
+          GestureDetector(
+            onTap: onTap,
+            child: Icon(
+              Icons.add_box,
+              color: onTap != null ? Colors.black : Theme.of(context).disabledColor,
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  /// Override this to customize node shape.
+  Widget buildView() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          height: widget.node.titleHeight,
+          width: double.infinity,
+          decoration: titleDecoration(),
+          child: Center(
+            child: Text(
+              widget.node.name,
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+        subtitle('Children'),
+        if (widget.node.canAddChild) addChildButton(onAddChildButtonClicked),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,57 +117,37 @@ class _NodeViewState extends State<NodeView> {
       top: widget.node.position.dy,
       width: size.width,
       height: size.height,
-      child: buildView(),
-    );
-  }
-
-  Widget buildView() {
-    return Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: _bgColor,
-            border: Border.all(width: 1, color: _borderColor),
-            borderRadius: BorderRadius.circular(_borderRadius),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey,
-                offset: Offset(0, 2),
-                blurRadius: 5,
-              ),
-            ],
-          ),
-        ),
-        Container(
-          height: 30,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: _titleColor,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(_borderRadius),
-              topRight: Radius.circular(_borderRadius),
-            ),
-          ),
-          child: Center(
-            child: Text(
-              'A Node',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
-        if (isSelected || isHovered)
-          IgnorePointer(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  width: 2,
-                  color: isSelected ? _selectedBorderColor : _hoveredBorderColor,
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: bgColor,
+              border: Border.all(width: 1, color: borderColor),
+              borderRadius: BorderRadius.circular(borderRadius),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey,
+                  offset: Offset(0, 2),
+                  blurRadius: 5,
                 ),
-                borderRadius: BorderRadius.circular(_borderRadius),
-              ),
+              ],
             ),
-          )
-      ],
+          ),
+          buildView(),
+          if (isSelected || isHovered)
+            IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 2,
+                    color: isSelected ? selectedBorderColor : hoveredBorderColor,
+                  ),
+                  borderRadius: BorderRadius.circular(borderRadius),
+                ),
+              ),
+            )
+        ],
+      ),
     );
   }
 }

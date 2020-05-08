@@ -25,29 +25,30 @@ class _GraphsLayerState extends State<GraphsLayer> {
     final selection = Provider.of<Selection>(context);
     final editorState = Provider.of<EditorState>(context, listen: false);
 
-    final nodeViews = document.nodes.map((e) {
-      return NodeView(e, selection);
-    }).toList();
-
     final hitTest = (Offset point) {
-      for (final nodeView in nodeViews.reversed) {
+      for (final node in document.nodes.reversed) {
         final rect = Rect.fromLTWH(
-          nodeView.node.position.dx,
-          nodeView.node.position.dy,
-          nodeView.size.width,
-          nodeView.size.height,
+          node.position.dx,
+          node.position.dy,
+          node.size.width,
+          node.size.height,
         );
         if (rect.contains(point)) {
-          return nodeView.node;
+          return node;
         }
       }
       return null;
     };
 
+    final nodeViews = document.nodes.map((e) => NodeView(e, selection)).toList();
+
     return Listener(
       behavior: HitTestBehavior.opaque,
       child: Stack(
-        children: <Widget>[...nodeViews, ConnectingNodesView(_startConnectorOffset, _endConnectorOffset)],
+        children: <Widget>[
+          ...nodeViews,
+          ConnectingNodesView(_startConnectorOffset, _endConnectorOffset)
+        ],
       ),
       onPointerMove: (event) {
         // HisTest and move objects. Note: inner listener cannot stop  outer
@@ -59,7 +60,7 @@ class _GraphsLayerState extends State<GraphsLayer> {
           selection.select(node);
           _isDraggingCanvas = node == null;
           _isDragging = true;
-          _isDraggingConnector = true; // TODO: hittest
+          _isDraggingConnector = false; // TODO: hittest
           _startConnectorOffset = _endConnectorOffset = event.localPosition;
         }
 
@@ -113,9 +114,13 @@ class ConnectingNodesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _ConnectingNodesPainter(start, end),
-      child: Container(),
+    /// This view only draws the dragging connector to link nodes.
+    /// It should not eat any mouse event itself.
+    return IgnorePointer(
+      child: CustomPaint(
+        painter: _ConnectingNodesPainter(start, end),
+        child: Container(),
+      ),
     );
   }
 }

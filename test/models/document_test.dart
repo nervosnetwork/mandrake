@@ -3,20 +3,26 @@ import 'package:mandrake/models/document.dart';
 import 'package:mandrake/models/node.dart';
 
 void main() {
+  test('a document contains a root node by default', () {
+    final doc = Document();
+    expect(doc.nodes[0], isA<RootNode>());
+  });
+
   test('adding node increases node count', () {
     final doc = Document();
+    final count = doc.nodes.length;
     doc.addListener(() {
-      expect(doc.nodes.length, 1);
+      expect(doc.nodes.length, count + 1);
     });
-    doc.addNode(Node(Offset(100, 200)));
+    doc.addNode(Node('', Offset(100, 200)));
   });
 
   test("change a node's position", () {
     final doc = Document();
-    final node = Node(Offset(100, 200));
+    final node = Node('', Offset(100, 200));
     doc.addNode(node);
     doc.moveNodePosition(node, Offset(100, 0));
-    expect(doc.nodes[0].position, Offset(200, 200));
+    expect(node.position, Offset(200, 200));
   });
 
   group('connect (links)', () {
@@ -56,6 +62,12 @@ void main() {
       doc.connectNode(parent: node2, child: node3);
       expect(doc.canConnect(parent: node2, child: node1), false);
       expect(doc.canConnect(parent: node3, child: node1), false);
+    });
+
+    test('cannot add root node to other node as child', () {
+      final doc = Document();
+      final root = RootNode(), normal = Node();
+      expect(doc.canConnect(parent: normal, child: root), false);
     });
 
     test('a node should be a top level node before it can be connected', () {
