@@ -61,9 +61,14 @@ class Node extends NodeBase {
     _fillSlot(child, slot_id);
   }
 
-  Offset connectorPosition(Node child) {
+  Offset childConnectorPosition(Node child) {
     /// TODO: query child connector start for proper vertical position.
-    return Offset(size.width, 55);
+    return position + Offset(size.width, 55);
+  }
+
+  Offset slotConnectorPosition(ChildSlot slot) {
+    /// TODO: query slot connector start for proper vertical position.
+    return position + Offset(size.width, 55);
   }
 
   ChildSlot addSlot(String name) {
@@ -93,4 +98,12 @@ class ChildSlot {
   String child_id;
 
   bool get isConnected => child_id != null;
+
+  @override
+  bool operator ==(dynamic other) {
+    return other is ChildSlot && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }

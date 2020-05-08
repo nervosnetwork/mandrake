@@ -15,7 +15,7 @@ class Document extends ChangeNotifier {
 
   Document() {
     final root = RootNode();
-    final slot_id = root.addCallSlot('unnamed call');
+    final slot_id = root.addCallSlot();
     addNode(root);
     final call = Node();
     call.position = root.position + Offset(root.size.width + 100, -50);

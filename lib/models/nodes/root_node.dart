@@ -27,7 +27,7 @@ class RootNode extends Node {
   }
 
   /// Add a new slot for call node and return slot id.
-  String addCallSlot(String name) {
+  String addCallSlot([String name = 'unnamed call']) {
     final slot = addSlot(name);
     _callSlots.add(slot);
     return slot.id;
@@ -36,25 +36,37 @@ class RootNode extends Node {
   @override
   void addChild(Node child, [String slot_id]) {
     if (slot_id == _addCallChildSlot.id) {
-      final new_slot_id = addCallSlot(child.name);
-      super.addChild(child, new_slot_id);
+      super.addChild(child, addCallSlot());
     } else {
       super.addChild(child, slot_id);
     }
   }
 
   @override
-  Offset connectorPosition(Node child) {
+  Offset childConnectorPosition(Node child) {
     final callSlot = _callSlots.firstWhere((s) => s.child_id == child.id, orElse: () => null);
     if (callSlot != null) {
-      final callsVerticalOffset = titleHeight + subtitleHeight;
-      return position + Offset(
-        size.width,
-        callsVerticalOffset + slotRowHeight * _callSlots.indexOf(callSlot) + slotRowHeight / 2,
-      );
+      return slotConnectorPosition(callSlot);
     }
 
     return position + Offset(size.width, 55); // Should not happen.
+  }
+
+  @override
+  Offset slotConnectorPosition(ChildSlot slot) {
+    final callsVerticalOffset = titleHeight + subtitleHeight;
+
+    if (slot == _addCallChildSlot) {
+      return position + Offset(
+        size.width - 10,
+        callsVerticalOffset + slotRowHeight * _callSlots.length + slotRowHeight / 2,
+      );
+    }
+
+    return position + Offset(
+      size.width - 10,
+      callsVerticalOffset + slotRowHeight * _callSlots.indexOf(slot) + slotRowHeight / 2,
+    );
   }
 
   @override

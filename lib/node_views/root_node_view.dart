@@ -6,7 +6,7 @@ import 'node_view.dart';
 class RootNodeViewState extends NodeViewState {
   void _onAddCallButtonClicked() {
     setState(() {
-      _root.addCallSlot('new call');
+      _root.addCallSlot();
     });
   }
 

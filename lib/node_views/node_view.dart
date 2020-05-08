@@ -83,7 +83,8 @@ class NodeViewState extends State<NodeView> {
           ),
           SizedBox(width: 4),
           Icon(
-            Icons.adjust,
+            slot.isConnected ? Icons.adjust : Icons.panorama_fish_eye,
+            color: slot.isConnected ? Colors.green : Colors.grey,
             size: 15,
           ),
           SizedBox(width: 4),

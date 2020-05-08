@@ -47,7 +47,7 @@ class _GraphsLayerState extends State<GraphsLayer> {
       child: Stack(
         children: <Widget>[
           ...nodeViews,
-          ConnectingNodesView(_startConnectorOffset, _endConnectorOffset)
+          if (_isDraggingConnector) ConnectingNodesView(_startConnectorOffset, _endConnectorOffset)
         ],
       ),
       onPointerMove: (event) {
@@ -64,8 +64,11 @@ class _GraphsLayerState extends State<GraphsLayer> {
           } else {
             _isDraggingCanvas = false;
             final slot = node.hitTest(event.localPosition - node.position);
-            _isDraggingConnector = slot != null;
-            _startConnectorOffset = _endConnectorOffset = event.localPosition;
+            if (slot != null) {
+              _isDraggingConnector = true;
+              _startConnectorOffset = node.slotConnectorPosition(slot);
+              _endConnectorOffset = event.localPosition;
+            }
           }
         }
 
@@ -76,6 +79,8 @@ class _GraphsLayerState extends State<GraphsLayer> {
           final target = hitTest(event.localPosition);
           if (document.canConnect(parent: source, child: target)) {
             selection.hover(target);
+          } else {
+            selection.hover(null);
           }
           setState(() {
             _endConnectorOffset += event.delta;
@@ -104,11 +109,10 @@ class _GraphsLayerState extends State<GraphsLayer> {
             selection.select(target);
           }
           selection.hover(null);
+          _startConnectorOffset = _endConnectorOffset = null;
+          _isDraggingConnector = false;
           setState(() {});
         }
-
-        _isDraggingConnector = false;
-        _startConnectorOffset = _endConnectorOffset = null;
       },
     );
   }
@@ -137,7 +141,7 @@ class _ConnectingNodesPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (start == null && end == null) {
+    if (start == null || end == null) {
       return;
     }
 
@@ -145,6 +149,7 @@ class _ConnectingNodesPainter extends CustomPainter {
       ..isAntiAlias = true
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
       ..color = Colors.red[400];
 
     final path = EdgePath(start, end).path;
