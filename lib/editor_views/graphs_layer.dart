@@ -83,7 +83,7 @@ class _GraphsLayerState extends State<GraphsLayer> {
             selection.hover(null);
           }
           setState(() {
-            _endConnectorOffset += event.delta;
+            _endConnectorOffset += event.delta / editorState.zoomScale;
           });
         } else {
           document.moveNodePosition(
