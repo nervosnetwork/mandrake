@@ -21,6 +21,12 @@ class EdgePath {
       end.dy,
     );
 
+    final arrowPos = end + Offset(-1, 0);
+    path..moveTo(arrowPos.dx, arrowPos.dy)
+    ..lineTo(arrowPos.dx - 3, arrowPos.dy - 2)
+    ..lineTo(arrowPos.dx - 3, arrowPos.dy + 2)
+    ..lineTo(arrowPos.dx, arrowPos.dy);
+
     return path;
   }
 }

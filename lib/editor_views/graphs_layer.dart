@@ -152,7 +152,9 @@ class _ConnectingNodesPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..color = Colors.red[400];
 
-    final path = EdgePath(start, end).path;
+    canvas.drawCircle(start, 6, paint);
+
+    final path = EdgePath(start + Offset(6, 0), end).path;
     canvas.drawPath(path, paint);
   }
 

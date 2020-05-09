@@ -58,13 +58,13 @@ class RootNode extends Node {
 
     if (slot == _addCallChildSlot) {
       return position + Offset(
-        size.width - 10,
+        size.width - 12,
         callsVerticalOffset + slotRowHeight * _callSlots.length + slotRowHeight / 2,
       );
     }
 
     return position + Offset(
-      size.width - 10,
+      size.width - 12,
       callsVerticalOffset + slotRowHeight * _callSlots.indexOf(slot) + slotRowHeight / 2,
     );
   }
