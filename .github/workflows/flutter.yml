@@ -24,4 +24,4 @@ jobs:
     - name: Lint
       run: flutter analyze
     - name: Run tests
-      run: flutter test
+      run: flutter test --test-randomize-ordering-seed random
