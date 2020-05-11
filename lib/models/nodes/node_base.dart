@@ -1,5 +1,5 @@
 import 'dart:collection';
-import 'dart:ui' show Offset, Size;
+import 'dart:ui' show Offset, Size, Rect;
 import 'package:uuid/uuid.dart';
 
 /// Base class for [Node], which describes an object representing part of
@@ -12,9 +12,10 @@ abstract class NodeBase {
   Offset position;
 
   Size get size {
+    final height = titleHeight + subtitleHeight + slots.length * slotRowHeight + bottomPadding;
     return Size(
       120,
-      titleHeight + subtitleHeight + actionRowHeight + slots.length * slotRowHeight + bottomPadding,
+      canAddChild ? height + actionRowHeight : height,
     );
   }
 
@@ -24,6 +25,8 @@ abstract class NodeBase {
   final List<ChildSlot> _slots = [];
   UnmodifiableListView<ChildSlot> get slots => UnmodifiableListView(_slots);
 
+  bool get canAddChild => false;
+
   double get titleHeight => 30;
   double get subtitleHeight => 16;
   double get actionRowHeight => 24;
@@ -31,9 +34,7 @@ abstract class NodeBase {
   double get bottomPadding => 5;
 
   @override
-  bool operator ==(dynamic other) {
-    return other is NodeBase && other.id == id;
-  }
+  bool operator ==(dynamic other) => other is NodeBase && other.id == id;
 
   @override
   int get hashCode => id.hashCode;
@@ -45,10 +46,15 @@ class Node extends NodeBase {
   /// Full list as this node plus its children.
   UnmodifiableListView<Node> get nodes {
     final descendants =
-        _children.map((e) => e.nodes).fold(<Node>[], (value, element) => value + element);
+        children.map((e) => e.nodes).fold(<Node>[], (value, element) => value + element);
     return UnmodifiableListView([this] + descendants);
   }
 
+  /// Assign a virtual slot to the add child button so that one can drag
+  /// from the add child button to another node to connect.
+  static final ChildSlot addChildSlot = ChildSlot();
+
+  @override
   bool get canAddChild => true;
 
   void addChild(Node child, [String slot_id]) {
@@ -58,17 +64,43 @@ class Node extends NodeBase {
     }
 
     _children.add(child);
-    _fillSlot(child, slot_id);
+    if (slot_id == addChildSlot.id) {
+      _fillSlot(child, addSlot('new child').id);
+    } else if (slot_id != null) {
+      _fillSlot(child, slot_id);
+    }
   }
 
   Offset childConnectorPosition(Node child) {
-    /// TODO: query child connector start for proper vertical position.
-    return position + Offset(size.width, 55);
+    final callSlot = slots.firstWhere((s) => s.child_id == child.id, orElse: () => null);
+    if (callSlot != null) {
+      return slotConnectorPosition(callSlot);
+    }
+
+    return position + Offset(size.width, 55); // Should not happen.
   }
 
   Offset slotConnectorPosition(ChildSlot slot) {
-    /// TODO: query slot connector start for proper vertical position.
-    return position + Offset(size.width, 55);
+    final verticalOffset = titleHeight + subtitleHeight;
+
+    if (slot == addChildSlot) {
+      return position +
+          Offset(
+            size.width - 12,
+            verticalOffset + slotRowHeight * slots.length + slotRowHeight / 2,
+          );
+    }
+
+    final index = slots.indexOf(slot);
+    if (index != -1) {
+      return position +
+          Offset(
+            size.width - 12,
+            verticalOffset + slotRowHeight * slots.indexOf(slot) + slotRowHeight / 2,
+          );
+    }
+
+    return null;
   }
 
   ChildSlot addSlot(String name) {
@@ -78,13 +110,44 @@ class Node extends NodeBase {
   }
 
   /// Return a child slot if pointer is inside its add button area.
-  ChildSlot hitTest(Offset position) => null; // TODO: default impl.
+  /// Param point is local position of node within Offset(0, 0) and Size(size).
+  ChildSlot hitTest(Offset point) {
+    final verticalOffset = titleHeight + subtitleHeight;
+    final hitWidth = 25.0;
+
+    for (var i = 0; i < slots.length; i++) {
+      if (slots[i].isConnected) {
+        // Already connected(filled), cannot link to another child.
+        continue;
+      }
+
+      final rect = Rect.fromLTWH(
+        size.width - hitWidth,
+        verticalOffset + slotRowHeight * i,
+        hitWidth,
+        slotRowHeight,
+      );
+      if (rect.contains(point)) {
+        return slots[i];
+      }
+    }
+    final addCallButtonRect = Rect.fromLTWH(
+      size.width - hitWidth,
+      verticalOffset + slotRowHeight * slots.length,
+      hitWidth,
+      slotRowHeight,
+    );
+    if (addCallButtonRect.contains(point)) {
+      return addChildSlot;
+    }
+
+    return null;
+  }
 
   void _fillSlot(Node child, String slot_id) {
     final slot = slots.firstWhere((s) => s.id == slot_id && !s.isConnected, orElse: () => null);
-    if (slot != null) {
-      slot.child_id = child.id;
-    }
+    assert(slot != null);
+    slot.child_id = child.id;
   }
 }
 
@@ -100,9 +163,7 @@ class ChildSlot {
   bool get isConnected => child_id != null;
 
   @override
-  bool operator ==(dynamic other) {
-    return other is ChildSlot && other.id == id;
-  }
+  bool operator ==(dynamic other) => other is ChildSlot && other.id == id;
 
   @override
   int get hashCode => id.hashCode;

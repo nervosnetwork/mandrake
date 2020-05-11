@@ -12,7 +12,14 @@ class RootNode extends Node {
   UnmodifiableListView<ChildSlot> get callSlots => UnmodifiableListView(_callSlots);
   UnmodifiableListView<ChildSlot> get streamSlots => UnmodifiableListView(_streamSlots);
 
-  static final ChildSlot _addCallChildSlot = ChildSlot();
+  /// Child slots binding to 'add call' and 'add stream' buttons to allow
+  /// recognizing them as connectors and dragging connecting link from them.
+  static final ChildSlot addCallChildSlot = ChildSlot();
+  static final ChildSlot addStreamChildSlot = ChildSlot();
+
+  double get _callsVerticalOffset => titleHeight + subtitleHeight;
+  double get _streamsVerticalOffset =>
+      _callsVerticalOffset + callSlots.length * slotRowHeight + actionRowHeight + subtitleHeight;
 
   @override
   Size get size {
@@ -26,17 +33,26 @@ class RootNode extends Node {
     );
   }
 
-  /// Add a new slot for call node and return slot id.
-  String addCallSlot([String name = 'unnamed call']) {
+  /// Add a new slot for call node.
+  ChildSlot addCallSlot([String name = 'unnamed call']) {
     final slot = addSlot(name);
     _callSlots.add(slot);
-    return slot.id;
+    return slot;
+  }
+
+  /// Add a new slot for stream node.
+  ChildSlot addStreamSlot([String name = 'unnamed stream']) {
+    final slot = addSlot(name);
+    _streamSlots.add(slot);
+    return slot;
   }
 
   @override
   void addChild(Node child, [String slot_id]) {
-    if (slot_id == _addCallChildSlot.id) {
-      super.addChild(child, addCallSlot());
+    if (slot_id == addCallChildSlot.id) {
+      super.addChild(child, addCallSlot().id);
+    } else if (slot_id == addStreamChildSlot.id) {
+      super.addChild(child, addStreamSlot().id);
     } else {
       super.addChild(child, slot_id);
     }
@@ -49,29 +65,61 @@ class RootNode extends Node {
       return slotConnectorPosition(callSlot);
     }
 
-    return position + Offset(size.width, 55); // Should not happen.
+    final streamSlot = _streamSlots.firstWhere((s) => s.child_id == child.id, orElse: () => null);
+    if (streamSlot != null) {
+      return slotConnectorPosition(streamSlot);
+    }
+
+    return super.childConnectorPosition(child);
   }
 
   @override
   Offset slotConnectorPosition(ChildSlot slot) {
-    final callsVerticalOffset = titleHeight + subtitleHeight;
-
-    if (slot == _addCallChildSlot) {
-      return position + Offset(
-        size.width - 12,
-        callsVerticalOffset + slotRowHeight * _callSlots.length + slotRowHeight / 2,
-      );
+    final callIndex = _callSlots.indexOf(slot);
+    if (callIndex != -1) {
+      return position +
+          Offset(
+            size.width - 12,
+            _callsVerticalOffset + slotRowHeight * callIndex + slotRowHeight / 2,
+          );
     }
 
-    return position + Offset(
-      size.width - 12,
-      callsVerticalOffset + slotRowHeight * _callSlots.indexOf(slot) + slotRowHeight / 2,
-    );
+    final streamIndex = _streamSlots.indexOf(slot);
+    if (streamIndex != -1) {
+      return position +
+          Offset(
+            size.width - 12,
+            _streamsVerticalOffset + slotRowHeight * streamIndex + slotRowHeight / 2,
+          );
+    }
+
+    if (slot == addCallChildSlot) {
+      return position +
+          Offset(
+            size.width - 12,
+            _callsVerticalOffset + slotRowHeight * _callSlots.length + slotRowHeight / 2,
+          );
+    }
+
+    if (slot == addStreamChildSlot) {
+      return position +
+          Offset(
+            size.width - 12,
+            _streamsVerticalOffset + slotRowHeight * _streamSlots.length + slotRowHeight / 2,
+          );
+    }
+
+    return null;
   }
 
+  /// Return one of the followings if it exists but not is not connected to
+  /// a child node yet:
+  ///   * Call slot connector
+  ///   * Add call button
+  ///   * Stream slot connector
+  ///   * Add stream button
   @override
   ChildSlot hitTest(Offset point) {
-    final callsVerticalOffset = titleHeight + subtitleHeight;
     final hitWidth = 25.0;
 
     for (var i = 0; i < _callSlots.length; i++) {
@@ -82,7 +130,7 @@ class RootNode extends Node {
 
       final rect = Rect.fromLTWH(
         size.width - hitWidth,
-        callsVerticalOffset + slotRowHeight * i,
+        _callsVerticalOffset + slotRowHeight * i,
         hitWidth,
         slotRowHeight,
       );
@@ -92,12 +140,38 @@ class RootNode extends Node {
     }
     final addCallButtonRect = Rect.fromLTWH(
       size.width - hitWidth,
-      callsVerticalOffset + slotRowHeight * _callSlots.length,
+      _callsVerticalOffset + slotRowHeight * _callSlots.length,
       hitWidth,
       slotRowHeight,
     );
     if (addCallButtonRect.contains(point)) {
-      return _addCallChildSlot;
+      return addCallChildSlot;
+    }
+
+    for (var i = 0; i < _streamSlots.length; i++) {
+      if (_streamSlots[i].isConnected) {
+        // Already connected(filled), cannot link to another child.
+        continue;
+      }
+
+      final rect = Rect.fromLTWH(
+        size.width - hitWidth,
+        _streamsVerticalOffset + slotRowHeight * i,
+        hitWidth,
+        slotRowHeight,
+      );
+      if (rect.contains(point)) {
+        return _streamSlots[i];
+      }
+    }
+    final addStreamButtonRect = Rect.fromLTWH(
+      size.width - hitWidth,
+      _streamsVerticalOffset + slotRowHeight * _streamSlots.length,
+      hitWidth,
+      slotRowHeight,
+    );
+    if (addStreamButtonRect.contains(point)) {
+      return addStreamChildSlot;
     }
 
     return null;

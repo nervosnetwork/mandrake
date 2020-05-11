@@ -10,6 +10,12 @@ class RootNodeViewState extends NodeViewState {
     });
   }
 
+  void _onAddStreamButtonClicked() {
+    setState(() {
+      _root.addStreamSlot();
+    });
+  }
+
   RootNode get _root => widget.node;
 
   @override
@@ -27,17 +33,17 @@ class RootNodeViewState extends NodeViewState {
             ),
           ),
         ),
-        subtitle('Calls'.toUpperCase()),
+        subtitle('Calls'),
         ..._callSlots(),
         addChildButton(_onAddCallButtonClicked),
-        subtitle('Streams'.toUpperCase()),
+        subtitle('Streams'),
         ..._streamSlots(),
-        addChildButton(),
+        addChildButton(_onAddStreamButtonClicked),
       ],
     );
   }
 
   List<Widget> _callSlots() => _root.callSlots.map((s) => slot(s)).toList();
 
-  List<Widget> _streamSlots() => [];
+  List<Widget> _streamSlots() => _root.streamSlots.map((s) => slot(s)).toList();
 }

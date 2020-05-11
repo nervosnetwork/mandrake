@@ -57,7 +57,7 @@ class NodeViewState extends State<NodeView> {
       padding: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
       color: subtitleColor,
       child: Text(
-        title,
+        title.toUpperCase(),
         style: TextStyle(
           color: Colors.white,
           fontSize: 10,

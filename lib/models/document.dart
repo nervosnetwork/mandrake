@@ -15,12 +15,12 @@ class Document extends ChangeNotifier {
 
   Document() {
     final root = RootNode();
-    final slot_id = root.addCallSlot();
+    final slot = root.addCallSlot();
     addNode(root);
     final call = Node();
     call.position = root.position + Offset(root.size.width + 100, -50);
     addNode(call);
-    connectNode(parent: root, child: call, slot_id: slot_id);
+    connectNode(parent: root, child: call, slot_id: slot.id);
   }
 
   void addNode(Node node, {Node parent}) {
