@@ -8,12 +8,14 @@ class RootNodeViewState extends NodeViewState {
     setState(() {
       _root.addCallSlot();
     });
+    widget.selection.invalidate();
   }
 
   void _onAddStreamButtonClicked() {
     setState(() {
       _root.addStreamSlot();
     });
+    widget.selection.invalidate();
   }
 
   RootNode get _root => widget.node;

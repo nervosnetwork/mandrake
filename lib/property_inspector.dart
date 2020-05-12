@@ -63,6 +63,7 @@ class _Section extends StatelessWidget {
               title,
               style: Theme.of(context).textTheme.subtitle2,
             ),
+            SizedBox(height: 5),
             ...children,
           ]),
     );
@@ -86,15 +87,78 @@ class _RootNodePropertyEditor extends StatelessWidget {
       children: [
         _Section(
           title: 'Calls',
-          children: [],
+          children: [
+            ...node.callSlots.map((e) => _slot(e, context)).toList(),
+          ],
         ),
         _SectionDivider(),
         _Section(
           title: 'Streams',
-          children: [],
+          children: [
+            ...node.streamSlots.map((e) => _slot(e, context)).toList(),
+          ],
         ),
         _SectionDivider(),
       ],
+    );
+  }
+
+  Widget _slot(ChildSlot slot, BuildContext context) {
+    final document = Provider.of<Document>(context, listen: false);
+    final selection = Provider.of<Selection>(context, listen: false);
+
+    void _deleteSlot(ChildSlot slot) {
+      if (slot.child_id != null) {
+        document.disconnectNode(parent: node, child_id: slot.child_id);
+      }
+      node.removeSlot(slot.id);
+      selection.invalidate();
+    }
+
+    void _deleteChild(ChildSlot slot) {
+      document.disconnectNode(parent: node, child_id: slot.child_id);
+      selection.invalidate();
+    }
+
+    return Container(
+      height: 22,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          GestureDetector(
+            onTap: () {
+              _deleteSlot(slot);
+            },
+            child: Icon(
+              Icons.highlight_off,
+              color: Colors.grey,
+              size: 15,
+            ),
+          ),
+          SizedBox(width: 4),
+          GestureDetector(
+            onTap: () {
+              if (slot.isConnected) {
+                _deleteChild(slot);
+              }
+            },
+            child: Icon(
+              slot.isConnected ? Icons.link_off : null,
+              color: Colors.grey,
+              size: 15,
+            ),
+          ),
+          SizedBox(width: 4),
+          Container(
+            child: Text(
+              slot.name,
+              maxLines: 1,
+              textAlign: TextAlign.right,
+            ),
+          ),
+          Spacer(),
+        ],
+      ),
     );
   }
 }

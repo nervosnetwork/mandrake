@@ -106,7 +106,7 @@ class _GraphsLayerState extends State<GraphsLayer> {
           final target = hitTest(event.localPosition);
           if (document.canConnect(parent: source, child: target)) {
             document.connectNode(parent: source, child: target, slot_id: slot?.id);
-            selection.select(target);
+            // selection.select(target);
           }
           selection.hover(null);
           _startConnectorOffset = _endConnectorOffset = null;
