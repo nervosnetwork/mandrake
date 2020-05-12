@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/node.dart';
+import '../../models/node.dart';
 import 'node_view.dart';
 
 class RootNodeViewState extends NodeViewState {

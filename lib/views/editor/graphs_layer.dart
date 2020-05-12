@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/document.dart';
-import '../models/selection.dart';
-import '../models/editor_state.dart';
+import '../../models/document.dart';
+import '../../models/selection.dart';
+import '../../models/editor_state.dart';
 
-import '../node_views/node_view.dart';
-import '../utils/edge_path.dart';
+import '../nodes/node_view.dart';
+import '../../utils/edge_path.dart';
 
 class GraphsLayer extends StatefulWidget {
   @override

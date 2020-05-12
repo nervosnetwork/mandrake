@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/document.dart';
-import '../models/link.dart';
-import '../utils/edge_path.dart';
+import '../../models/document.dart';
+import '../../models/link.dart';
+import '../../utils/edge_path.dart';
 
 /// Draw edges (between parent and child nodes).
 /// Currently connecting (by dragging connector point from one node to another)

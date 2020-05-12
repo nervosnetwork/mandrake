@@ -33,23 +33,24 @@ class Toolbar extends StatelessWidget {
               onPressed: null,
             ),
             _separator(),
+            IconButton(
+              icon: Icon(Icons.zoom_out),
+              onPressed: editorState.zoomOutAction,
+            ),
             SizedBox(
-              width: 40,
+              width: 30,
               child: Text(
                 '${(editorState.zoomScale * 100).round().toInt()}%',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.grey,
-                  fontSize: 12,
+                  fontSize: 11,
                 ),
               ),
             ),
             IconButton(
               icon: Icon(Icons.zoom_in),
               onPressed: editorState.zoomInAction,
-            ),
-            IconButton(
-              icon: Icon(Icons.zoom_out),
-              onPressed: editorState.zoomOutAction,
             ),
           ],
         ),

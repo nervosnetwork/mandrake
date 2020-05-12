@@ -1,8 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../models/selection.dart';
-import '../models/node.dart';
+import '../../models/selection.dart';
+import '../../models/node.dart';
 
 import 'root_node_view.dart';
 

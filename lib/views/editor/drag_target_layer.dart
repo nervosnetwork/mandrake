@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/document.dart';
-import '../models/selection.dart';
-import '../models/node.dart';
+import '../../models/document.dart';
+import '../../models/selection.dart';
+import '../../models/node.dart';
 
 /// Accept dragged node template from Object Panel.
 class DragTargetLayer extends StatelessWidget {

@@ -5,16 +5,18 @@ import 'models/document.dart';
 import 'models/selection.dart';
 import 'models/editor_state.dart';
 
-import 'object_panel.dart';
 import 'toolbar.dart';
-import 'editor_views/canvas_layer.dart';
-import 'editor_views/edges_layer.dart';
-import 'editor_views/graphs_layer.dart';
-import 'editor_views/drag_target_layer.dart';
+import 'object_library.dart';
+import 'property_inspector.dart';
+
+import 'views/editor/canvas_layer.dart';
+import 'views/editor/edges_layer.dart';
+import 'views/editor/graphs_layer.dart';
+import 'views/editor/drag_target_layer.dart';
 
 class Editor extends StatelessWidget {
   final double _toolbarHeight = 40;
-  final double _objectPanelWidth = 240;
+  final double _sidePandelWidth = 240;
 
   @override
   Widget build(BuildContext context) {
@@ -29,17 +31,24 @@ class Editor extends StatelessWidget {
           children: [
             Positioned(
               top: _toolbarHeight,
-              left: _objectPanelWidth,
-              right: 0,
+              left: _sidePandelWidth,
+              right: _sidePandelWidth,
               bottom: 0,
               child: DesignEditor(),
             ),
             Positioned(
               top: _toolbarHeight,
               left: 0,
-              right: constraints.maxWidth - _objectPanelWidth,
               bottom: 0,
-              child: ObjectPanel(),
+              width: _sidePandelWidth,
+              child: ObjectLibrary(),
+            ),
+            Positioned(
+              top: _toolbarHeight,
+              bottom: 0,
+              right: 0,
+              width: _sidePandelWidth,
+              child: PropertyInspector(),
             ),
             Positioned(
               top: 0,
