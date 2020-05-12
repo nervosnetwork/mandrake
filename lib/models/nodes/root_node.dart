@@ -48,6 +48,14 @@ class RootNode extends Node {
   }
 
   @override
+  void removeSlot(String slot_id) {
+    _callSlots.removeWhere((s) => s.id == slot_id);
+    _streamSlots.removeWhere((s) => s.id == slot_id);
+
+    super.removeSlot(slot_id);
+  }
+
+  @override
   void addChild(Node child, [String slot_id]) {
     if (slot_id == addCallChildSlot.id) {
       super.addChild(child, addCallSlot().id);

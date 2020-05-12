@@ -38,6 +38,16 @@ void main() {
     expect(parent.children.length, 2);
   });
 
+  test('remove child', () {
+    final node = Node();
+    final slot = node.addSlot('first');
+    final child = Node();
+    node.addChild(child, slot.id);
+    expect(slot.child_id, child.id);
+    node.removeChild(child.id);
+    expect(slot.child_id, null);
+  });
+
   test('add slot when children are added', () {
     final node = Node();
     final slot = node.addSlot('first');
@@ -49,6 +59,16 @@ void main() {
     expect(() {
       node.addChild(Node(), ChildSlot().id);
     }, throwsA(isA<AssertionError>()));
+  });
+
+  test('child is removed when its slot is removed', () {
+    final node = Node();
+    final slot = node.addSlot('first');
+    final child = Node();
+    node.addChild(child, slot.id);
+    expect(node.children.contains(child), true);
+    node.removeSlot(slot.id);
+    expect(node.children.contains(child), false);
   });
 
   group('get nodes', () {

@@ -41,6 +41,18 @@ void main() {
     expect(node.slots.length, 2);
   });
 
+  test('remove call and stream slots', () {
+    final node = RootNode();
+    final callSlot = node.addCallSlot();
+    final streamSlot = node.addStreamSlot();
+    node.removeSlot(callSlot.id);
+    expect(node.callSlots.length, 0);
+    expect(node.slots.length, 1);
+    node.removeSlot(streamSlot.id);
+    expect(node.streamSlots.length, 0);
+    expect(node.slots.length, 0);
+  });
+
   test('add call child', () {
     final node = RootNode();
     final callSlot = node.addCallSlot();

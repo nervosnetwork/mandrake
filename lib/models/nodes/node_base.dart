@@ -57,6 +57,28 @@ class Node extends NodeBase {
   @override
   bool get canAddChild => true;
 
+  ChildSlot addSlot(String name) {
+    final slot = ChildSlot(name: name);
+    _slots.add(slot);
+    return slot;
+  }
+
+  /// Remove both the slot and the child if there's one connected.
+  void removeSlot(String slot_id) {
+    final slot = slots.firstWhere((s) => s.id == slot_id, orElse: () => null);
+    if (slot != null) {
+      removeChild(slot.child_id);
+      _slots.remove(slot);
+    }
+  }
+
+  void _fillSlot(Node child, String slot_id) {
+    final slot = slots.firstWhere((s) => s.id == slot_id && !s.isConnected, orElse: () => null);
+    assert(slot != null);
+    slot.child_id = child.id;
+  }
+
+  /// Add a child. If slot_id is provided fill the child to that slot.
   void addChild(Node child, [String slot_id]) {
     assert(canAddChild);
     if (_children.contains(child)) {
@@ -69,6 +91,21 @@ class Node extends NodeBase {
     } else if (slot_id != null) {
       _fillSlot(child, slot_id);
     }
+  }
+
+  /// Remove a child from this node. Not this merely deletes the connection
+  /// between this node and its child. It would keep the slot.
+  void removeChild(String child_id) {
+    if (child_id == null) {
+      return;
+    }
+
+    final slot = slots.firstWhere((s) => s.child_id == child_id, orElse: () => null);
+    if (slot != null) {
+      slot.child_id = null;
+    }
+
+    _children.removeWhere((c) => c.id == child_id);
   }
 
   Offset childConnectorPosition(Node child) {
@@ -101,12 +138,6 @@ class Node extends NodeBase {
     }
 
     return null;
-  }
-
-  ChildSlot addSlot(String name) {
-    final slot = ChildSlot(name: name);
-    _slots.add(slot);
-    return slot;
   }
 
   /// Return a child slot if pointer is inside its add button area.
@@ -142,12 +173,6 @@ class Node extends NodeBase {
     }
 
     return null;
-  }
-
-  void _fillSlot(Node child, String slot_id) {
-    final slot = slots.firstWhere((s) => s.id == slot_id && !s.isConnected, orElse: () => null);
-    assert(slot != null);
-    slot.child_id = child.id;
   }
 }
 

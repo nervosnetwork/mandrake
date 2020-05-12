@@ -63,6 +63,16 @@ class Document extends ChangeNotifier {
     notifyListeners();
   }
 
+  void disconnectNode({@required Node parent, @required String child_id, String slot_id}) {
+    final child = nodes.firstWhere((n) => n.id == child_id, orElse: () => null);
+    _topLevelNodes.add(child);
+    parent.removeChild(child_id);
+
+    _rebuildNodes();
+    _rebuildLinks();
+    notifyListeners();
+  }
+
   void moveNodePosition(Node node, Offset offset) {
     assert(nodes.contains(node));
     node.position += offset;
