@@ -71,7 +71,7 @@ class _Section extends StatelessWidget {
 }
 
 class _SectionDivider extends Divider {
-  _SectionDivider() : super(height: 1);
+  _SectionDivider() : super(height: 2);
 }
 
 class _RootNodePropertyEditor extends StatelessWidget {
@@ -103,6 +103,7 @@ class _RootNodePropertyEditor extends StatelessWidget {
     );
   }
 
+  // TODO: editing call name.
   Widget _slot(ChildSlot slot, BuildContext context) {
     final document = Provider.of<Document>(context, listen: false);
     final selection = Provider.of<Selection>(context, listen: false);
