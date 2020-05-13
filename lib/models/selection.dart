@@ -24,13 +24,6 @@ class Selection extends ChangeNotifier {
     }
   }
 
-  /// Force change on current selected node.
-  void invalidate() {
-    if (_selectedNodeId != null) {
-      notifyListeners();
-    }
-  }
-
   void hover(Node node) {
     if (_hoveredNodeId != node?.id) {
       _hoveredNodeId = node?.id;

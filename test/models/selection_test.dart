@@ -50,21 +50,4 @@ void main() {
       expect(selection.hoveredNode([]), null);
     });
   });
-
-  test('force invalidation when there is node selected', () {
-    final selection = Selection();
-    selection.select(Node());
-    selection.addListener(() {
-      expect(true, true);
-    });
-    selection.invalidate();
-  });
-
-  test('no force invalidation when there is no node selected', () {
-    final selection = Selection();
-    selection.addListener(() {
-      expect(true, false);
-    });
-    selection.invalidate();
-  });
 }
