@@ -15,8 +15,8 @@ import 'views/editor/graphs_layer.dart';
 import 'views/editor/drag_target_layer.dart';
 
 class Editor extends StatelessWidget {
-  final double _toolbarHeight = 40;
-  final double _sidePandelWidth = 240;
+  static const double _toolbarHeight = 40;
+  static const double _sidePandelWidth = 240;
 
   @override
   Widget build(BuildContext context) {
@@ -26,40 +26,38 @@ class Editor extends StatelessWidget {
         ChangeNotifierProvider<Selection>(create: (_) => Selection()),
         ChangeNotifierProvider<EditorState>(create: (_) => EditorState()),
       ],
-      child: LayoutBuilder(builder: (buildContext, constraints) {
-        return Stack(
-          children: [
-            Positioned(
-              top: _toolbarHeight,
-              left: _sidePandelWidth,
-              right: _sidePandelWidth,
-              bottom: 0,
-              child: DesignEditor(),
-            ),
-            Positioned(
-              top: _toolbarHeight,
-              left: 0,
-              bottom: 0,
-              width: _sidePandelWidth,
-              child: ObjectLibrary(),
-            ),
-            Positioned(
-              top: _toolbarHeight,
-              bottom: 0,
-              right: 0,
-              width: _sidePandelWidth,
-              child: PropertyInspector(),
-            ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: _toolbarHeight,
-              child: Toolbar(),
-            ),
-          ],
-        );
-      }),
+      child: Stack(
+        children: [
+          Positioned(
+            top: _toolbarHeight,
+            left: _sidePandelWidth,
+            right: _sidePandelWidth,
+            bottom: 0,
+            child: DesignEditor(),
+          ),
+          Positioned(
+            top: _toolbarHeight,
+            left: 0,
+            bottom: 0,
+            width: _sidePandelWidth,
+            child: ObjectLibrary(),
+          ),
+          Positioned(
+            top: _toolbarHeight,
+            bottom: 0,
+            right: 0,
+            width: _sidePandelWidth,
+            child: PropertyInspector(),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: _toolbarHeight,
+            child: Toolbar(),
+          ),
+        ],
+      ),
     );
   }
 }
