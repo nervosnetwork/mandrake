@@ -100,6 +100,8 @@ class _BasicInfoProperty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final document = Provider.of<Document>(context);
+
     _nameController.text = node.name;
     _xPosController.text = node.position.dx.toInt().toString();
     _yPosController.text = node.position.dy.toInt().toString();
@@ -119,6 +121,11 @@ class _BasicInfoProperty extends StatelessWidget {
                 controller: _nameController,
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: _TextFieldDecoration(),
+                onFieldSubmitted: (v) {
+                  node.name = v; // TODO: simple validation
+                  document.invalidate();
+                  // TODO
+                },
               ),
             ),
           ],
@@ -135,6 +142,10 @@ class _BasicInfoProperty extends StatelessWidget {
                 controller: _xPosController,
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: _TextFieldDecoration().copyWith(suffixText: 'x'),
+                onFieldSubmitted: (v) {
+                  // TODO: simple validation
+                  document.moveNodePosition(node, Offset(double.parse(v) - node.position.dx, 0));
+                },
               ),
             ),
             SizedBox(width: 5),
@@ -143,6 +154,10 @@ class _BasicInfoProperty extends StatelessWidget {
                 controller: _yPosController,
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: _TextFieldDecoration().copyWith(suffixText: 'y'),
+                onFieldSubmitted: (v) {
+                  // TODO: simple validation
+                  document.moveNodePosition(node, Offset(0, double.parse(v) - node.position.dy));
+                },
               ),
             ),
           ],

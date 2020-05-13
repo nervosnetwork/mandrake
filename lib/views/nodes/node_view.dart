@@ -39,6 +39,7 @@ class NodeViewState extends State<NodeView> {
     setState(() {
       widget.node.addSlot('new child');
     });
+    widget.selection.invalidate();
   }
 
   BoxDecoration titleDecoration([Color color = titleColor]) {

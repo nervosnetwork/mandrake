@@ -73,9 +73,16 @@ class Document extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Move a node by offset.
   void moveNodePosition(Node node, Offset offset) {
     assert(nodes.contains(node));
     node.position += offset;
+    notifyListeners();
+  }
+
+  void invalidate() {
+    _rebuildNodes();
+    _rebuildLinks();
     notifyListeners();
   }
 
