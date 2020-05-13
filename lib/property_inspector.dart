@@ -22,18 +22,21 @@ class PropertyInspector extends StatelessWidget {
             ),
           ),
         ),
-        child: _propertyEditor(node),
+        child: ChangeNotifierProvider<Node>.value(
+          value: node,
+          child: _propertyEditor(node),
+        ),
       );
     });
   }
 
   Widget _propertyEditor(Node node) {
     if (node is RootNode) {
-      return _RootNodePropertyEditor(node);
+      return _RootNodePropertyEditor();
     }
 
     if (node != null) {
-      return _NodePropertyEditor(node);
+      return _NodePropertyEditor();
     }
 
     return Center(
@@ -91,16 +94,14 @@ class _TextFieldRowSpacer extends SizedBox {
 }
 
 class _BasicInfoProperty extends StatelessWidget {
-  _BasicInfoProperty(this.node);
-
-  final Node node;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _xPosController = TextEditingController();
   final TextEditingController _yPosController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final document = Provider.of<Document>(context);
+    final document = Provider.of<Document>(context, listen: false);
+    final node = Provider.of<Node>(context);
 
     _nameController.text = node.name;
     _xPosController.text = node.position.dx.toInt().toString();
@@ -122,9 +123,7 @@ class _BasicInfoProperty extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: _TextFieldDecoration(),
                 onFieldSubmitted: (v) {
-                  node.name = v; // TODO: simple validation
-                  document.invalidate();
-                  // TODO
+                  node.updateName(v); // TODO: simple validation
                 },
               ),
             ),
@@ -236,12 +235,10 @@ class _SlotProperty extends StatelessWidget {
 }
 
 class _NodePropertyEditor extends StatelessWidget {
-  _NodePropertyEditor(this.node);
-
-  final Node node;
-
   @override
   Widget build(BuildContext context) {
+    final node = Provider.of<Node>(context);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,7 +246,7 @@ class _NodePropertyEditor extends StatelessWidget {
         _Section(
           title: 'Info',
           children: [
-            _BasicInfoProperty(node),
+            _BasicInfoProperty(),
           ],
         ),
         _SectionDivider(),
@@ -266,12 +263,10 @@ class _NodePropertyEditor extends StatelessWidget {
 }
 
 class _RootNodePropertyEditor extends StatelessWidget {
-  _RootNodePropertyEditor(this.node);
-
-  final RootNode node;
-
   @override
   Widget build(BuildContext context) {
+    final node = Provider.of<Node>(context) as RootNode;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,7 +274,7 @@ class _RootNodePropertyEditor extends StatelessWidget {
         _Section(
           title: 'Info',
           children: [
-            _BasicInfoProperty(node),
+            _BasicInfoProperty(),
           ],
         ),
         _SectionDivider(),

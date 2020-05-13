@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 
 import '../../models/document.dart';
 import '../../models/selection.dart';
+import '../../models/node.dart';
 import '../../models/editor_state.dart';
 
-import '../nodes/node_view.dart';
+import '../nodes/view_creator.dart';
 import '../../utils/edge_path.dart';
 
 class GraphsLayer extends StatefulWidget {
@@ -40,7 +41,12 @@ class _GraphsLayerState extends State<GraphsLayer> {
       return null;
     };
 
-    final nodeViews = document.nodes.map((e) => NodeView(e, selection)).toList();
+    final nodeViews = document.nodes.map((node) {
+      return ChangeNotifierProvider<Node>.value(
+        value: node,
+        child: ViewCreator.create(node, selection),
+      );
+    }).toList();
 
     return Listener(
       behavior: HitTestBehavior.opaque,

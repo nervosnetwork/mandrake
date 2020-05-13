@@ -18,7 +18,7 @@ class Document extends ChangeNotifier {
     final slot = root.addCallSlot();
     addNode(root);
     final call = Node();
-    call.position = root.position + Offset(root.size.width + 100, -50);
+    call.moveTo(root.position + Offset(root.size.width + 100, -50));
     addNode(call);
     connectNode(parent: root, child: call, slot_id: slot.id);
   }
@@ -76,7 +76,7 @@ class Document extends ChangeNotifier {
   /// Move a node by offset.
   void moveNodePosition(Node node, Offset offset) {
     assert(nodes.contains(node));
-    node.position += offset;
+    node.moveTo(node.position + offset);
     notifyListeners();
   }
 

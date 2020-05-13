@@ -1,15 +1,19 @@
 import 'dart:collection';
 import 'dart:ui' show Offset, Size, Rect;
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 /// Base class for [Node], which describes an object representing part of
 /// an AST tree, and its geometry information on a canvas.
 abstract class NodeBase {
-  NodeBase(this.name, this.position) : assert(position != null);
+  NodeBase(this._name, this._position) : assert(_position != null);
 
   final String id = Uuid().v4();
-  String name;
-  Offset position;
+  String _name;
+  Offset _position;
+
+  String get name => _name;
+  Offset get position => _position;
 
   Size get size {
     final height = titleHeight + subtitleHeight + slots.length * slotRowHeight + bottomPadding;
@@ -48,7 +52,7 @@ abstract class NodeBase {
   int get hashCode => id.hashCode;
 }
 
-class Node extends NodeBase {
+class Node extends NodeBase with ChangeNotifier {
   Node([name = 'Node', position = Offset.zero]) : super(name, position);
 
   /// Full list as this node plus its children.
@@ -56,6 +60,16 @@ class Node extends NodeBase {
     final descendants =
         children.map((e) => e.nodes).fold(<Node>[], (value, element) => value + element);
     return UnmodifiableListView([this] + descendants);
+  }
+
+  void updateName(String name) {
+    _name = name;
+    notifyListeners();
+  }
+
+  void moveTo(Offset position) {
+    _position = position;
+    notifyListeners();
   }
 
   /// Assign a virtual slot to the add child button so that one can drag

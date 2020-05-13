@@ -1,30 +1,15 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/selection.dart';
 import '../../models/node.dart';
 
 import 'root_node_view.dart';
 
-class NodeView extends StatefulWidget {
-  NodeView(this.node, this.selection);
-
-  final Node node;
+class NodeView extends StatelessWidget {
+  NodeView(this.selection);
   final Selection selection;
-
-  @override
-  NodeViewState createState() {
-    if (node is RootNode) {
-      return RootNodeViewState();
-    }
-    return NodeViewState();
-  }
-}
-
-class NodeViewState extends State<NodeView> {
-  bool get isSelected => widget.selection.isNodeSelected(widget.node);
-  bool get isHovered => widget.selection.isNodeHovered(widget.node);
-  Size get size => widget.node.size;
 
   static const double borderRadius = 5;
 
@@ -36,10 +21,11 @@ class NodeViewState extends State<NodeView> {
   static const Color subtitleColor = Color(0xff757575);
 
   void onAddChildButtonClicked() {
+    /*
     setState(() {
       widget.node.addSlot('new child');
     });
-    widget.selection.invalidate();
+    widget.selection.invalidate();*/
   }
 
   BoxDecoration titleDecoration([Color color = titleColor]) {
@@ -52,9 +38,9 @@ class NodeViewState extends State<NodeView> {
     );
   }
 
-  Widget subtitle(String title) {
+  Widget subtitle(Node node, String title) {
     return Container(
-      height: widget.node.subtitleHeight,
+      height: node.subtitleHeight,
       padding: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
       color: subtitleColor,
       child: Text(
@@ -67,9 +53,9 @@ class NodeViewState extends State<NodeView> {
     );
   }
 
-  Widget slot(ChildSlot slot) {
+  Widget slot(Node node, ChildSlot slot) {
     return Container(
-      height: widget.node.slotRowHeight,
+      height: node.slotRowHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -80,7 +66,7 @@ class NodeViewState extends State<NodeView> {
               maxLines: 1,
               textAlign: TextAlign.right,
             ),
-            width: widget.node.size.width - 30,
+            width: node.size.width - 30,
           ),
           SizedBox(width: 4),
           Icon(
@@ -94,11 +80,11 @@ class NodeViewState extends State<NodeView> {
     );
   }
 
-  List<Widget> slots() => widget.node.slots.map((s) => slot(s)).toList();
+  List<Widget> slots(Node node) => node.slots.map((s) => slot(node, s)).toList();
 
-  Widget addChildButton([Function onTap]) {
+  Widget addChildButton(BuildContext context, Node node, [Function onTap]) {
     return Container(
-      height: widget.node.actionRowHeight,
+      height: node.actionRowHeight,
       child: Wrap(
         alignment: WrapAlignment.end,
         children: [
@@ -115,37 +101,43 @@ class NodeViewState extends State<NodeView> {
   }
 
   /// Override this to customize node shape.
-  Widget buildView() {
+  Widget buildView(BuildContext context) {
+    final node = Provider.of<Node>(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          height: widget.node.titleHeight,
+          height: node.titleHeight,
           width: double.infinity,
           decoration: titleDecoration(),
           child: Center(
             child: Text(
-              widget.node.name,
+              node.name,
               style: TextStyle(
                 color: Colors.white,
               ),
             ),
           ),
         ),
-        subtitle('Children'),
-        ...slots(),
-        if (widget.node.canAddSlot) addChildButton(onAddChildButtonClicked),
+        subtitle(node, 'Children'),
+        ...slots(node),
+        if (node.canAddSlot) addChildButton(context, node, onAddChildButtonClicked),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final node = Provider.of<Node>(context);
+
+    final isSelected = selection.isNodeSelected(node);
+    final isHovered = selection.isNodeHovered(node);
     return Positioned(
-      left: widget.node.position.dx,
-      top: widget.node.position.dy,
-      width: size.width,
-      height: size.height,
+      left: node.position.dx,
+      top: node.position.dy,
+      width: node.size.width,
+      height: node.size.height,
       child: Stack(
         children: [
           Container(
@@ -162,7 +154,7 @@ class NodeViewState extends State<NodeView> {
               ],
             ),
           ),
-          buildView(),
+          buildView(context),
           if (isSelected || isHovered)
             IgnorePointer(
               child: Container(

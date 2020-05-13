@@ -1,51 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/node.dart';
+import '../../models/selection.dart';
 import 'node_view.dart';
 
-class RootNodeViewState extends NodeViewState {
+class RootNodeView extends NodeView {
+  RootNodeView(Selection selection) : super(selection);
+
   void _onAddCallButtonClicked() {
+    /*
     setState(() {
       _root.addCallSlot();
     });
-    widget.selection.invalidate();
+    widget.selection.invalidate();*/
   }
 
   void _onAddStreamButtonClicked() {
+    /*
     setState(() {
       _root.addStreamSlot();
     });
-    widget.selection.invalidate();
+    widget.selection.invalidate();*/
   }
 
-  RootNode get _root => widget.node;
-
   @override
-  Widget buildView() {
+  Widget buildView(BuildContext context) {
+    final node = Provider.of<Node>(context) as RootNode;
+
+    final callSlots = node.callSlots.map((s) => slot(node, s)).toList();
+
+    final streamSlots = node.streamSlots.map((s) => slot(node, s)).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          height: widget.node.titleHeight,
+          height: node.titleHeight,
           decoration: titleDecoration(Colors.red),
           child: Center(
             child: Text(
-              widget.node.name,
+              node.name,
               style: TextStyle(color: Colors.white),
             ),
           ),
         ),
-        subtitle('Calls'),
-        ..._callSlots(),
-        addChildButton(_onAddCallButtonClicked),
-        subtitle('Streams'),
-        ..._streamSlots(),
-        addChildButton(_onAddStreamButtonClicked),
+        subtitle(node, 'Calls'),
+        ...callSlots,
+        addChildButton(context, node, _onAddCallButtonClicked),
+        subtitle(node, 'Streams'),
+        ...streamSlots,
+        addChildButton(context, node, _onAddStreamButtonClicked),
       ],
     );
   }
-
-  List<Widget> _callSlots() => _root.callSlots.map((s) => slot(s)).toList();
-
-  List<Widget> _streamSlots() => _root.streamSlots.map((s) => slot(s)).toList();
 }
