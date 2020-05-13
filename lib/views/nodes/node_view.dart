@@ -133,7 +133,7 @@ class NodeViewState extends State<NodeView> {
         ),
         subtitle('Children'),
         ...slots(),
-        if (widget.node.canAddChild) addChildButton(onAddChildButtonClicked),
+        if (widget.node.canAddSlot) addChildButton(onAddChildButtonClicked),
       ],
     );
   }

@@ -37,7 +37,7 @@ class PropertyInspector extends StatelessWidget {
     }
 
     return Center(
-      child: Text(
+      child: const Text(
         'No Selection',
         style: TextStyle(color: Colors.grey),
       ),
@@ -46,7 +46,7 @@ class PropertyInspector extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  _Section({this.title, this.children, Key key}) : super(key: key);
+  _Section({@required this.title, @required this.children, Key key}) : super(key: key);
 
   final String title;
   final List<Widget> children;
@@ -74,37 +74,93 @@ class _SectionDivider extends Divider {
   _SectionDivider() : super(height: 2);
 }
 
-class _RootNodePropertyEditor extends StatelessWidget {
-  _RootNodePropertyEditor(this.node);
+class _TextFieldDecoration extends InputDecoration {
+  _TextFieldDecoration()
+      : super(
+          border: OutlineInputBorder(),
+          contentPadding: EdgeInsets.symmetric(
+            vertical: 10,
+            horizontal: 10,
+          ),
+          isDense: true,
+        );
+}
 
-  final RootNode node;
+class _TextFieldRowSpacer extends SizedBox {
+  _TextFieldRowSpacer() : super(height: 4);
+}
+
+class _BasicInfoProperty extends StatelessWidget {
+  _BasicInfoProperty(this.node);
+
+  final Node node;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _xPosController = TextEditingController();
+  final TextEditingController _yPosController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    _nameController.text = node.name;
+    _xPosController.text = node.position.dx.toInt().toString();
+    _yPosController.text = node.position.dy.toInt().toString();
+
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _Section(
-          title: 'Calls',
+        Row(
           children: [
-            ...node.callSlots.map((e) => _slot(e, context)).toList(),
+            Container(
+              child: Text('Name'),
+              width: 60,
+            ),
+            Flexible(
+              child: TextFormField(
+                controller: _nameController,
+                style: Theme.of(context).textTheme.bodyText2,
+                decoration: _TextFieldDecoration(),
+              ),
+            ),
           ],
         ),
-        _SectionDivider(),
-        _Section(
-          title: 'Streams',
+        _TextFieldRowSpacer(),
+        Row(
           children: [
-            ...node.streamSlots.map((e) => _slot(e, context)).toList(),
+            Container(
+              child: Text('Position'),
+              width: 60,
+            ),
+            Flexible(
+              child: TextFormField(
+                controller: _xPosController,
+                style: Theme.of(context).textTheme.bodyText2,
+                decoration: _TextFieldDecoration().copyWith(suffixText: 'x'),
+              ),
+            ),
+            SizedBox(width: 5),
+            Flexible(
+              child: TextFormField(
+                controller: _yPosController,
+                style: Theme.of(context).textTheme.bodyText2,
+                decoration: _TextFieldDecoration().copyWith(suffixText: 'y'),
+              ),
+            ),
           ],
         ),
-        _SectionDivider(),
       ],
     );
   }
+}
 
-  // TODO: editing call name.
-  Widget _slot(ChildSlot slot, BuildContext context) {
+// TODO: editing call name.
+class _SlotProperty extends StatelessWidget {
+  _SlotProperty(this.node, this.slot);
+
+  final Node node;
+  final ChildSlot slot;
+
+  @override
+  Widget build(BuildContext context) {
     final document = Provider.of<Document>(context, listen: false);
     final selection = Provider.of<Selection>(context, listen: false);
 
@@ -176,8 +232,54 @@ class _NodePropertyEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _Section(
+          title: 'Info',
+          children: [
+            _BasicInfoProperty(node),
+          ],
+        ),
+        _SectionDivider(),
+        _Section(
           title: 'Children',
-          children: [],
+          children: [
+            ...node.slots.map((e) => _SlotProperty(node, e)).toList(),
+          ],
+        ),
+        _SectionDivider(),
+      ],
+    );
+  }
+}
+
+class _RootNodePropertyEditor extends StatelessWidget {
+  _RootNodePropertyEditor(this.node);
+
+  final RootNode node;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _Section(
+          title: 'Info',
+          children: [
+            _BasicInfoProperty(node),
+          ],
+        ),
+        _SectionDivider(),
+        _Section(
+          title: 'Calls',
+          children: [
+            ...node.callSlots.map((e) => _SlotProperty(node, e)).toList(),
+          ],
+        ),
+        _SectionDivider(),
+        _Section(
+          title: 'Streams',
+          children: [
+            ...node.streamSlots.map((e) => _SlotProperty(node, e)).toList(),
+          ],
         ),
         _SectionDivider(),
       ],

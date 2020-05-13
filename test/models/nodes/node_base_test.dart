@@ -1,6 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mandrake/models/nodes/node_base.dart';
 
+class _SomeNode extends Node {
+  @override
+  int get minimumSlotCount => 2;
+  @override
+  int get maximumSlotCount => 3;
+}
+
 void main() {
   group('child slot', () {
     test('is connected', () {
@@ -22,6 +29,19 @@ void main() {
 
     Node nullNode;
     expect(nullNode == null, true);
+  });
+
+  test('can add or remove slot', () {
+    final node = _SomeNode();
+
+    node.addSlot('first');
+    node.addSlot('second');
+    expect(node.canAddSlot, true);
+    final last = node.addSlot('last');
+    expect(node.canAddSlot, false);
+    expect(node.canRemoveSlot, true);
+    node.removeSlot(last.id);
+    expect(node.canRemoveSlot, false);
   });
 
   test('add child', () {

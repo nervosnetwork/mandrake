@@ -15,7 +15,7 @@ abstract class NodeBase {
     final height = titleHeight + subtitleHeight + slots.length * slotRowHeight + bottomPadding;
     return Size(
       120,
-      canAddChild ? height + actionRowHeight : height,
+      canAddSlot ? height + actionRowHeight : height,
     );
   }
 
@@ -25,7 +25,15 @@ abstract class NodeBase {
   final List<ChildSlot> _slots = [];
   UnmodifiableListView<ChildSlot> get slots => UnmodifiableListView(_slots);
 
-  bool get canAddChild => false;
+  /// Number of child slots the node must keep. Subclass of a specified node
+  /// should overide [minmimSlotCount] and/or [maximumSlotCount] to limit
+  /// adding/removing children/slots operations. For example a node for `+`
+  /// operator should have both values fixed to `2`.
+  int get minimumSlotCount => 0;
+  int get maximumSlotCount => 5;
+  bool get canAddChild => children.length < maximumSlotCount;
+  bool get canAddSlot => slots.length < maximumSlotCount;
+  bool get canRemoveSlot => slots.length > minimumSlotCount;
 
   double get titleHeight => 30;
   double get subtitleHeight => 16;
@@ -53,9 +61,6 @@ class Node extends NodeBase {
   /// Assign a virtual slot to the add child button so that one can drag
   /// from the add child button to another node to connect.
   static final ChildSlot addChildSlot = ChildSlot();
-
-  @override
-  bool get canAddChild => true;
 
   ChildSlot addSlot(String name) {
     final slot = ChildSlot(name: name);
