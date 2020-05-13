@@ -2,35 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/node.dart';
-import '../../models/selection.dart';
 import 'node_view.dart';
 
 class RootNodeView extends NodeView {
-  RootNodeView(Selection selection) : super(selection);
-
-  void _onAddCallButtonClicked() {
-    /*
-    setState(() {
-      _root.addCallSlot();
-    });
-    widget.selection.invalidate();*/
-  }
-
-  void _onAddStreamButtonClicked() {
-    /*
-    setState(() {
-      _root.addStreamSlot();
-    });
-    widget.selection.invalidate();*/
-  }
-
   @override
   Widget buildView(BuildContext context) {
     final node = Provider.of<Node>(context) as RootNode;
 
-    final callSlots = node.callSlots.map((s) => slot(node, s)).toList();
+    void _onAddCallButtonClicked() => node.addCallSlot();
+    void _onAddStreamButtonClicked() => node.addStreamSlot();
 
-    final streamSlots = node.streamSlots.map((s) => slot(node, s)).toList();
+    final callSlots = node.callSlots.map((s) => slot(context, s)).toList();
+    final streamSlots = node.streamSlots.map((s) => slot(context, s)).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -45,12 +28,12 @@ class RootNodeView extends NodeView {
             ),
           ),
         ),
-        subtitle(node, 'Calls'),
+        subtitle(context, 'Calls'),
         ...callSlots,
-        addChildButton(context, node, _onAddCallButtonClicked),
-        subtitle(node, 'Streams'),
+        addChildButton(context, _onAddCallButtonClicked),
+        subtitle(context, 'Streams'),
         ...streamSlots,
-        addChildButton(context, node, _onAddStreamButtonClicked),
+        addChildButton(context, _onAddStreamButtonClicked),
       ],
     );
   }

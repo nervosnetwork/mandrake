@@ -168,27 +168,24 @@ class _BasicInfoProperty extends StatelessWidget {
 
 // TODO: editing call name.
 class _SlotProperty extends StatelessWidget {
-  _SlotProperty(this.node, this.slot);
+  _SlotProperty(this.slot);
 
-  final Node node;
   final ChildSlot slot;
 
   @override
   Widget build(BuildContext context) {
     final document = Provider.of<Document>(context, listen: false);
-    final selection = Provider.of<Selection>(context, listen: false);
+    final node = Provider.of<Node>(context);
 
     void _deleteSlot(ChildSlot slot) {
       if (slot.child_id != null) {
         document.disconnectNode(parent: node, child_id: slot.child_id);
       }
       node.removeSlot(slot.id);
-      selection.invalidate();
     }
 
     void _deleteChild(ChildSlot slot) {
       document.disconnectNode(parent: node, child_id: slot.child_id);
-      selection.invalidate();
     }
 
     return Container(
@@ -253,7 +250,7 @@ class _NodePropertyEditor extends StatelessWidget {
         _Section(
           title: 'Children',
           children: [
-            ...node.slots.map((e) => _SlotProperty(node, e)).toList(),
+            ...node.slots.map((e) => _SlotProperty(e)).toList(),
           ],
         ),
         _SectionDivider(),
@@ -281,14 +278,14 @@ class _RootNodePropertyEditor extends StatelessWidget {
         _Section(
           title: 'Calls',
           children: [
-            ...node.callSlots.map((e) => _SlotProperty(node, e)).toList(),
+            ...node.callSlots.map((e) => _SlotProperty(e)).toList(),
           ],
         ),
         _SectionDivider(),
         _Section(
           title: 'Streams',
           children: [
-            ...node.streamSlots.map((e) => _SlotProperty(node, e)).toList(),
+            ...node.streamSlots.map((e) => _SlotProperty(e)).toList(),
           ],
         ),
         _SectionDivider(),

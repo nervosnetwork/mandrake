@@ -1,15 +1,13 @@
 import '../../models/node.dart';
-import '../../models/selection.dart';
 import 'node_view.dart';
 import 'root_node_view.dart';
 
 class ViewCreator {
-  // TODO: remove selection; pass down with provider
-  static NodeView create(Node node, Selection selection) {
+  static NodeView create(Node node) {
     if (node is RootNode) {
-      return RootNodeView(selection);
+      return RootNodeView();
     }
 
-    return NodeView(selection);
+    return NodeView();
   }
 }

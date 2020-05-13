@@ -2,15 +2,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/selection.dart';
 import '../../models/node.dart';
-
-import 'root_node_view.dart';
+import '../../models/selection.dart';
 
 class NodeView extends StatelessWidget {
-  NodeView(this.selection);
-  final Selection selection;
-
   static const double borderRadius = 5;
 
   static const Color bgColor = Color(0xffe3f2fd);
@@ -19,14 +14,6 @@ class NodeView extends StatelessWidget {
   static const Color hoveredBorderColor = Color(0xffef5350);
   static const Color titleColor = Color(0xff303f9f);
   static const Color subtitleColor = Color(0xff757575);
-
-  void onAddChildButtonClicked() {
-    /*
-    setState(() {
-      widget.node.addSlot('new child');
-    });
-    widget.selection.invalidate();*/
-  }
 
   BoxDecoration titleDecoration([Color color = titleColor]) {
     return BoxDecoration(
@@ -38,7 +25,8 @@ class NodeView extends StatelessWidget {
     );
   }
 
-  Widget subtitle(Node node, String title) {
+  Widget subtitle(BuildContext context, String title) {
+    final node = Provider.of<Node>(context);
     return Container(
       height: node.subtitleHeight,
       padding: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
@@ -53,7 +41,8 @@ class NodeView extends StatelessWidget {
     );
   }
 
-  Widget slot(Node node, ChildSlot slot) {
+  Widget slot(BuildContext context, ChildSlot slot) {
+    final node = Provider.of<Node>(context);
     return Container(
       height: node.slotRowHeight,
       child: Row(
@@ -80,9 +69,8 @@ class NodeView extends StatelessWidget {
     );
   }
 
-  List<Widget> slots(Node node) => node.slots.map((s) => slot(node, s)).toList();
-
-  Widget addChildButton(BuildContext context, Node node, [Function onTap]) {
+  Widget addChildButton(BuildContext context, [Function onTap]) {
+    final node = Provider.of<Node>(context);
     return Container(
       height: node.actionRowHeight,
       child: Wrap(
@@ -103,6 +91,11 @@ class NodeView extends StatelessWidget {
   /// Override this to customize node shape.
   Widget buildView(BuildContext context) {
     final node = Provider.of<Node>(context);
+    final slots = node.slots.map((s) => slot(context, s)).toList();
+
+    void onAddChildButtonClicked() {
+      node.addSlot('new child');
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -120,9 +113,9 @@ class NodeView extends StatelessWidget {
             ),
           ),
         ),
-        subtitle(node, 'Children'),
-        ...slots(node),
-        if (node.canAddSlot) addChildButton(context, node, onAddChildButtonClicked),
+        subtitle(context, 'Children'),
+        ...slots,
+        if (node.canAddSlot) addChildButton(context, onAddChildButtonClicked),
       ],
     );
   }
@@ -130,9 +123,10 @@ class NodeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final node = Provider.of<Node>(context);
-
+    final selection = Provider.of<Selection>(context, listen: false);
     final isSelected = selection.isNodeSelected(node);
     final isHovered = selection.isNodeHovered(node);
+
     return Positioned(
       left: node.position.dx,
       top: node.position.dy,

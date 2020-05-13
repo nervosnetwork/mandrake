@@ -79,6 +79,7 @@ class Node extends NodeBase with ChangeNotifier {
   ChildSlot addSlot(String name) {
     final slot = ChildSlot(name: name);
     _slots.add(slot);
+    notifyListeners();
     return slot;
   }
 
@@ -88,6 +89,8 @@ class Node extends NodeBase with ChangeNotifier {
     if (slot != null) {
       removeChild(slot.child_id);
       _slots.remove(slot);
+
+      notifyListeners();
     }
   }
 
@@ -110,6 +113,8 @@ class Node extends NodeBase with ChangeNotifier {
     } else if (slot_id != null) {
       _fillSlot(child, slot_id);
     }
+
+    notifyListeners();
   }
 
   /// Remove a child from this node. Not this merely deletes the connection
@@ -125,6 +130,8 @@ class Node extends NodeBase with ChangeNotifier {
     }
 
     _children.removeWhere((c) => c.id == child_id);
+
+    notifyListeners();
   }
 
   Offset childConnectorPosition(Node child) {

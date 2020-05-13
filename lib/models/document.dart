@@ -80,12 +80,6 @@ class Document extends ChangeNotifier {
     notifyListeners();
   }
 
-  void invalidate() {
-    _rebuildNodes();
-    _rebuildLinks();
-    notifyListeners();
-  }
-
   void _rebuildNodes() {
     _allNodes.clear();
     for (final root in _topLevelNodes) {

@@ -44,7 +44,7 @@ class _GraphsLayerState extends State<GraphsLayer> {
     final nodeViews = document.nodes.map((node) {
       return ChangeNotifierProvider<Node>.value(
         value: node,
-        child: ViewCreator.create(node, selection),
+        child: ViewCreator.create(node),
       );
     }).toList();
 
