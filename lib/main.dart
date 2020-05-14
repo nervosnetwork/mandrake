@@ -10,7 +10,12 @@ class MandrakeApp extends StatelessWidget {
       title: 'Mandrake',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        //dialogBackgroundColor: Color(0xffe3f2fd),
+        backgroundColor: Colors.white,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      darkTheme: ThemeData.dark().copyWith(
+        backgroundColor: Color(0xff1d2022),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Scaffold(

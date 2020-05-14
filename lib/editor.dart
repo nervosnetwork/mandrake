@@ -72,7 +72,7 @@ class DesignEditor extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          color: Colors.grey[400],
+          color: Theme.of(context).dialogBackgroundColor,
         ),
         Positioned(
           left: _canvasMargin,

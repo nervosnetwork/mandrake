@@ -3,19 +3,11 @@ import 'package:flutter/material.dart';
 class CanvasLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey,
-            offset: Offset(0, 2),
-            blurRadius: 5,
-          ),
-        ],
-      ),
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      elevation: 2,
       child: CustomPaint(
-        painter: _CanvasGridPainter(),
+        painter: _CanvasGridPainter(Theme.of(context).dividerColor),
         child: Container(),
       ),
     );
@@ -23,12 +15,15 @@ class CanvasLayer extends StatelessWidget {
 }
 
 class _CanvasGridPainter extends CustomPainter {
+  _CanvasGridPainter(this.gridColor);
+  final Color gridColor;
+
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint()
       ..isAntiAlias = true
       ..strokeWidth = 1
-      ..color = Color(0xFFE3F2FD);
+      ..color = gridColor;
 
     for (var i = 20; i < size.width; i += 20) {
       canvas.drawLine(
