@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'models/node.dart';
+
 class ObjectLibrary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -13,27 +15,19 @@ class ObjectLibrary extends StatelessWidget {
           ),
         ),
       ),
+      padding: EdgeInsets.only(top: 10),
       child: Wrap(
+        alignment: WrapAlignment.center,
         children: [
           for (var i = 0; i < 8; i++)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Draggable(
-                    child: _NodeTemplate(),
-                    feedback: _DragFeedbackObject(),
-                    data: '<dragging item>',
-                  ),
-                  Draggable(
-                    child: _NodeTemplate(),
-                    feedback: _DragFeedbackObject(),
-                    data: '<dragging item>',
-                  ),
-                ],
+            Container(
+              padding: const EdgeInsets.all(4),
+              child: Draggable<NodeMeta>(
+                child: _NodeTemplate(),
+                feedback: _DragFeedbackObject(),
+                data: NodeMeta(),
               ),
-            )
+            ),
         ],
       ),
     );
@@ -41,14 +35,28 @@ class ObjectLibrary extends StatelessWidget {
 }
 
 class _NodeTemplate extends StatelessWidget {
+  _NodeTemplate({this.borderColor = Colors.transparent});
+  final Color borderColor;
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(width: 1, color: Colors.black),
+        border: Border.all(width: 1, color: borderColor),
       ),
-      width: 80,
-      height: 40,
+      padding: EdgeInsets.all(2),
+      width: 140,
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Icon(
+            Icons.border_all,
+            size: 24,
+          ),
+          SizedBox(width: 8),
+          const Text('Operand'),
+        ],
+      ),
     );
   }
 }
@@ -56,12 +64,8 @@ class _NodeTemplate extends StatelessWidget {
 class _DragFeedbackObject extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(width: 1, color: Colors.black),
-      ),
-      width: 80,
-      height: 40,
+    return Material(
+      child: _NodeTemplate(borderColor: Colors.blue[600]),
     );
   }
 }

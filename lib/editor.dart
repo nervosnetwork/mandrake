@@ -16,7 +16,8 @@ import 'views/editor/drag_target_layer.dart';
 
 class Editor extends StatelessWidget {
   static const double _toolbarHeight = 40;
-  static const double _sidePandelWidth = 240;
+  static const double _objectLibraryPanelWidth = 180;
+  static const double _propertyInspectorPanelWidth = 240;
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +31,8 @@ class Editor extends StatelessWidget {
         children: [
           Positioned(
             top: _toolbarHeight,
-            left: _sidePandelWidth,
-            right: _sidePandelWidth,
+            left: _objectLibraryPanelWidth,
+            right: _propertyInspectorPanelWidth,
             bottom: 0,
             child: DesignEditor(),
           ),
@@ -39,14 +40,14 @@ class Editor extends StatelessWidget {
             top: _toolbarHeight,
             left: 0,
             bottom: 0,
-            width: _sidePandelWidth,
+            width: _objectLibraryPanelWidth,
             child: ObjectLibrary(),
           ),
           Positioned(
             top: _toolbarHeight,
             bottom: 0,
             right: 0,
-            width: _sidePandelWidth,
+            width: _propertyInspectorPanelWidth,
             child: PropertyInspector(),
           ),
           Positioned(

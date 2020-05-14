@@ -18,7 +18,7 @@ abstract class NodeBase {
   Size get size {
     final height = titleHeight + subtitleHeight + slots.length * slotRowHeight + bottomPadding;
     return Size(
-      120,
+      140,
       canAddSlot ? height + actionRowHeight : height,
     );
   }

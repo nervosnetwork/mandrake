@@ -62,6 +62,7 @@ class Toolbar extends StatelessWidget {
   Widget _separator() {
     return SizedBox(
       width: 20,
+      height: 40,
       child: VerticalDivider(
         indent: 8,
         endIndent: 8,

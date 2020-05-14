@@ -6,7 +6,7 @@ import '../../models/selection.dart';
 import '../../models/node.dart';
 import '../../models/editor_state.dart';
 
-import '../nodes/view_creator.dart';
+import '../node.dart';
 import '../../utils/edge_path.dart';
 
 class GraphsLayer extends StatefulWidget {

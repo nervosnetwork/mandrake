@@ -1,6 +1,6 @@
-import '../../models/node.dart';
-import 'node_view.dart';
-import 'root_node_view.dart';
+import '../models/node.dart';
+import 'nodes/node_view.dart';
+import 'nodes/root_node_view.dart';
 
 class ViewCreator {
   static NodeView create(Node node) {
