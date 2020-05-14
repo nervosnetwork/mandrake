@@ -13,12 +13,12 @@ class ObjectLibrary extends StatelessWidget {
           ),
         ),
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            for (var i = 0; i < 8; i++)
-              Row(
+      child: Wrap(
+        children: [
+          for (var i = 0; i < 8; i++)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Draggable(
@@ -32,9 +32,9 @@ class ObjectLibrary extends StatelessWidget {
                     data: '<dragging item>',
                   ),
                 ],
-              )
-          ],
-        ),
+              ),
+            )
+        ],
       ),
     );
   }
