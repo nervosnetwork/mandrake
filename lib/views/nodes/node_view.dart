@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,14 +7,12 @@ import '../../models/selection.dart';
 class NodeView extends StatelessWidget {
   static const double borderRadius = 5;
 
-  static const Color bgColor = Color(0xffe3f2fd);
-  static const Color borderColor = Color(0xff64b5f6);
+  static const Color normalBorderColor = Color(0xffbdbdbd);
   static const Color selectedBorderColor = Color(0xff007aff);
   static const Color hoveredBorderColor = Color(0xffef5350);
-  static const Color titleColor = Color(0xff303f9f);
   static const Color subtitleColor = Color(0xff757575);
 
-  BoxDecoration titleDecoration([Color color = titleColor]) {
+  BoxDecoration titleDecoration(Color color) {
     return BoxDecoration(
       color: color,
       borderRadius: BorderRadius.only(
@@ -103,13 +100,10 @@ class NodeView extends StatelessWidget {
         Container(
           height: node.titleHeight,
           width: double.infinity,
-          decoration: titleDecoration(),
+          decoration: titleDecoration(Theme.of(context).primaryColor),
           child: Center(
             child: Text(
               node.name,
-              style: TextStyle(
-                color: Colors.white,
-              ),
             ),
           ),
         ),
@@ -126,6 +120,9 @@ class NodeView extends StatelessWidget {
     final selection = Provider.of<Selection>(context, listen: false);
     final isSelected = selection.isNodeSelected(node);
     final isHovered = selection.isNodeHovered(node);
+    final borderWidth = isSelected || isHovered ? 2.0 : 1.0;
+    final borderColor =
+        isSelected ? selectedBorderColor : (isHovered ? hoveredBorderColor : normalBorderColor);
 
     return Positioned(
       left: node.position.dx,
@@ -134,33 +131,23 @@ class NodeView extends StatelessWidget {
       height: node.size.height,
       child: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: bgColor,
-              border: Border.all(width: 1, color: borderColor),
-              borderRadius: BorderRadius.circular(borderRadius),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey,
-                  offset: Offset(0, 2),
-                  blurRadius: 5,
-                ),
-              ],
-            ),
+          Material(
+            elevation: 2,
+            borderRadius: BorderRadius.circular(borderRadius),
+            child: Container(),
           ),
           buildView(context),
-          if (isSelected || isHovered)
-            IgnorePointer(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 2,
-                    color: isSelected ? selectedBorderColor : hoveredBorderColor,
-                  ),
-                  borderRadius: BorderRadius.circular(borderRadius),
+          IgnorePointer(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  width: borderWidth,
+                  color: borderColor,
                 ),
+                borderRadius: BorderRadius.circular(borderRadius),
               ),
-            )
+            ),
+          )
         ],
       ),
     );

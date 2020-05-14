@@ -20,11 +20,13 @@ class RootNodeView extends NodeView {
       children: [
         Container(
           height: node.titleHeight,
-          decoration: titleDecoration(Colors.red),
+          decoration: titleDecoration(Theme.of(context).primaryColorDark),
           child: Center(
             child: Text(
               node.name,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),

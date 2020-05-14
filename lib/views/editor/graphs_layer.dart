@@ -165,5 +165,7 @@ class _ConnectingNodesPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_ConnectingNodesPainter old) => false;
+  bool shouldRepaint(_ConnectingNodesPainter old) {
+    return old.start != start || old.end != end;
+  }
 }
