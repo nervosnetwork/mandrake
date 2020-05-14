@@ -100,7 +100,7 @@ class NodeView extends StatelessWidget {
         Container(
           height: node.titleHeight,
           width: double.infinity,
-          decoration: titleDecoration(Theme.of(context).primaryColor),
+          decoration: titleDecoration(Theme.of(context).accentColor),
           child: Center(
             child: Text(
               node.name,

@@ -34,7 +34,7 @@ class RootNode extends Node {
   }
 
   /// Add a new slot for call node.
-  ChildSlot addCallSlot([String name = 'unnamed call']) {
+  ChildSlot addCallSlot([String name = 'call']) {
     final slot = addSlot(name);
     _callSlots.add(slot);
     notifyListeners();
@@ -42,7 +42,7 @@ class RootNode extends Node {
   }
 
   /// Add a new slot for stream node.
-  ChildSlot addStreamSlot([String name = 'unnamed stream']) {
+  ChildSlot addStreamSlot([String name = 'stream']) {
     final slot = addSlot(name);
     _streamSlots.add(slot);
     notifyListeners();

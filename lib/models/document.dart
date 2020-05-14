@@ -17,7 +17,7 @@ class Document extends ChangeNotifier {
     final root = RootNode();
     final slot = root.addCallSlot();
     addNode(root);
-    final call = Node();
+    final call = Node('Call Result');
     call.moveTo(root.position + Offset(root.size.width + 100, -50));
     addNode(call);
     connectNode(parent: root, child: call, slot_id: slot.id);
