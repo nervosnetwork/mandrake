@@ -236,25 +236,27 @@ class _NodePropertyEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     final node = Provider.of<Node>(context);
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _Section(
-          title: 'Info',
-          children: [
-            _BasicInfoProperty(),
-          ],
-        ),
-        _SectionDivider(),
-        _Section(
-          title: 'Children',
-          children: [
-            ...node.slots.map((e) => _SlotProperty(e)).toList(),
-          ],
-        ),
-        _SectionDivider(),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _Section(
+            title: 'Info',
+            children: [
+              _BasicInfoProperty(),
+            ],
+          ),
+          _SectionDivider(),
+          _Section(
+            title: 'Children',
+            children: [
+              ...node.slots.map((e) => _SlotProperty(e)).toList(),
+            ],
+          ),
+          _SectionDivider(),
+        ],
+      ),
     );
   }
 }
@@ -264,32 +266,34 @@ class _RootNodePropertyEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     final node = Provider.of<Node>(context) as RootNode;
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _Section(
-          title: 'Info',
-          children: [
-            _BasicInfoProperty(),
-          ],
-        ),
-        _SectionDivider(),
-        _Section(
-          title: 'Calls',
-          children: [
-            ...node.callSlots.map((e) => _SlotProperty(e)).toList(),
-          ],
-        ),
-        _SectionDivider(),
-        _Section(
-          title: 'Streams',
-          children: [
-            ...node.streamSlots.map((e) => _SlotProperty(e)).toList(),
-          ],
-        ),
-        _SectionDivider(),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _Section(
+            title: 'Info',
+            children: [
+              _BasicInfoProperty(),
+            ],
+          ),
+          _SectionDivider(),
+          _Section(
+            title: 'Calls',
+            children: [
+              ...node.callSlots.map((e) => _SlotProperty(e)).toList(),
+            ],
+          ),
+          _SectionDivider(),
+          _Section(
+            title: 'Streams',
+            children: [
+              ...node.streamSlots.map((e) => _SlotProperty(e)).toList(),
+            ],
+          ),
+          _SectionDivider(),
+        ],
+      ),
     );
   }
 }

@@ -13,26 +13,28 @@ class ObjectLibrary extends StatelessWidget {
           ),
         ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          for (var i = 0; i < 8; i++)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Draggable(
-                  child: _NodeTemplate(),
-                  feedback: _DragFeedbackObject(),
-                  data: '<dragging item>',
-                ),
-                Draggable(
-                  child: _NodeTemplate(),
-                  feedback: _DragFeedbackObject(),
-                  data: '<dragging item>',
-                ),
-              ],
-            )
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            for (var i = 0; i < 8; i++)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Draggable(
+                    child: _NodeTemplate(),
+                    feedback: _DragFeedbackObject(),
+                    data: '<dragging item>',
+                  ),
+                  Draggable(
+                    child: _NodeTemplate(),
+                    feedback: _DragFeedbackObject(),
+                    data: '<dragging item>',
+                  ),
+                ],
+              )
+          ],
+        ),
       ),
     );
   }

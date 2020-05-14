@@ -8,12 +8,17 @@ class MandrakeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Mandrake',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Scaffold(
-        body: Editor(),
+        body: Banner(
+          message: 'INSIDER α',
+          location: BannerLocation.topEnd,
+          child: Editor(),
+        ),
       ),
     );
   }

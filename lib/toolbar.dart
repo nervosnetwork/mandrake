@@ -17,7 +17,8 @@ class Toolbar extends StatelessWidget {
             ),
           ),
         ),
-        child: Row(
+        child: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             SizedBox(width: 20),
             IconButton(
