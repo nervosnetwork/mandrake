@@ -90,6 +90,8 @@ extension on NodeTemplate {
 
   IconData get icon {
     switch (this) {
+      case NodeTemplate.value:
+        return FontAwesomeIcons.font;
       case NodeTemplate.binaryOperator:
         return FontAwesomeIcons.plus;
       case NodeTemplate.not:

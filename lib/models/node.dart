@@ -12,6 +12,7 @@ export '../protos/ast.pb.dart' show Value_Type;
 /// These categories are not scientific work.
 /// Just pick what makes sense for easier use.
 enum NodeTemplate {
+  value,
   binaryOperator,
   not,
   cellOperator,
@@ -26,6 +27,15 @@ class NodeCreator {
     // TODO: create more ast nodes
     AstNode node;
     switch (template) {
+      case NodeTemplate.value:
+        node = AstNode(
+          kind: AstNodeKind.primitive,
+          valueType: Value_Type.UINT64,
+          position: pos,
+          minimumSlotCount: 0,
+          maximumSlotCount: 0,
+        );
+        break;
       case NodeTemplate.binaryOperator:
         node = AstNode(
           kind: AstNodeKind.op,
@@ -55,7 +65,7 @@ class NodeCreator {
           minimumSlotCount: 1,
           maximumSlotCount: 1,
         );
-        node.addSlot('value');
+        node.addSlot('cell');
         break;
       case NodeTemplate.scriptOperator:
         node = AstNode(
@@ -65,7 +75,7 @@ class NodeCreator {
           minimumSlotCount: 1,
           maximumSlotCount: 1,
         );
-        node.addSlot('value');
+        node.addSlot('script');
         break;
       case NodeTemplate.txOperator:
         node = AstNode(
@@ -75,7 +85,7 @@ class NodeCreator {
           minimumSlotCount: 1,
           maximumSlotCount: 1,
         );
-        node.addSlot('value');
+        node.addSlot('transaction');
         break;
       case NodeTemplate.headerOperator:
         node = AstNode(
@@ -85,7 +95,7 @@ class NodeCreator {
           minimumSlotCount: 1,
           maximumSlotCount: 1,
         );
-        node.addSlot('value');
+        node.addSlot('header');
         break;
     }
 
