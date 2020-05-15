@@ -199,10 +199,12 @@ class _SlotProperty extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () {
-              _deleteSlot(slot);
+              if (node.canRemoveSlot) {
+                _deleteSlot(slot);
+              }
             },
             child: Icon(
-              Icons.highlight_off,
+              node.canRemoveSlot ? Icons.highlight_off : null,
               color: Colors.grey,
               size: 15,
             ),

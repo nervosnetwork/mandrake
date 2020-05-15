@@ -21,7 +21,18 @@ enum AstNodeKind {
 }
 
 class AstNode extends Node {
-  AstNode(this.kind, this.valueType, Offset position) : super(valueType.toString(), position);
+  AstNode({
+    this.kind,
+    this.valueType,
+    Offset position,
+    minimumSlotCount = 1,
+    maximumSlotCount = 1,
+  }) : super(
+          name: valueType.toString(),
+          position: position,
+          minimumSlotCount: minimumSlotCount,
+          maximumSlotCount: maximumSlotCount,
+        );
 
   final AstNodeKind kind;
   final Value_Type valueType;

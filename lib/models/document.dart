@@ -18,9 +18,11 @@ class Document extends ChangeNotifier {
     final slot = root.addCallSlot();
     addNode(root);
     final callResult = AstNode(
-      AstNodeKind.primitive,
-      Value_Type.NIL,
-      root.position + Offset(root.size.width + 100, -50),
+      kind: AstNodeKind.primitive,
+      valueType: Value_Type.NIL,
+      position: root.position + Offset(root.size.width + 100, -50),
+      minimumSlotCount: 0,
+      maximumSlotCount: 0,
     );
     addNode(callResult);
     callResult.updateName('Call Result');

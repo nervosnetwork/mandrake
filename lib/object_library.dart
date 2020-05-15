@@ -25,46 +25,15 @@ class ObjectLibrary extends StatelessWidget {
     );
   }
 
-  /// These categories are not scientific work.
   List<Widget> get _templates {
-    return [
-      _template(
-        'Binary Operation',
-        _icon(FontAwesomeIcons.plus),
-        AstNodeKind.op,
-        Value_Type.ADD,
-      ),
-      _template(
-        'Not',
-        _icon(FontAwesomeIcons.notEqual),
-        AstNodeKind.op,
-        Value_Type.NOT,
-      ),
-      _template(
-        'Cell Operation',
-        _icon(FontAwesomeIcons.database),
-        AstNodeKind.cellGetOp,
-        Value_Type.GET_CAPACITY,
-      ),
-      _template(
-        'Script Operation',
-        _icon(FontAwesomeIcons.code),
-        AstNodeKind.scriptGetOp,
-        Value_Type.GET_CODE_HASH,
-      ),
-      _template(
-        'Tx Operation',
-        _icon(FontAwesomeIcons.codeBranch),
-        AstNodeKind.txGetOp,
-        Value_Type.GET_INPUTS,
-      ),
-      _template(
-        'Header Operation',
-        _icon(FontAwesomeIcons.heading),
-        AstNodeKind.headerGetOp,
-        Value_Type.GET_NUMBER,
-      ),
-    ];
+    return _Template.all.map((t) {
+      return _template(
+        t.title,
+        _icon(t.icon),
+        t.nodeKind,
+        t.defaultValueType,
+      );
+    }).toList();
   }
 
   Draggable<NodeMeta> _template(
@@ -124,5 +93,66 @@ class _DragFeedbackObject extends StatelessWidget {
         child: child,
       ),
     );
+  }
+}
+
+class _Template {
+  _Template(this.title, this.icon, this.kind, this.defaultValueType, this.nodeKind);
+  _Template._(TemplateKind kind, Value_Type defaultValueType, AstNodeKind nodeKind)
+      : this(kind.title, kind.icon, kind, defaultValueType, nodeKind);
+
+  final TemplateKind kind;
+  final String title;
+  final IconData icon;
+  final Value_Type defaultValueType;
+  final AstNodeKind nodeKind;
+
+  static List<_Template> get all {
+    return [
+      _Template._(TemplateKind.binaryOp, Value_Type.ADD, AstNodeKind.op),
+      _Template._(TemplateKind.not, Value_Type.NOT, AstNodeKind.op),
+      _Template._(TemplateKind.cellOp, Value_Type.GET_CAPACITY, AstNodeKind.cellGetOp),
+      _Template._(TemplateKind.scriptOp, Value_Type.GET_CODE_HASH, AstNodeKind.scriptGetOp),
+      _Template._(TemplateKind.txOp, Value_Type.GET_INPUTS, AstNodeKind.txGetOp),
+      _Template._(TemplateKind.headerOp, Value_Type.GET_NUMBER, AstNodeKind.headerGetOp),
+    ];
+  }
+}
+
+extension on TemplateKind {
+  String get title {
+    switch (this) {
+      case TemplateKind.binaryOp:
+        return 'Binary Operation';
+      case TemplateKind.not:
+        return 'Not';
+      case TemplateKind.cellOp:
+        return 'Cell Operation';
+      case TemplateKind.scriptOp:
+        return 'Script Operation';
+      case TemplateKind.txOp:
+        return 'Tx Operation';
+      case TemplateKind.headerOp:
+        return 'Header Operation';
+    }
+    return 'Undefined';
+  }
+
+  IconData get icon {
+    switch (this) {
+      case TemplateKind.binaryOp:
+        return FontAwesomeIcons.plus;
+      case TemplateKind.not:
+        return FontAwesomeIcons.notEqual;
+      case TemplateKind.cellOp:
+        return FontAwesomeIcons.database;
+      case TemplateKind.scriptOp:
+        return FontAwesomeIcons.code;
+      case TemplateKind.txOp:
+        return FontAwesomeIcons.codeBranch;
+      case TemplateKind.headerOp:
+        return FontAwesomeIcons.heading;
+    }
+    return FontAwesomeIcons.plus;
   }
 }

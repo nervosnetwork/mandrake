@@ -6,7 +6,8 @@ import 'package:uuid/uuid.dart';
 /// Base class for [Node], which describes an object representing part of
 /// an AST tree, and its geometry information on a canvas.
 abstract class NodeBase {
-  NodeBase(this._name, this._position) : assert(_position != null);
+  NodeBase(this._name, this._position, [this.minimumSlotCount = 0, this.maximumSlotCount = 5])
+      : assert(_position != null);
 
   final String id = Uuid().v4();
   String _name;
@@ -33,8 +34,8 @@ abstract class NodeBase {
   /// should overide [minmimSlotCount] and/or [maximumSlotCount] to limit
   /// adding/removing children/slots operations. For example a node for `+`
   /// operator should have both values fixed to `2`.
-  int get minimumSlotCount => 0;
-  int get maximumSlotCount => 5;
+  final int minimumSlotCount;
+  final int maximumSlotCount;
   bool get canAddChild => children.length < maximumSlotCount;
   bool get canAddSlot => slots.length < maximumSlotCount;
   bool get canRemoveSlot => slots.length > minimumSlotCount;
@@ -53,7 +54,12 @@ abstract class NodeBase {
 }
 
 class Node extends NodeBase with ChangeNotifier {
-  Node([name = 'Node', position = Offset.zero]) : super(name, position);
+  Node({
+    name = 'Node',
+    position = Offset.zero,
+    int minimumSlotCount = 0,
+    int maximumSlotCount = 5,
+  }) : super(name, position, minimumSlotCount, maximumSlotCount);
 
   /// Full list as this node plus its children.
   UnmodifiableListView<Node> get nodes {

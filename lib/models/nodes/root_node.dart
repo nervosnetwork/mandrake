@@ -5,7 +5,7 @@ import 'node_base.dart';
 
 /// AST Root.
 class RootNode extends Node {
-  RootNode() : super('Root Node', Offset(80, 200));
+  RootNode() : super(name: 'Root Node', position: Offset(80, 200));
 
   final List<ChildSlot> _callSlots = [];
   final List<ChildSlot> _streamSlots = [];
