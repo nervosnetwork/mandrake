@@ -11,7 +11,7 @@ export '../protos/ast.pb.dart' show Value_Type;
 
 /// These categories are not scientific work.
 /// Just pick what makes sense for easier use.
-enum TemplateKind {
+enum NodeTemplate {
   binaryOperator,
   not,
   cellOperator,
@@ -21,47 +21,74 @@ enum TemplateKind {
   // TODO: other categories
 }
 
-class NodeMeta {
-  NodeMeta(this.kind, this.valueType, [this.templateKind = TemplateKind.binaryOperator]);
-
-  AstNodeKind kind;
-  Value_Type valueType;
-  TemplateKind templateKind;
-}
-
 class NodeCreator {
-  static Node create(NodeMeta meta, Offset pos) {
-    // TODO: create ast nodes
+  static Node create(NodeTemplate template, Offset pos) {
+    // TODO: create more ast nodes
     AstNode node;
-    switch (meta.kind) {
-      case AstNodeKind.op:
-        return createForValueType(meta.kind, meta.valueType, pos);
-        break;
-      default:
-        return createForValueType(meta.kind, meta.valueType, pos);
-    }
-  }
-
-  static Node createForValueType(AstNodeKind kind, Value_Type valueType, Offset pos) {
-    AstNode node;
-    switch (valueType) {
-      case Value_Type.NOT:
+    switch (template) {
+      case NodeTemplate.binaryOperator:
         node = AstNode(
-          kind: kind,
-          valueType: valueType,
+          kind: AstNodeKind.op,
+          valueType: Value_Type.ADD,
+          position: pos,
+          minimumSlotCount: 2,
+          maximumSlotCount: 2,
+        );
+        node.addSlot('value A');
+        node.addSlot('value B');
+        break;
+      case NodeTemplate.not:
+        node = AstNode(
+          kind: AstNodeKind.op,
+          valueType: Value_Type.NOT,
           position: pos,
           minimumSlotCount: 1,
           maximumSlotCount: 1,
         );
         node.addSlot('value');
         break;
-      default:
+      case NodeTemplate.cellOperator:
         node = AstNode(
-          kind: kind,
-          valueType: valueType,
+          kind: AstNodeKind.op,
+          valueType: Value_Type.GET_CAPACITY,
           position: pos,
+          minimumSlotCount: 1,
+          maximumSlotCount: 1,
         );
+        node.addSlot('value');
+        break;
+      case NodeTemplate.scriptOperator:
+        node = AstNode(
+          kind: AstNodeKind.op,
+          valueType: Value_Type.GET_CODE_HASH,
+          position: pos,
+          minimumSlotCount: 1,
+          maximumSlotCount: 1,
+        );
+        node.addSlot('value');
+        break;
+      case NodeTemplate.txOperator:
+        node = AstNode(
+          kind: AstNodeKind.op,
+          valueType: Value_Type.GET_INPUTS,
+          position: pos,
+          minimumSlotCount: 1,
+          maximumSlotCount: 1,
+        );
+        node.addSlot('value');
+        break;
+      case NodeTemplate.headerOperator:
+        node = AstNode(
+          kind: AstNodeKind.op,
+          valueType: Value_Type.GET_NUMBER,
+          position: pos,
+          minimumSlotCount: 1,
+          maximumSlotCount: 1,
+        );
+        node.addSlot('value');
+        break;
     }
+
     return node;
   }
 }

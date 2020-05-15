@@ -21,42 +21,27 @@ class ObjectLibrary extends StatelessWidget {
       child: Wrap(
         alignment: WrapAlignment.center,
         runSpacing: 8,
-        children: _templates,
+        children: NodeTemplate.values.map((t) => _template(t)).toList(),
       ),
     );
   }
 
-  List<Widget> get _templates {
-    return _Template.all.map((t) {
-      return _template(
-        t.title,
-        _icon(t.icon),
-        t.nodeKind,
-        t.defaultValueType,
-      );
-    }).toList();
-  }
-
-  Draggable<NodeMeta> _template(
-    String title,
-    Widget icon,
-    AstNodeKind astKind,
-    Value_Type valueType,
-  ) {
-    final child = _NodeTemplate(title, icon);
-    return Draggable<NodeMeta>(
+  Draggable<NodeTemplate> _template(NodeTemplate template) {
+    final child = _NodeTemplateItem(
+      template.title,
+      FaIcon(template.icon, size: 20),
+    );
+    return Draggable<NodeTemplate>(
       child: child,
       feedback: _DragFeedbackObject(child),
-      data: NodeMeta(astKind, valueType),
+      data: template,
       ignoringFeedbackSemantics: true,
     );
   }
-
-  Widget _icon(IconData icon) => FaIcon(icon, size: 20);
 }
 
-class _NodeTemplate extends StatelessWidget {
-  _NodeTemplate(this.title, this.icon);
+class _NodeTemplateItem extends StatelessWidget {
+  _NodeTemplateItem(this.title, this.icon);
 
   final String title;
   final Widget icon;
@@ -97,30 +82,7 @@ class _DragFeedbackObject extends StatelessWidget {
   }
 }
 
-class _Template {
-  _Template(this.title, this.icon, this.kind, this.defaultValueType, this.nodeKind);
-  _Template._(TemplateKind kind, Value_Type defaultValueType, AstNodeKind nodeKind)
-      : this(kind.title, kind.icon, kind, defaultValueType, nodeKind);
-
-  final TemplateKind kind;
-  final String title;
-  final IconData icon;
-  final Value_Type defaultValueType;
-  final AstNodeKind nodeKind;
-
-  static List<_Template> get all {
-    return [
-      _Template._(TemplateKind.binaryOperator, Value_Type.ADD, AstNodeKind.op),
-      _Template._(TemplateKind.not, Value_Type.NOT, AstNodeKind.op),
-      _Template._(TemplateKind.cellOperator, Value_Type.GET_CAPACITY, AstNodeKind.cellGetOp),
-      _Template._(TemplateKind.scriptOperator, Value_Type.GET_CODE_HASH, AstNodeKind.scriptGetOp),
-      _Template._(TemplateKind.txOperator, Value_Type.GET_INPUTS, AstNodeKind.txGetOp),
-      _Template._(TemplateKind.headerOperator, Value_Type.GET_NUMBER, AstNodeKind.headerGetOp),
-    ];
-  }
-}
-
-extension on TemplateKind {
+extension on NodeTemplate {
   String get title {
     final separated = describeEnum(this).split(RegExp(r'(?=[A-Z])')).join(' ');
     return separated[0].toUpperCase() + separated.substring(1);
@@ -128,17 +90,17 @@ extension on TemplateKind {
 
   IconData get icon {
     switch (this) {
-      case TemplateKind.binaryOperator:
+      case NodeTemplate.binaryOperator:
         return FontAwesomeIcons.plus;
-      case TemplateKind.not:
+      case NodeTemplate.not:
         return FontAwesomeIcons.notEqual;
-      case TemplateKind.cellOperator:
+      case NodeTemplate.cellOperator:
         return FontAwesomeIcons.database;
-      case TemplateKind.scriptOperator:
+      case NodeTemplate.scriptOperator:
         return FontAwesomeIcons.code;
-      case TemplateKind.txOperator:
+      case NodeTemplate.txOperator:
         return FontAwesomeIcons.codeBranch;
-      case TemplateKind.headerOperator:
+      case NodeTemplate.headerOperator:
         return FontAwesomeIcons.heading;
     }
     return FontAwesomeIcons.plus;

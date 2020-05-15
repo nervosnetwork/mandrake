@@ -12,7 +12,7 @@ class DragTargetLayer extends StatelessWidget {
     final document = Provider.of<Document>(context, listen: false);
     final selection = Provider.of<Selection>(context, listen: false);
 
-    return DragTarget<NodeMeta>(
+    return DragTarget<NodeTemplate>(
       onWillAccept: (data) => data != null,
       onAcceptWithDetails: (details) {
         final renderBox = context.findRenderObject() as RenderBox;
