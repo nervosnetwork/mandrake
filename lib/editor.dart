@@ -11,8 +11,8 @@ import 'property_inspector.dart';
 
 import 'views/editor/canvas_layer.dart';
 import 'views/editor/edges_layer.dart';
-import 'views/editor/graphs_layer.dart';
-import 'views/editor/drag_target_layer.dart';
+import 'views/editor/nodes_layer.dart';
+import 'views/editor/pointer_layer.dart';
 
 class Editor extends StatelessWidget {
   static const double _toolbarHeight = 40;
@@ -91,8 +91,8 @@ class DesignEditor extends StatelessWidget {
                   children: [
                     CanvasLayer(),
                     EdgesLayer(),
-                    GraphsLayer(),
-                    DragTargetLayer(),
+                    NodesLayer(),
+                    PointerLayer(),
                   ],
                 ),
               );

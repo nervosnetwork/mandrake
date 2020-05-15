@@ -6,15 +6,16 @@ import '../../models/selection.dart';
 import '../../models/node.dart';
 import '../../models/editor_state.dart';
 
-import '../node.dart';
 import '../../utils/edge_path.dart';
 
-class GraphsLayer extends StatefulWidget {
+/// Handles mouse events for moving canvas or nodes around, connecting
+/// nodes as parent/child and accepts object library drag target.
+class PointerLayer extends StatefulWidget {
   @override
-  _GraphsLayerState createState() => _GraphsLayerState();
+  _PointerLayerState createState() => _PointerLayerState();
 }
 
-class _GraphsLayerState extends State<GraphsLayer> {
+class _PointerLayerState extends State<PointerLayer> {
   bool _isDragging = false;
   bool _isDraggingCanvas = false;
   bool _isDraggingConnector = false;
@@ -22,8 +23,8 @@ class _GraphsLayerState extends State<GraphsLayer> {
 
   @override
   Widget build(BuildContext context) {
-    final document = Provider.of<Document>(context);
-    final selection = Provider.of<Selection>(context);
+    final document = Provider.of<Document>(context, listen: false);
+    final selection = Provider.of<Selection>(context, listen: false);
     final editorState = Provider.of<EditorState>(context, listen: false);
 
     final hitTest = (Offset point) {
@@ -41,18 +42,21 @@ class _GraphsLayerState extends State<GraphsLayer> {
       return null;
     };
 
-    final nodeViews = document.nodes.map((node) {
-      return ChangeNotifierProvider<Node>.value(
-        value: node,
-        child: ViewCreator.create(node),
-      );
-    }).toList();
-
     return Listener(
-      behavior: HitTestBehavior.opaque,
+      behavior: HitTestBehavior.translucent,
       child: Stack(
         children: <Widget>[
-          ...nodeViews,
+          DragTarget<NodeTemplate>(
+            onWillAccept: (data) => data != null,
+            onAcceptWithDetails: (details) {
+              final renderBox = context.findRenderObject() as RenderBox;
+              final pos = renderBox.globalToLocal(details.offset);
+              final node = NodeCreator.create(details.data, pos);
+              document.addNode(node);
+              selection.select(node);
+            },
+            builder: (context, candidateData, rejectedData) => Container(),
+          ),
           if (_isDraggingConnector) ConnectingNodesView(_startConnectorOffset, _endConnectorOffset)
         ],
       ),
@@ -124,6 +128,7 @@ class _GraphsLayerState extends State<GraphsLayer> {
   }
 }
 
+/// Draw a link from parent node to child node.
 class ConnectingNodesView extends StatelessWidget {
   final Offset start, end;
   ConnectingNodesView(this.start, this.end);
