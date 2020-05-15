@@ -17,10 +17,14 @@ class Document extends ChangeNotifier {
     final root = RootNode();
     final slot = root.addCallSlot();
     addNode(root);
-    final call = Node('Call Result');
-    call.moveTo(root.position + Offset(root.size.width + 100, -50));
-    addNode(call);
-    connectNode(parent: root, child: call, slot_id: slot.id);
+    final callResult = AstNode(
+      AstNodeKind.primitive,
+      Value_Type.NIL,
+      root.position + Offset(root.size.width + 100, -50),
+    );
+    addNode(callResult);
+    callResult.updateName('Call Result');
+    connectNode(parent: root, child: callResult, slot_id: slot.id);
   }
 
   void addNode(Node node, {Node parent}) {

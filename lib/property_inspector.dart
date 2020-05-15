@@ -35,6 +35,10 @@ class PropertyInspector extends StatelessWidget {
       return _RootNodePropertyEditor();
     }
 
+    if (node is AstNode) {
+      return _AstNodePropertyEditor();
+    }
+
     if (node != null) {
       return _NodePropertyEditor();
     }
@@ -289,6 +293,66 @@ class _RootNodePropertyEditor extends StatelessWidget {
             title: 'Streams',
             children: [
               ...node.streamSlots.map((e) => _SlotProperty(e)).toList(),
+            ],
+          ),
+          _SectionDivider(),
+        ],
+      ),
+    );
+  }
+}
+
+class _AstNodeInfoProperty extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final node = Provider.of<Node>(context) as AstNode;
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              child: Text('Type'),
+              width: 60,
+            ),
+            Text(node.valueType.toString()),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _AstNodePropertyEditor extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final node = Provider.of<Node>(context) as AstNode;
+
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _Section(
+            title: 'Info',
+            children: [
+              _BasicInfoProperty(),
+            ],
+          ),
+          _SectionDivider(),
+          _Section(
+            title: 'Ast Info',
+            children: [
+              _AstNodeInfoProperty(),
+            ],
+          ),
+          _SectionDivider(),
+          _Section(
+            title: 'Children',
+            children: [
+              ...node.slots.map((e) => _SlotProperty(e)).toList(),
             ],
           ),
           _SectionDivider(),
