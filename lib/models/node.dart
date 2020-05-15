@@ -12,17 +12,17 @@ export '../protos/ast.pb.dart' show Value_Type;
 /// These categories are not scientific work.
 /// Just pick what makes sense for easier use.
 enum TemplateKind {
-  binaryOp,
+  binaryOperator,
   not,
-  cellOp,
-  scriptOp,
-  txOp,
-  headerOp,
+  cellOperator,
+  scriptOperator,
+  txOperator,
+  headerOperator,
   // TODO: other categories
 }
 
 class NodeMeta {
-  NodeMeta(this.kind, this.valueType, [this.templateKind = TemplateKind.binaryOp]);
+  NodeMeta(this.kind, this.valueType, [this.templateKind = TemplateKind.binaryOperator]);
 
   AstNodeKind kind;
   Value_Type valueType;

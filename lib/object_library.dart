@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -109,48 +110,35 @@ class _Template {
 
   static List<_Template> get all {
     return [
-      _Template._(TemplateKind.binaryOp, Value_Type.ADD, AstNodeKind.op),
+      _Template._(TemplateKind.binaryOperator, Value_Type.ADD, AstNodeKind.op),
       _Template._(TemplateKind.not, Value_Type.NOT, AstNodeKind.op),
-      _Template._(TemplateKind.cellOp, Value_Type.GET_CAPACITY, AstNodeKind.cellGetOp),
-      _Template._(TemplateKind.scriptOp, Value_Type.GET_CODE_HASH, AstNodeKind.scriptGetOp),
-      _Template._(TemplateKind.txOp, Value_Type.GET_INPUTS, AstNodeKind.txGetOp),
-      _Template._(TemplateKind.headerOp, Value_Type.GET_NUMBER, AstNodeKind.headerGetOp),
+      _Template._(TemplateKind.cellOperator, Value_Type.GET_CAPACITY, AstNodeKind.cellGetOp),
+      _Template._(TemplateKind.scriptOperator, Value_Type.GET_CODE_HASH, AstNodeKind.scriptGetOp),
+      _Template._(TemplateKind.txOperator, Value_Type.GET_INPUTS, AstNodeKind.txGetOp),
+      _Template._(TemplateKind.headerOperator, Value_Type.GET_NUMBER, AstNodeKind.headerGetOp),
     ];
   }
 }
 
 extension on TemplateKind {
   String get title {
-    switch (this) {
-      case TemplateKind.binaryOp:
-        return 'Binary Operation';
-      case TemplateKind.not:
-        return 'Not';
-      case TemplateKind.cellOp:
-        return 'Cell Operation';
-      case TemplateKind.scriptOp:
-        return 'Script Operation';
-      case TemplateKind.txOp:
-        return 'Tx Operation';
-      case TemplateKind.headerOp:
-        return 'Header Operation';
-    }
-    return 'Undefined';
+    final separated = describeEnum(this).split(RegExp(r'(?=[A-Z])')).join(' ');
+    return separated[0].toUpperCase() + separated.substring(1);
   }
 
   IconData get icon {
     switch (this) {
-      case TemplateKind.binaryOp:
+      case TemplateKind.binaryOperator:
         return FontAwesomeIcons.plus;
       case TemplateKind.not:
         return FontAwesomeIcons.notEqual;
-      case TemplateKind.cellOp:
+      case TemplateKind.cellOperator:
         return FontAwesomeIcons.database;
-      case TemplateKind.scriptOp:
+      case TemplateKind.scriptOperator:
         return FontAwesomeIcons.code;
-      case TemplateKind.txOp:
+      case TemplateKind.txOperator:
         return FontAwesomeIcons.codeBranch;
-      case TemplateKind.headerOp:
+      case TemplateKind.headerOperator:
         return FontAwesomeIcons.heading;
     }
     return FontAwesomeIcons.plus;
