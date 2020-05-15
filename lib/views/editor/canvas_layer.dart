@@ -1,3 +1,4 @@
+import 'dart:ui' show PointMode;
 import 'package:flutter/material.dart';
 
 class CanvasLayer extends StatelessWidget {
@@ -7,7 +8,7 @@ class CanvasLayer extends StatelessWidget {
       color: Theme.of(context).colorScheme.surface,
       elevation: 2,
       child: CustomPaint(
-        painter: _CanvasGridPainter(Theme.of(context).dividerColor),
+        painter: _CanvasGridPainter(Theme.of(context).textTheme.caption.color),
         child: Container(),
       ),
     );
@@ -25,6 +26,7 @@ class _CanvasGridPainter extends CustomPainter {
       ..strokeWidth = 1
       ..color = gridColor;
 
+    /* /// Grid mode
     for (var i = 20; i < size.width; i += 20) {
       canvas.drawLine(
         Offset(i.toDouble(), 0),
@@ -39,7 +41,16 @@ class _CanvasGridPainter extends CustomPainter {
         Offset(size.width, i.toDouble()),
         paint,
       );
+    }*/
+    /// Points mode
+    final points = <Offset>[];
+    for (var i = 20; i < size.width; i += 20) {
+      for (var j = 20; j < size.height; j += 20) {
+        points.add(Offset(i.toDouble(), j.toDouble()));
+      }
     }
+
+    canvas.drawPoints(PointMode.points, points, paint);
   }
 
   @override
