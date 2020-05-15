@@ -14,12 +14,12 @@ void main() {
     doc.addListener(() {
       expect(doc.nodes.length, count + 1);
     });
-    doc.addNode(Node('', Offset(100, 200)));
+    doc.addNode(Node(position: Offset(100, 200)));
   });
 
   test("change a node's position", () {
     final doc = Document();
-    final node = Node('', Offset(100, 200));
+    final node = Node(position: Offset(100, 200));
     doc.addNode(node);
     doc.moveNodePosition(node, Offset(100, 0));
     expect(node.position, Offset(200, 200));
