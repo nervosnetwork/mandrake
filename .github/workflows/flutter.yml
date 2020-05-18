@@ -31,6 +31,14 @@ jobs:
     name: Deploy web
 
     steps:
+    - uses: actions/checkout@v2
+    - uses: subosito/flutter-action@v1
+      with:
+        channel: 'dev'
+    - name: Install Dependencies
+      run: flutter pub get
+    - name: Run tests
+      run: flutter test
     - name: Build web
       run: flutter build web --release --dart-define=FLUTTER_WEB_USE_SKIA=true
     - name: Deploy
