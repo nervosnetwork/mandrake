@@ -35,6 +35,8 @@ jobs:
     - uses: subosito/flutter-action@v1
       with:
         channel: 'dev'
+    - name: Enable web
+      run: flutter config --enable-web
     - name: Install Dependencies
       run: flutter pub get
     - name: Run tests
