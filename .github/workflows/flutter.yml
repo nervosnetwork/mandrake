@@ -25,3 +25,13 @@ jobs:
       run: flutter analyze
     - name: Run tests
       run: flutter test --test-randomize-ordering-seed random
+    - name: Build web
+      run: flutter build web  --release --dart-define=FLUTTER_WEB_USE_SKIA=true
+    - name: Deploy web
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        REPOSITORY_NAME: ashchan/mandrake-preview
+        ACCESS_TOKEN: ${{ secrets.DEPLOY_ACCESS_TOKEN }}
+        BRANCH: master
+        TARGET_FOLDER: docs
+        FOLDER: build/web
