@@ -25,9 +25,15 @@ jobs:
       run: flutter analyze
     - name: Run tests
       run: flutter test --test-randomize-ordering-seed random
+
+  deploy:
+    runs-on: macos-latest
+    name: Deploy web
+
+    steps:
     - name: Build web
-      run: flutter build web  --release --dart-define=FLUTTER_WEB_USE_SKIA=true
-    - name: Deploy web
+      run: flutter build web --release --dart-define=FLUTTER_WEB_USE_SKIA=true
+    - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
         REPOSITORY_NAME: ashchan/mandrake-preview
