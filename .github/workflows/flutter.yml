@@ -32,6 +32,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
     - uses: subosito/flutter-action@v1
       with:
         channel: 'dev'
