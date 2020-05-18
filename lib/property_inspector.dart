@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'models/document.dart';
 import 'models/selection.dart';
 import 'models/node.dart';
+import 'models/node_action.dart';
 
 class PropertyInspector extends StatelessWidget {
   @override
@@ -330,7 +331,13 @@ class _AstNodeInfoProperty extends StatelessWidget {
 class _AstNodePropertyEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final document = Provider.of<Document>(context, listen: false);
     final node = Provider.of<Node>(context) as AstNode;
+
+    final onNodeActionItemSelected = (NodeActionItem item) {
+      // TODO: handle
+      print('NodeActionItem ${item.value.toString()} clicked');
+    };
 
     return SingleChildScrollView(
       child: Column(
@@ -356,6 +363,23 @@ class _AstNodePropertyEditor extends StatelessWidget {
             children: [
               ...node.slots.map((e) => _SlotProperty(e)).toList(),
             ],
+          ),
+          _SectionDivider(),
+          _Section(
+            title: 'Actions',
+            children: NodeActionBuilder(document, node).build().map((action) {
+              return OutlineButton(
+                child: Text(
+                  action.label,
+                  style: TextStyle(
+                    color: action.danger ? Colors.red : null,
+                  ),
+                ),
+                onPressed: () {
+                  onNodeActionItemSelected(action);
+                },
+              );
+            }).toList(),
           ),
           _SectionDivider(),
         ],

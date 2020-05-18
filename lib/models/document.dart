@@ -76,6 +76,14 @@ class Document extends ChangeNotifier {
     notifyListeners();
   }
 
+  void deleteNode(Node node) {
+    // TODO
+  }
+
+  void deleteNodeAndDescendants(Node node) {
+    // TODO
+  }
+
   /// Move a node by offset.
   void moveNodePosition(Node node, Offset offset) {
     assert(nodes.contains(node));
