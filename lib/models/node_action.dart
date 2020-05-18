@@ -7,6 +7,7 @@ enum NodeAction {
   delete,
   deleteWithDescendants,
   disconnectFromParent,
+  disconnectAllChildren,
 }
 
 class NodeActionItem {
@@ -24,11 +25,27 @@ class NodeActionBuilder {
   final Node node;
 
   List<NodeActionItem> build() {
+    if (node is AstNode) {
+      return _buildAstNodeNode();
+    }
+
+    if (node is RootNode) {
+      return _buildRootNode();
+    }
+
+    return [];
+  }
+
+  List<NodeActionItem> _buildAstNodeNode() {
     // TODO:
     return [
       NodeActionItem(
         value: NodeAction.disconnectFromParent,
         label: 'Disconnect from parent',
+      ),
+      NodeActionItem(
+        value: NodeAction.disconnectAllChildren,
+        label: 'Disconnect all children',
       ),
       NodeActionItem(
         value: NodeAction.delete,
@@ -39,6 +56,16 @@ class NodeActionBuilder {
         value: NodeAction.deleteWithDescendants,
         label: 'Delete node and descendants',
         danger: true,
+      ),
+    ];
+  }
+
+  List<NodeActionItem> _buildRootNode() {
+    // TODO:
+    return [
+      NodeActionItem(
+        value: NodeAction.disconnectAllChildren,
+        label: 'Disconnect all children',
       ),
     ];
   }

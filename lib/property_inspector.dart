@@ -271,7 +271,13 @@ class _NodePropertyEditor extends StatelessWidget {
 class _RootNodePropertyEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final document = Provider.of<Document>(context, listen: false);
     final node = Provider.of<Node>(context) as RootNode;
+
+    final onNodeActionItemSelected = (NodeActionItem item) {
+      // TODO: handle
+      print('NodeActionItem ${item.value.toString()} clicked');
+    };
 
     return SingleChildScrollView(
       child: Column(
@@ -297,6 +303,23 @@ class _RootNodePropertyEditor extends StatelessWidget {
             children: [
               ...node.streamSlots.map((e) => _SlotProperty(e)).toList(),
             ],
+          ),
+          _SectionDivider(),
+          _Section(
+            title: 'Actions',
+            children: NodeActionBuilder(document, node).build().map((action) {
+              return OutlineButton(
+                child: Text(
+                  action.label,
+                  style: TextStyle(
+                    color: action.danger ? Colors.red : null,
+                  ),
+                ),
+                onPressed: () {
+                  onNodeActionItemSelected(action);
+                },
+              );
+            }).toList(),
           ),
           _SectionDivider(),
         ],

@@ -137,7 +137,7 @@ class _PointerLayerState extends State<PointerLayer> {
         menuOffset -= Offset(0, size.height);
       }
       setState(() {
-        _isShowingContextMenu = node is AstNode;
+        _isShowingContextMenu = true;
         _contentMenuOffset = menuOffset;
       });
     } else {
