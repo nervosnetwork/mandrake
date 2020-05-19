@@ -136,11 +136,19 @@ class _PointerLayerState extends State<PointerLayer> {
       /// A possible better way to do this is rendering the context menu on top
       /// level of the views (outsize editor layers) so that even when it's
       /// outside the editor canvas area we can still show it.
-      if (menuPosition.dx + size.width > visibleArea.width) {
+      if (menuOffset.dx + size.width > context.size.width) {
         menuOffset -= Offset(size.width, 0);
         menuPosition = renderBox.localToGlobal(menuOffset);
       }
-      if (menuPosition.dy + size.height > visibleArea.height) {
+      if (menuPosition.dx + size.width > visibleArea.right) {
+        menuOffset -= Offset(size.width, 0);
+        menuPosition = renderBox.localToGlobal(menuOffset);
+      }
+      if (menuOffset.dy + size.height > context.size.height) {
+        menuOffset -= Offset(0, size.height);
+        menuPosition = renderBox.localToGlobal(menuOffset);
+      }
+      if (menuPosition.dy + size.height > visibleArea.bottom) {
         menuOffset -= Offset(0, size.height);
         menuPosition = renderBox.localToGlobal(menuOffset);
       }
