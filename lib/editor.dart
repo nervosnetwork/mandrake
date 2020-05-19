@@ -9,31 +9,24 @@ import 'toolbar.dart';
 import 'object_library.dart';
 import 'property_inspector.dart';
 
+import 'views/editor/editor_dimensions.dart';
 import 'views/editor/canvas_layer.dart';
 import 'views/editor/edges_layer.dart';
 import 'views/editor/nodes_layer.dart';
 import 'views/editor/pointer_layer.dart';
 
 class Editor extends StatelessWidget {
-  static const double _toolbarHeight = 40;
-  static const double _objectLibraryPanelWidth = 180;
-  static const double _propertyInspectorPanelWidth = 240;
-  static const double _canvasMargin = 20;
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<Document>(create: (_) {
           final doc = Document();
-          final size = MediaQuery.of(context).size;
-          final initialCanvasSize = Size(
-            size.width -
-                _objectLibraryPanelWidth -
-                _propertyInspectorPanelWidth -
-                _canvasMargin * 2,
-            size.height - _toolbarHeight - _canvasMargin * 2,
-          );
+          final initialCanvasSize = EditorDimensions.visibleCanvasArea(context).size -
+              Offset(
+                EditorDimensions.canvasMargin * 2,
+                EditorDimensions.canvasMargin * 2,
+              );
           doc.resizeCanvas(initialCanvasSize);
           return doc;
         }),
@@ -43,31 +36,31 @@ class Editor extends StatelessWidget {
       child: Stack(
         children: [
           Positioned(
-            top: _toolbarHeight,
-            left: _objectLibraryPanelWidth,
-            right: _propertyInspectorPanelWidth,
+            top: EditorDimensions.toolbarHeight,
+            left: EditorDimensions.objectLibraryPanelWidth,
+            right: EditorDimensions.propertyInspectorPanelWidth,
             bottom: 0,
             child: DesignEditor(),
           ),
           Positioned(
-            top: _toolbarHeight,
+            top: EditorDimensions.toolbarHeight,
             left: 0,
             bottom: 0,
-            width: _objectLibraryPanelWidth,
+            width: EditorDimensions.objectLibraryPanelWidth,
             child: ObjectLibrary(),
           ),
           Positioned(
-            top: _toolbarHeight,
+            top: EditorDimensions.toolbarHeight,
             bottom: 0,
             right: 0,
-            width: _propertyInspectorPanelWidth,
+            width: EditorDimensions.propertyInspectorPanelWidth,
             child: PropertyInspector(),
           ),
           Positioned(
             top: 0,
             left: 0,
             right: 0,
-            height: _toolbarHeight,
+            height: EditorDimensions.toolbarHeight,
             child: Toolbar(),
           ),
         ],
@@ -88,8 +81,8 @@ class DesignEditor extends StatelessWidget {
           color: Theme.of(context).dialogBackgroundColor,
         ),
         Positioned(
-          left: Editor._canvasMargin,
-          top: Editor._canvasMargin,
+          left: EditorDimensions.canvasMargin,
+          top: EditorDimensions.canvasMargin,
           width: document.canvasSize.width,
           height: document.canvasSize.height,
           child: Consumer<EditorState>(

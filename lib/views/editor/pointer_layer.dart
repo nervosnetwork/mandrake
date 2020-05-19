@@ -10,6 +10,7 @@ import '../../models/editor_state.dart';
 
 import '../../utils/edge_path.dart';
 
+import 'editor_dimensions.dart';
 import '../../context_menu.dart';
 
 /// Handles mouse events for moving canvas or nodes around, connecting
@@ -123,19 +124,35 @@ class _PointerLayerState extends State<PointerLayer> {
     }
 
     if (node != null && event.buttons & kSecondaryMouseButton == kSecondaryMouseButton) {
-      var menuOffset = event.localPosition;
       final size = menuSize();
-      if (context.size.width <= size.width || context.size.height <= size.height) {
-        // If canvas size is too small don't bother showing the context menu
+      var menuOffset = event.localPosition;
+
+      final visibleArea = EditorDimensions.visibleCanvasArea(context);
+
+      final renderBox = context.findRenderObject() as RenderBox;
+      var menuPosition = renderBox.localToGlobal(menuOffset);
+
+      /// Handle context menu position but don't try too much effort.
+      /// A possible better way to do this is rendering the context menu on top
+      /// level of the views (outsize editor layers) so that even when it's
+      /// outside the editor canvas area we can still show it.
+      if (menuPosition.dx + size.width > visibleArea.width) {
+        menuOffset -= Offset(size.width, 0);
+        menuPosition = renderBox.localToGlobal(menuOffset);
+      }
+      if (menuPosition.dy + size.height > visibleArea.height) {
+        menuOffset -= Offset(0, size.height);
+        menuPosition = renderBox.localToGlobal(menuOffset);
+      }
+      if (size == Size.zero || menuOffset.dx < 0 || menuOffset.dy < 0) {
+        if (_isShowingContextMenu) {
+          setState(() {
+            _isShowingContextMenu = false;
+          });
+        }
         return;
       }
 
-      if (menuOffset.dx + size.width > context.size.width) {
-        menuOffset -= Offset(size.width, 0);
-      }
-      if (menuOffset.dy + size.height > context.size.height) {
-        menuOffset -= Offset(0, size.height);
-      }
       setState(() {
         _isShowingContextMenu = true;
         _contentMenuOffset = menuOffset;
@@ -202,6 +219,10 @@ class _PointerLayerState extends State<PointerLayer> {
       document,
       selection.selectedNode(document.nodes),
     ).build();
+
+    if (actions.isEmpty) {
+      return Size.zero;
+    }
 
     /// Context menu should not zoom with canvas
     return ContextMenu.sizeFor(actions) / editorState.zoomScale;

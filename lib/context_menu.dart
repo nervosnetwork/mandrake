@@ -15,7 +15,7 @@ class ContextMenu extends StatefulWidget {
 
   /// Sometimes we need to know the dimension of the menu.
   static Size sizeFor(List<NodeActionItem> items) {
-    return Size(240, _padding * 2 + items.length * _itemHeight + _borderWidth * 2);
+    return Size(220, _padding * 2 + items.length * _itemHeight + _borderWidth * 2);
   }
 
   static const double _itemHeight = 26;
