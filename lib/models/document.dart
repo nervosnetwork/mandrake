@@ -1,17 +1,22 @@
 import 'dart:collection';
-import 'dart:ui' show Offset;
+import 'dart:math';
+import 'dart:ui' show Offset, Size;
 import 'package:flutter/foundation.dart';
 
 import 'node.dart';
 import 'link.dart';
 
 class Document extends ChangeNotifier {
+  static const Size _minimalCanvasSize = Size(1440, 900);
+
   final List<Node> _topLevelNodes = []; // Reference to top level nodes only
   final List<Node> _allNodes = [];
   final List<Link> _links = [];
+  Size _canvasSize = _minimalCanvasSize;
 
   UnmodifiableListView<Node> get nodes => UnmodifiableListView(_allNodes);
   UnmodifiableListView<Link> get links => UnmodifiableListView(_links);
+  Size get canvasSize => _canvasSize;
 
   Document() {
     final root = RootNode();
@@ -24,6 +29,18 @@ class Document extends ChangeNotifier {
     addNode(callResult);
     callResult.updateName('Call Result');
     connectNode(parent: root, child: callResult, slot_id: slot.id);
+  }
+
+  void resizeCanvas(Size size) {
+    if (size == _canvasSize) {
+      return;
+    }
+
+    _canvasSize = Size(
+      max(size.width, _minimalCanvasSize.width),
+      max(size.height, _minimalCanvasSize.height),
+    );
+    notifyListeners();
   }
 
   void addNode(Node node, {Node parent}) {

@@ -18,12 +18,25 @@ class Editor extends StatelessWidget {
   static const double _toolbarHeight = 40;
   static const double _objectLibraryPanelWidth = 180;
   static const double _propertyInspectorPanelWidth = 240;
+  static const double _canvasMargin = 20;
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<Document>(create: (_) => Document()),
+        ChangeNotifierProvider<Document>(create: (_) {
+          final doc = Document();
+          final size = MediaQuery.of(context).size;
+          final initialCanvasSize = Size(
+            size.width -
+                _objectLibraryPanelWidth -
+                _propertyInspectorPanelWidth -
+                _canvasMargin * 2,
+            size.height - _toolbarHeight - _canvasMargin * 2,
+          );
+          doc.resizeCanvas(initialCanvasSize);
+          return doc;
+        }),
         ChangeNotifierProvider<Selection>(create: (_) => Selection()),
         ChangeNotifierProvider<EditorState>(create: (_) => EditorState()),
       ],
@@ -65,20 +78,20 @@ class Editor extends StatelessWidget {
 
 /// Graph design core editor.
 class DesignEditor extends StatelessWidget {
-  final double _canvasMargin = 20;
-
   @override
   Widget build(BuildContext context) {
+    final document = Provider.of<Document>(context);
+
     return Stack(
       children: [
         Container(
           color: Theme.of(context).dialogBackgroundColor,
         ),
         Positioned(
-          left: _canvasMargin,
-          top: _canvasMargin,
-          right: _canvasMargin,
-          bottom: _canvasMargin,
+          left: Editor._canvasMargin,
+          top: Editor._canvasMargin,
+          width: document.canvasSize.width,
+          height: document.canvasSize.height,
           child: Consumer<EditorState>(
             builder: (context, editorState, child) {
               return Transform(
