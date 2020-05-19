@@ -187,11 +187,14 @@ class _PointerLayerState extends State<PointerLayer> {
   }
 
   void _handleActionItem(NodeActionItem item) {
-    // TODO: handle
-    print('NodeActionItem ${item.value.toString()} clicked');
     setState(() {
       _isShowingContextMenu = false;
     });
+    final executor = NodeActionExecutor(
+      document,
+      selection.selectedNode(document.nodes),
+    );
+    executor.execute(item.value);
   }
 
   Size menuSize() {

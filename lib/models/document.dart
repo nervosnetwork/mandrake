@@ -55,6 +55,10 @@ class Document extends ChangeNotifier {
     return _allNodes.contains(parent) && _topLevelNodes.contains(child);
   }
 
+  Node parentOf(Node node) {
+    return _allNodes.firstWhere((n) => n.children.contains(node), orElse: () => null);
+  }
+
   void connectNode({@required Node parent, @required Node child, String slot_id}) {
     assert(canConnect(parent: parent, child: child));
 
@@ -66,22 +70,47 @@ class Document extends ChangeNotifier {
     notifyListeners();
   }
 
-  void disconnectNode({@required Node parent, @required String child_id, String slot_id}) {
-    final child = nodes.firstWhere((n) => n.id == child_id, orElse: () => null);
+  void disconnectNode({@required Node parent, @required String child_id}) {
+    final child = _allNodes.firstWhere((n) => n.id == child_id, orElse: () => null);
     _topLevelNodes.add(child);
-    parent.removeChild(child_id);
+    parent?.removeChild(child_id);
 
     _rebuildNodes();
     _rebuildLinks();
     notifyListeners();
   }
 
+  void disconnectNodeFromParent(Node node) {
+    disconnectNode(parent: parentOf(node), child_id: node.id);
+  }
+
+  void disconnectAllChildren(Node node) {
+    final child_ids = node.children.map((c) => c.id).toList();
+    for (final child_id in child_ids) {
+      disconnectNode(parent: node, child_id: child_id);
+    }
+  }
+
   void deleteNode(Node node) {
-    // TODO
+    disconnectNodeFromParent(node);
+    disconnectAllChildren(node);
+
+    _topLevelNodes.removeWhere((n) => n == node);
+
+    _rebuildNodes();
+    _rebuildLinks();
+    notifyListeners();
   }
 
   void deleteNodeAndDescendants(Node node) {
-    // TODO
+    disconnectNodeFromParent(node);
+    for (final n in node.nodes) {
+      _topLevelNodes.removeWhere((e) => e == n);
+    }
+
+    _rebuildNodes();
+    _rebuildLinks();
+    notifyListeners();
   }
 
   /// Move a node by offset.

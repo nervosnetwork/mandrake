@@ -103,5 +103,72 @@ void main() {
       expect(node1.children.contains(node3), false);
       expect(node2.children.contains(node3), false);
     });
+
+    test('disconnect from parent', () {
+      final doc = Document();
+      final node1 = Node(), node2 = Node();
+      doc.addNode(node1);
+      doc.addNode(node2);
+      doc.connectNode(parent: node1, child: node2);
+      expect(node1.children.contains(node2), true);
+      doc.disconnectNodeFromParent(node2);
+      expect(doc.canConnect(parent: node1, child: node2), true);
+      expect(node1.children.contains(node2), false);
+      //todo
+    });
+
+    test('disconnect all children', () {
+      final doc = Document();
+      final node1 = Node(), node2 = Node(), node3 = Node();
+      doc.addNode(node1);
+      doc.addNode(node2);
+      doc.addNode(node3);
+      doc.connectNode(parent: node1, child: node2);
+      doc.connectNode(parent: node1, child: node3);
+      doc.disconnectAllChildren(node1);
+      expect(doc.canConnect(parent: node1, child: node2), true);
+      expect(doc.canConnect(parent: node1, child: node3), true);
+    });
+  });
+
+  test('delete node', () {
+    final doc = Document();
+    final node1 = Node(), node2 = Node(), node3 = Node();
+    doc.addNode(node1);
+    doc.addNode(node2);
+    doc.addNode(node3);
+    doc.connectNode(parent: node1, child: node2);
+    doc.connectNode(parent: node2, child: node3);
+    doc.deleteNode(node2);
+    expect(doc.canConnect(parent: node1, child: node3), true);
+    expect(doc.nodes.contains(node1), true);
+    expect(doc.nodes.contains(node3), true);
+    expect(doc.nodes.contains(node2), false);
+  });
+
+  test('delete node and descendants', () {
+    final doc = Document();
+    final node1 = Node(), node2 = Node(), node3 = Node(), node4 = Node();
+    doc.addNode(node1);
+    doc.addNode(node2);
+    doc.addNode(node3);
+    doc.addNode(node4);
+    doc.connectNode(parent: node1, child: node2);
+    doc.connectNode(parent: node2, child: node3);
+    doc.connectNode(parent: node3, child: node4);
+    doc.deleteNodeAndDescendants(node2);
+    expect(doc.nodes.contains(node1), true);
+    expect(doc.nodes.contains(node2), false);
+    expect(doc.nodes.contains(node3), false);
+    expect(doc.nodes.contains(node4), false);
+  });
+
+  test('parent of', () {
+    final doc = Document();
+    final node1 = Node(), node2 = Node();
+    doc.addNode(node1);
+    doc.addNode(node2);
+    doc.connectNode(parent: node1, child: node2);
+    expect(doc.parentOf(node2), node1);
   });
 }

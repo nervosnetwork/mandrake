@@ -271,12 +271,11 @@ class _NodePropertyEditor extends StatelessWidget {
 class _RootNodePropertyEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final document = Provider.of<Document>(context, listen: false);
+    final document = Provider.of<Document>(context);
     final node = Provider.of<Node>(context) as RootNode;
 
     final onNodeActionItemSelected = (NodeActionItem item) {
-      // TODO: handle
-      print('NodeActionItem ${item.value.toString()} clicked');
+      NodeActionExecutor(document, node).execute(item.value);
     };
 
     return SingleChildScrollView(
@@ -354,12 +353,11 @@ class _AstNodeInfoProperty extends StatelessWidget {
 class _AstNodePropertyEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final document = Provider.of<Document>(context, listen: false);
+    final document = Provider.of<Document>(context);
     final node = Provider.of<Node>(context) as AstNode;
 
     final onNodeActionItemSelected = (NodeActionItem item) {
-      // TODO: handle
-      print('NodeActionItem ${item.value.toString()} clicked');
+      NodeActionExecutor(document, node).execute(item.value);
     };
 
     return SingleChildScrollView(

@@ -4,10 +4,10 @@ import 'document.dart';
 import 'node.dart';
 
 enum NodeAction {
-  delete,
-  deleteWithDescendants,
   disconnectFromParent,
   disconnectAllChildren,
+  delete,
+  deleteWithDescendants,
 }
 
 class NodeActionItem {
@@ -37,36 +37,70 @@ class NodeActionBuilder {
   }
 
   List<NodeActionItem> _buildAstNodeNode() {
-    // TODO:
     return [
-      NodeActionItem(
-        value: NodeAction.disconnectFromParent,
-        label: 'Disconnect from parent',
-      ),
-      NodeActionItem(
-        value: NodeAction.disconnectAllChildren,
-        label: 'Disconnect all children',
-      ),
+      if (_canDisconnectParent)
+        NodeActionItem(
+          value: NodeAction.disconnectFromParent,
+          label: 'Disconnect from parent',
+        ),
+      if (_canDisconnectAllChildren)
+        NodeActionItem(
+          value: NodeAction.disconnectAllChildren,
+          label: 'Disconnect all children',
+        ),
       NodeActionItem(
         value: NodeAction.delete,
         label: 'Delete node',
         danger: true,
       ),
-      NodeActionItem(
-        value: NodeAction.deleteWithDescendants,
-        label: 'Delete node and descendants',
-        danger: true,
-      ),
+      if (_canDeleteWithDecendants)
+        NodeActionItem(
+          value: NodeAction.deleteWithDescendants,
+          label: 'Delete node and descendants',
+          danger: true,
+        ),
     ];
   }
 
   List<NodeActionItem> _buildRootNode() {
-    // TODO:
     return [
-      NodeActionItem(
-        value: NodeAction.disconnectAllChildren,
-        label: 'Disconnect all children',
-      ),
+      if (_canDisconnectAllChildren)
+        NodeActionItem(
+          value: NodeAction.disconnectAllChildren,
+          label: 'Disconnect all children',
+        ),
     ];
+  }
+}
+
+extension on NodeActionBuilder {
+  bool get _canDisconnectParent => document.parentOf(node) != null;
+
+  bool get _canDisconnectAllChildren => node.children.isNotEmpty;
+
+  bool get _canDeleteWithDecendants => node.children.isNotEmpty;
+}
+
+class NodeActionExecutor {
+  NodeActionExecutor(this.document, this.node);
+
+  final Document document;
+  final Node node;
+
+  void execute(NodeAction action) {
+    switch (action) {
+      case NodeAction.disconnectFromParent:
+        document.disconnectNodeFromParent(node);
+        break;
+      case NodeAction.disconnectAllChildren:
+        document.disconnectAllChildren(node);
+        break;
+      case NodeAction.delete:
+        document.deleteNode(node);
+        break;
+      case NodeAction.deleteWithDescendants:
+        document.deleteNodeAndDescendants(node);
+        break;
+    }
   }
 }
