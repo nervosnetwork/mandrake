@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'models/node.dart';
 
@@ -46,7 +45,7 @@ class _ObjectLibraryState extends State<ObjectLibrary> {
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(width: 40, child: Center(child: FaIcon(g.icon, size: 20))),
+                    SizedBox(width: 40, child: Center(child: Icon(g.icon, size: 20))),
                     Text(g.title, style: TextStyle(fontSize: 12)),
                   ],
                 );
@@ -73,7 +72,7 @@ class _ObjectLibraryState extends State<ObjectLibrary> {
   Widget _template(NodeTemplate template) {
     final child = _NodeTemplateItem(
       template.title,
-      FaIcon(template.icon, size: 20),
+      Icon(template.icon, size: 20),
     );
     return Padding(
       padding: const EdgeInsets.all(1),
@@ -130,7 +129,10 @@ class _DragFeedbackObject extends StatelessWidget {
 }
 
 enum NodeTemplateGroup {
+  operation,
   primitive,
+  blockchain,
+  list,
   cell,
   script,
   transaction,
@@ -150,18 +152,24 @@ class NodeTemplateGroupItem {
 
   IconData get icon {
     switch (group) {
+      case NodeTemplateGroup.operation:
+        return Icons.iso;
       case NodeTemplateGroup.primitive:
-        return FontAwesomeIcons.font;
+        return Icons.looks_one;
+      case NodeTemplateGroup.blockchain:
+        return Icons.dashboard;
+      case NodeTemplateGroup.list:
+        return Icons.list;
       case NodeTemplateGroup.cell:
-        return FontAwesomeIcons.database;
+        return Icons.blur_circular;
       case NodeTemplateGroup.script:
-        return FontAwesomeIcons.code;
+        return Icons.code;
       case NodeTemplateGroup.transaction:
-        return FontAwesomeIcons.codeBranch;
+        return Icons.blur_linear;
       case NodeTemplateGroup.header:
-        return FontAwesomeIcons.heading;
+        return Icons.hdr_on;
     }
-    return FontAwesomeIcons.plus;
+    return Icons.fiber_new;
   }
 
   List<NodeTemplate> get templates {
@@ -177,22 +185,6 @@ extension on NodeTemplate {
   }
 
   IconData get icon {
-    switch (this) {
-      case NodeTemplate.value:
-        return FontAwesomeIcons.font;
-      case NodeTemplate.binaryOperator:
-        return FontAwesomeIcons.plus;
-      case NodeTemplate.not:
-        return FontAwesomeIcons.notEqual;
-      case NodeTemplate.cellOperator:
-        return FontAwesomeIcons.database;
-      case NodeTemplate.scriptOperator:
-        return FontAwesomeIcons.code;
-      case NodeTemplate.txOperator:
-        return FontAwesomeIcons.codeBranch;
-      case NodeTemplate.headerOperator:
-        return FontAwesomeIcons.heading;
-    }
-    return FontAwesomeIcons.plus;
+    return Icons.fiber_new;
   }
 }
