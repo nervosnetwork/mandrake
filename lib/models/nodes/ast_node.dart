@@ -3,37 +3,30 @@ import 'dart:ui' show Offset;
 import '../../protos/ast.pb.dart' show Value_Type;
 import 'node_base.dart';
 
-/// primitive: ..< ast.Value_ARG
-/// list op:   ast.Value_LIST ..< ast.Value_GET_CAPACITY
-/// get op:    ast.Value_GET_CAPACITY ..< ast.Value_HASH
-/// op:        ast.Value_HASH ..< ast.Value_COND
-enum AstNodeKind {
-  primitive,
-  arg,
-  data,
-  listOp,
-  cellGetOp,
-  scriptGetOp,
-  txGetOp,
-  headerGetOp,
-  op, // Unary, Binary, Ternary or List
-  specialOp,
-}
-
 class AstNode extends Node {
   AstNode({
-    this.kind,
     this.valueType,
     Offset position,
     minimumSlotCount = 1,
     maximumSlotCount = 1,
   }) : super(
-          name: valueType.toString(),
+          name: valueType.uiName,
           position: position,
           minimumSlotCount: minimumSlotCount,
           maximumSlotCount: maximumSlotCount,
         );
 
-  final AstNodeKind kind;
   final Value_Type valueType;
+}
+
+extension ValueTypeName on Value_Type {
+  String get uiName {
+    final separated = toString().split('_');
+    return separated.map((w) {
+      if (['JSON', 'DAO'].contains(w)) {
+        return w;
+      }
+      return w[0] + w.substring(1).toLowerCase();
+    }).join(' ');
+  }
 }

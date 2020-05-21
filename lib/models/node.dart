@@ -14,6 +14,8 @@ class NT {
   NT(this.valueType);
 
   final Value_Type valueType;
+
+  String get title => valueType.uiName;
 }
 
 class NodeCreator {
@@ -21,7 +23,6 @@ class NodeCreator {
     // TODO: create more ast nodes
     AstNode node;
     node = AstNode(
-      kind: AstNodeKind.primitive, // TODO: group kind
       valueType: template.valueType,
       position: pos,
       minimumSlotCount: 0,

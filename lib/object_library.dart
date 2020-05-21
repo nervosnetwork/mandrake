@@ -241,18 +241,3 @@ class NodeTemplateGroupItem {
     return List<NT>.from(map[group]);
   }
 }
-
-extension on NT {
-  String get title {
-    final separated = valueType.toString().split('_');
-    return separated.map((w) {
-      if (['JSON', 'DAO'].contains(w)) {
-        return w;
-      }
-      return w[0] + w.substring(1).toLowerCase();
-    }).join(' ');
-    /*
-    final separated = describeEnum(this).split(RegExp(r'(?=[A-Z])')).join(' ');
-    return separated[0].toUpperCase() + separated.substring(1);*/
-  }
-}
