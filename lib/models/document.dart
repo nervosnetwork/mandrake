@@ -23,7 +23,7 @@ class Document extends ChangeNotifier {
     final slot = root.addCallSlot();
     addNode(root);
     final callResult = NodeCreator.create(
-      NT(Value_Type.UINT64),
+      NodeTemplate(Value_Type.UINT64),
       root.position + Offset(root.size.width + 100, -50),
     );
     addNode(callResult);

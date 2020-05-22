@@ -38,7 +38,7 @@ class _PointerLayerState extends State<PointerLayer> {
       behavior: HitTestBehavior.translucent,
       child: Stack(
         children: <Widget>[
-          DragTarget<NT>(
+          DragTarget<NodeTemplate>(
             onWillAccept: (data) => data != null,
             onAcceptWithDetails: (details) {
               final renderBox = context.findRenderObject() as RenderBox;

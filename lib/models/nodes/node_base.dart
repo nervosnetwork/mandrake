@@ -46,6 +46,8 @@ abstract class NodeBase {
   double get slotRowHeight => 24;
   double get bottomPadding => 5;
 
+  static const int maxAllowedSlotCount = 100; // Is this even big enough?
+
   @override
   bool operator ==(dynamic other) => other is NodeBase && other.id == id;
 
