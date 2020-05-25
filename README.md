@@ -8,7 +8,7 @@ The [Animagus](https://github.com/xxuejie/animagus) GUI.
 
 Mandrake is a Flutter app. Follow the [Flutter SDK](https://flutter.dev/docs/get-started/install) installation instructions to set up.
 
-Mandrake run as web app, or macOS desktop app (experimental). It requires different [Flutter channels](https://github.com/flutter/flutter/wiki/Flutter-build-release-channels) to run, respectively:
+Mandrake runs as web app or macOS desktop app (experimental). It requires different [Flutter channels](https://github.com/flutter/flutter/wiki/Flutter-build-release-channels) to run, respectively:
 
 ### web:
 

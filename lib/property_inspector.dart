@@ -36,6 +36,10 @@ class PropertyInspector extends StatelessWidget {
       return _RootNodePropertyEditor();
     }
 
+    if (node is LeafNode) {
+      return _LeafNodePropertyEditor();
+    }
+
     if (node is AstNode) {
       return _AstNodePropertyEditor();
     }
@@ -383,6 +387,58 @@ class _AstNodePropertyEditor extends StatelessWidget {
             title: 'Children',
             children: [
               ...node.slots.map((e) => _SlotProperty(e)).toList(),
+            ],
+          ),
+          _SectionDivider(),
+          _Section(
+            title: 'Actions',
+            children: NodeActionBuilder(document, node).build().map((action) {
+              return OutlineButton(
+                child: Text(
+                  action.label,
+                  style: TextStyle(
+                    color: action.danger ? Colors.red : null,
+                  ),
+                ),
+                onPressed: () {
+                  onNodeActionItemSelected(action);
+                },
+              );
+            }).toList(),
+          ),
+          _SectionDivider(),
+        ],
+      ),
+    );
+  }
+}
+
+class _LeafNodePropertyEditor extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final document = Provider.of<Document>(context);
+    final node = Provider.of<Node>(context) as LeafNode;
+
+    final onNodeActionItemSelected = (NodeActionItem item) {
+      NodeActionExecutor(document, node).execute(item.value);
+    };
+
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _Section(
+            title: 'Info',
+            children: [
+              _BasicInfoProperty(),
+            ],
+          ),
+          _SectionDivider(),
+          _Section(
+            title: 'Ast Info',
+            children: [
+              _AstNodeInfoProperty(),
             ],
           ),
           _SectionDivider(),
