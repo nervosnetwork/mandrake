@@ -24,6 +24,25 @@ class LeafNodeView extends AstNodeView {
             ),
           ),
         ),
+        Container(
+          height: node.bodyHeight,
+          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          child: Row(
+            children: [
+              Container(
+                child: Text('Value:'),
+                width: 50,
+              ),
+              Text(node.value),
+
+              /// TODO: different controls for different types. e.g.:
+              ///   dropdown for bool: true/false
+              ///   plain text for nil: nil
+              ///   editable text field for values
+              ///   etc.
+            ],
+          ),
+        ),
       ],
     );
   }
