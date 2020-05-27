@@ -4,10 +4,10 @@ import 'package:provider/provider.dart';
 import '../../models/node.dart';
 import 'ast_node_view.dart';
 
-class LeafNodeView extends AstNodeView {
+class PrimitiveNodeView extends AstNodeView {
   @override
   Widget buildView(BuildContext context) {
-    final node = Provider.of<Node>(context) as LeafNode;
+    final node = Provider.of<Node>(context) as PrimitiveNode;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -41,7 +41,7 @@ class LeafNodeView extends AstNodeView {
     );
   }
 
-  Widget _valueField(BuildContext context, LeafNode node) {
+  Widget _valueField(BuildContext context, PrimitiveNode node) {
     if (node.valueType == Value_Type.BOOL) {
       return DropdownButton(
         isDense: true,

@@ -8,11 +8,11 @@ import '../../models/document.dart';
 import '../../models/node.dart';
 import '../../models/node_action.dart';
 
-class LeafNodePropertyEditor extends StatelessWidget {
+class PrimitiveNodePropertyEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final document = Provider.of<Document>(context);
-    final node = Provider.of<Node>(context) as LeafNode;
+    final node = Provider.of<Node>(context) as PrimitiveNode;
 
     final onNodeActionItemSelected = (NodeActionItem item) {
       NodeActionExecutor(document, node).execute(item.value);
@@ -62,7 +62,7 @@ class LeafNodePropertyEditor extends StatelessWidget {
     );
   }
 
-  Widget _valueField(BuildContext context, LeafNode node) {
+  Widget _valueField(BuildContext context, PrimitiveNode node) {
     if (node.valueType == Value_Type.BOOL) {
       return DropdownButton(
         isDense: true,

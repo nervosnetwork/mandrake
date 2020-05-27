@@ -72,6 +72,7 @@ class NodeTemplate {
       NT(Value_Type.ERROR),
       NT(Value_Type.ARG),
       NT(Value_Type.PARAM),
+      // TODO: to which category arg and param should belong?
     ],
     NodeTemplateGroup.blockchain: [
       NT(Value_Type.OUT_POINT),
@@ -152,26 +153,27 @@ extension ValueTypeName on Value_Type {
 }
 
 extension VelueTypeKind on Value_Type {
-  bool get isCell => NT(this).group == NodeTemplateGroup.cell;
-  bool get isScript => NT(this).group == NodeTemplateGroup.script;
-  bool get isTx => NT(this).group == NodeTemplateGroup.transaction;
-  bool get isHeader => NT(this).group == NodeTemplateGroup.header;
+  bool get isPrimitiveField => NT(this).group == NodeTemplateGroup.primitive;
   bool get isGetOperator {
-    return isCell || isScript || isTx || isHeader;
+    return isCellGetOp || isScriptGetOp || isTxGetOp || isHeaderGetOp;
   }
 
-  bool get isLeaf => leafValueTypes.contains(this);
+  bool get isCellGetOp => NT(this).group == NodeTemplateGroup.cell;
+  bool get isScriptGetOp => NT(this).group == NodeTemplateGroup.script;
+  bool get isTxGetOp => NT(this).group == NodeTemplateGroup.transaction;
+  bool get isHeaderGetOp => NT(this).group == NodeTemplateGroup.header;
+
   bool get isUnaryOperator => unaryOperatorValueTypes.contains(this);
   bool get isBinaryOperator => binaryOperatorValueTypes.contains(this);
   bool get isTernaryOperator => ternaryOperatorValueTypes.contains(this);
   bool get isList => listValueTypes.contains(this);
 
   int get minimumSlotCount {
-    if (isCell || isScript || isTx || isHeader) {
-      return 1;
-    }
-    if (isLeaf) {
+    if (isPrimitiveField) {
       return 0;
+    }
+    if (isGetOperator) {
+      return 1;
     }
     if (isUnaryOperator) {
       return 1;
@@ -189,11 +191,11 @@ extension VelueTypeKind on Value_Type {
   }
 
   int get maximumSlotCount {
-    if (isCell || isScript || isTx || isHeader) {
-      return 1;
-    }
-    if (isLeaf) {
+    if (isPrimitiveField) {
       return 0;
+    }
+    if (isGetOperator) {
+      return 1;
     }
     if (isUnaryOperator) {
       return 1;
@@ -206,16 +208,6 @@ extension VelueTypeKind on Value_Type {
     }
     return NodeBase.maxAllowedSlotCount;
   }
-
-  static const List<Value_Type> leafValueTypes = [
-    Value_Type.NIL,
-    Value_Type.UINT64,
-    Value_Type.BOOL,
-    Value_Type.BYTES,
-    Value_Type.ERROR,
-    Value_Type.ARG,
-    Value_Type.PARAM,
-  ];
 
   static const List<Value_Type> unaryOperatorValueTypes = [
     Value_Type.HASH,

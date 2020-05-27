@@ -3,14 +3,9 @@ import 'dart:ui' show Offset, Size;
 import '../../protos/ast.pb.dart' show Value_Type;
 import 'ast_node.dart';
 
-class LeafNode extends AstNode {
-  LeafNode({
-    Value_Type valueType,
-    Offset position,
-  }) : super(
-          valueType: valueType,
-          position: position,
-        ) {
+class PrimitiveNode extends AstNode {
+  PrimitiveNode({Value_Type valueType, Offset position})
+      : super(valueType: valueType, position: position) {
     if (valueType == Value_Type.NIL) {
       _value = 'NIL';
     } else if (valueType == Value_Type.BOOL) {

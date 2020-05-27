@@ -1,7 +1,7 @@
 import '../models/node.dart';
 import 'nodes/node_view.dart';
 import 'nodes/ast_node_view.dart';
-import 'nodes/leaf_node_view.dart';
+import 'nodes/primitive_node_view.dart';
 import 'nodes/root_node_view.dart';
 
 class ViewCreator {
@@ -10,8 +10,8 @@ class ViewCreator {
       return RootNodeView();
     }
 
-    if (node is LeafNode) {
-      return LeafNodeView();
+    if (node is PrimitiveNode) {
+      return PrimitiveNodeView();
     }
 
     if (node is AstNode) {

@@ -12,16 +12,16 @@ class GetOpNode extends AstNode {
   String type;
 
   String _getType(Value_Type valueType) {
-    if (valueType.isCell) {
+    if (valueType.isCellGetOp) {
       return 'Cell';
     }
-    if (valueType.isScript) {
+    if (valueType.isScriptGetOp) {
       return 'Script';
     }
-    if (valueType.isTx) {
+    if (valueType.isTxGetOp) {
       return 'Transaction';
     }
-    if (valueType.isHeader) {
+    if (valueType.isHeaderGetOp) {
       return 'Header';
     }
 
