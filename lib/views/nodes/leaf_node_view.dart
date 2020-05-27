@@ -33,17 +33,41 @@ class LeafNodeView extends AstNodeView {
                 child: Text('Value:'),
                 width: 50,
               ),
-              Text(node.value),
-
-              /// TODO: different controls for different types. e.g.:
-              ///   dropdown for bool: true/false
-              ///   plain text for nil: nil
-              ///   editable text field for values
-              ///   etc.
+              _valueField(context, node),
             ],
           ),
         ),
       ],
     );
+  }
+
+  Widget _valueField(BuildContext context, LeafNode node) {
+    if (node.valueType == Value_Type.BOOL) {
+      return DropdownButton(
+        isDense: true,
+        onChanged: (value) {
+          node.setValue(value);
+        },
+        value: node.value,
+        items: [
+          DropdownMenuItem(
+            child: Text('true'),
+            value: 'true',
+          ),
+          DropdownMenuItem(
+            child: Text('false'),
+            value: 'false',
+          ),
+        ],
+      );
+    }
+
+    /// TODO: different controls for different types. e.g.:
+    ///   dropdown for bool: true/false
+    ///   plain text for nil: nil
+    ///   editable text field for values
+    ///   etc.
+
+    return Text(node.value);
   }
 }

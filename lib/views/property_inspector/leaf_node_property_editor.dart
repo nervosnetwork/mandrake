@@ -32,8 +32,7 @@ class LeafNodePropertyEditor extends StatelessWidget {
           PropertyEditorSection(
             title: 'Value',
             children: [
-              // TODO: value editing section
-              Text(node.value + ' todo:'),
+              _valueField(context, node),
             ],
           ),
           PropertyEditorSection(
@@ -61,5 +60,31 @@ class LeafNodePropertyEditor extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _valueField(BuildContext context, LeafNode node) {
+    if (node.valueType == Value_Type.BOOL) {
+      return DropdownButton(
+        isDense: true,
+        onChanged: (value) {
+          node.setValue(value);
+        },
+        value: node.value,
+        items: [
+          DropdownMenuItem(
+            child: Text('true'),
+            value: 'true',
+          ),
+          DropdownMenuItem(
+            child: Text('false'),
+            value: 'false',
+          ),
+        ],
+      );
+    }
+
+    /// TODO: more edit fields
+
+    return Text(node.value);
   }
 }

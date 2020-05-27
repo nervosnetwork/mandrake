@@ -17,6 +17,128 @@ class AstNode extends Node {
   final Value_Type valueType;
 }
 
+/// Just for short constructor
+NodeTemplate NT(Value_Type valueType) => NodeTemplate(valueType);
+
+class NodeTemplate {
+  NodeTemplate(this.valueType);
+
+  final Value_Type valueType;
+
+  @override
+  bool operator ==(dynamic other) => other is NodeTemplate && other.valueType == valueType;
+
+  @override
+  int get hashCode => valueType.hashCode;
+
+  String get title => valueType.uiName;
+  NodeTemplateGroup get group {
+    for (final group in NodeTemplateGroup.values) {
+      if (grouped[group].contains(this)) {
+        return group;
+      }
+    }
+    return NodeTemplateGroup.operation;
+  }
+
+  /// For categorized grouping, used by Object Library.
+  static final grouped = {
+    NodeTemplateGroup.operation: [
+      NT(Value_Type.HASH),
+      NT(Value_Type.SERIALIZE_TO_CORE),
+      NT(Value_Type.SERIALIZE_TO_JSON),
+      NT(Value_Type.NOT),
+      NT(Value_Type.AND),
+      NT(Value_Type.OR),
+      NT(Value_Type.EQUAL),
+      NT(Value_Type.LESS),
+      NT(Value_Type.LEN),
+      NT(Value_Type.SLICE),
+      NT(Value_Type.INDEX),
+      NT(Value_Type.ADD),
+      NT(Value_Type.SUBTRACT),
+      NT(Value_Type.MULTIPLY),
+      NT(Value_Type.DIVIDE),
+      NT(Value_Type.MOD),
+      NT(Value_Type.COND),
+      NT(Value_Type.TAIL_RECURSION),
+    ],
+    NodeTemplateGroup.prefab: [],
+    NodeTemplateGroup.primitive: [
+      NT(Value_Type.NIL),
+      NT(Value_Type.UINT64),
+      NT(Value_Type.BOOL),
+      NT(Value_Type.BYTES),
+      NT(Value_Type.ERROR),
+      NT(Value_Type.ARG),
+      NT(Value_Type.PARAM),
+    ],
+    NodeTemplateGroup.blockchain: [
+      NT(Value_Type.OUT_POINT),
+      NT(Value_Type.CELL_INPUT),
+      NT(Value_Type.CELL_DEP),
+      NT(Value_Type.SCRIPT),
+      NT(Value_Type.CELL),
+      NT(Value_Type.TRANSACTION),
+      NT(Value_Type.HEADER),
+    ],
+    NodeTemplateGroup.list: [
+      NT(Value_Type.APPLY),
+      NT(Value_Type.REDUCE),
+      NT(Value_Type.LIST),
+      NT(Value_Type.QUERY_CELLS),
+      NT(Value_Type.MAP),
+      NT(Value_Type.FILTER),
+    ],
+    NodeTemplateGroup.cell: [
+      NT(Value_Type.GET_CAPACITY),
+      NT(Value_Type.GET_DATA),
+      NT(Value_Type.GET_LOCK),
+      NT(Value_Type.GET_TYPE),
+      NT(Value_Type.GET_DATA_HASH),
+      NT(Value_Type.GET_OUT_POINT),
+    ],
+    NodeTemplateGroup.script: [
+      NT(Value_Type.GET_CODE_HASH),
+      NT(Value_Type.GET_HASH_TYPE),
+      NT(Value_Type.GET_ARGS),
+    ],
+    NodeTemplateGroup.transaction: [
+      NT(Value_Type.GET_CELL_DEPS),
+      NT(Value_Type.GET_HEADER_DEPS),
+      NT(Value_Type.GET_INPUTS),
+      NT(Value_Type.GET_OUTPUTS),
+      NT(Value_Type.GET_WITNESSES),
+    ],
+    NodeTemplateGroup.header: [
+      NT(Value_Type.GET_COMPACT_TARGET),
+      NT(Value_Type.GET_TIMESTAMP),
+      NT(Value_Type.GET_NUMBER),
+      NT(Value_Type.GET_EPOCH),
+      NT(Value_Type.GET_PARENT_HASH),
+      NT(Value_Type.GET_TRANSACTIONS_ROOT),
+      NT(Value_Type.GET_PROPOSALS_HASH),
+      NT(Value_Type.GET_UNCLES_HASH),
+      NT(Value_Type.GET_DAO),
+      NT(Value_Type.GET_NONCE),
+      NT(Value_Type.GET_HEADER),
+    ],
+  };
+}
+
+// Categorize nodes for grouping from places like object library.
+enum NodeTemplateGroup {
+  operation,
+  prefab, // Special sets of common operations as a single node (e.g. `balance`)
+  primitive,
+  blockchain,
+  list,
+  cell,
+  script,
+  transaction,
+  header,
+}
+
 extension ValueTypeName on Value_Type {
   String get uiName {
     final separated = toString().split('_');
@@ -30,6 +152,14 @@ extension ValueTypeName on Value_Type {
 }
 
 extension VelueTypeKind on Value_Type {
+  bool get isCell => NT(this).group == NodeTemplateGroup.cell;
+  bool get isScript => NT(this).group == NodeTemplateGroup.script;
+  bool get isTx => NT(this).group == NodeTemplateGroup.transaction;
+  bool get isHeader => NT(this).group == NodeTemplateGroup.header;
+  bool get isGetOperator {
+    return isCell || isScript || isTx || isHeader;
+  }
+
   bool get isLeaf => leafValueTypes.contains(this);
   bool get isUnaryOperator => unaryOperatorValueTypes.contains(this);
   bool get isBinaryOperator => binaryOperatorValueTypes.contains(this);
@@ -37,6 +167,9 @@ extension VelueTypeKind on Value_Type {
   bool get isList => listValueTypes.contains(this);
 
   int get minimumSlotCount {
+    if (isCell || isScript || isTx || isHeader) {
+      return 1;
+    }
     if (isLeaf) {
       return 0;
     }
@@ -56,6 +189,9 @@ extension VelueTypeKind on Value_Type {
   }
 
   int get maximumSlotCount {
+    if (isCell || isScript || isTx || isHeader) {
+      return 1;
+    }
     if (isLeaf) {
       return 0;
     }

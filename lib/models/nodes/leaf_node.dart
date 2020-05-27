@@ -10,7 +10,19 @@ class LeafNode extends AstNode {
   }) : super(
           valueType: valueType,
           position: position,
-        );
+        ) {
+    if (valueType == Value_Type.NIL) {
+      _value = 'NIL';
+    } else if (valueType == Value_Type.BOOL) {
+      _value = 'true';
+    } else if (valueType == Value_Type.BYTES) {
+      _value = '0x';
+    } else if (valueType == Value_Type.ERROR) {
+      _value = 'Error message';
+    } else {
+      _value = '0';
+    }
+  }
 
   String _value = '';
 
@@ -24,19 +36,10 @@ class LeafNode extends AstNode {
     );
   }
 
-  String get value {
-    if (valueType == Value_Type.NIL) {
-      return 'NIL';
-    }
-
-    if (valueType == Value_Type.BOOL) {
-      return 'True'; // TODO
-    }
-
-    return _value; // TODO: format
-  }
+  String get value => _value;
 
   void setValue(String v) {
-    _value = v; // TODO: format
+    _value = v; // TODO: format validation
+    notifyListeners();
   }
 }
