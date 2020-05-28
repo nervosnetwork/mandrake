@@ -1,4 +1,6 @@
 import 'dart:ui' show Offset, Size;
+import 'package:string_validator/string_validator.dart';
+import 'package:basic_utils/basic_utils.dart';
 
 import '../../protos/ast.pb.dart' show Value_Type;
 import 'ast_node.dart';
@@ -21,7 +23,12 @@ class PrimitiveNode extends AstNode {
 
   String _value = '';
 
-  double get bodyHeight => 30;
+  double get bodyHeight {
+    if (valueType == Value_Type.BYTES || valueType == Value_Type.ERROR) {
+      return 110;
+    }
+    return 40;
+  }
 
   @override
   Size get size {
@@ -34,7 +41,26 @@ class PrimitiveNode extends AstNode {
   String get value => _value;
 
   void setValue(String v) {
-    _value = v; // TODO: format validation
+    _value = normalize(v);
     notifyListeners();
+  }
+
+  String normalize(String v) {
+    var normalized = v.trim();
+
+    if (valueType == Value_Type.UINT64) {
+      if (!StringUtils.isDigit(normalized)) {
+        normalized = '0';
+      }
+    }
+
+    if (valueType == Value_Type.BYTES) {
+      if (normalized.substring(0, 1) != '0x' && !isHexadecimal(normalized.substring(2))) {
+        normalized = '0x';
+      }
+    }
+    // TODO: other format validation
+
+    return normalized;
   }
 }

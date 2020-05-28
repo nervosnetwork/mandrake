@@ -9,6 +9,7 @@ import '../../models/node_action.dart';
 import '../../models/editor_state.dart';
 
 import '../../utils/edge_path.dart';
+import '../../utils/focus_helper.dart';
 
 import 'editor_dimensions.dart';
 import '../../context_menu.dart';
@@ -94,6 +95,8 @@ class _PointerLayerState extends State<PointerLayer> {
           _endConnectorOffset = event.localPosition;
         }
       }
+
+      FocusHelper.unfocus(context);
     }
 
     if (_isDraggingCanvas) {

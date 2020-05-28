@@ -36,8 +36,8 @@ class PropertyEditorSection extends StatelessWidget {
   }
 }
 
-class _TextFieldDecoration extends InputDecoration {
-  _TextFieldDecoration()
+class PropertyEditorTextFieldDecoration extends InputDecoration {
+  PropertyEditorTextFieldDecoration()
       : super(
           border: OutlineInputBorder(),
           contentPadding: EdgeInsets.symmetric(
@@ -80,7 +80,7 @@ class BasicInfoProperty extends StatelessWidget {
               child: TextFormField(
                 controller: _nameController,
                 style: Theme.of(context).textTheme.bodyText2,
-                decoration: _TextFieldDecoration(),
+                decoration: PropertyEditorTextFieldDecoration(),
                 onFieldSubmitted: (v) {
                   node.updateName(v); // TODO: simple validation
                 },
@@ -99,7 +99,7 @@ class BasicInfoProperty extends StatelessWidget {
               child: TextFormField(
                 controller: _xPosController,
                 style: Theme.of(context).textTheme.bodyText2,
-                decoration: _TextFieldDecoration().copyWith(suffixText: 'x'),
+                decoration: PropertyEditorTextFieldDecoration().copyWith(suffixText: 'x'),
                 onFieldSubmitted: (v) {
                   // TODO: simple validation
                   document.moveNodePosition(node, Offset(double.parse(v) - node.position.dx, 0));
@@ -111,7 +111,7 @@ class BasicInfoProperty extends StatelessWidget {
               child: TextFormField(
                 controller: _yPosController,
                 style: Theme.of(context).textTheme.bodyText2,
-                decoration: _TextFieldDecoration().copyWith(suffixText: 'y'),
+                decoration: PropertyEditorTextFieldDecoration().copyWith(suffixText: 'y'),
                 onFieldSubmitted: (v) {
                   // TODO: simple validation
                   document.moveNodePosition(node, Offset(0, double.parse(v) - node.position.dy));

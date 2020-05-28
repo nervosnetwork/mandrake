@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/node.dart';
+import '../../utils/focus_helper.dart';
 import 'ast_node_view.dart';
 
 class PrimitiveNodeView extends AstNodeView {
@@ -28,6 +29,7 @@ class PrimitiveNodeView extends AstNodeView {
           height: node.bodyHeight,
           padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 child: Text('Value:'),
@@ -61,12 +63,24 @@ class PrimitiveNodeView extends AstNodeView {
         ],
       );
     }
-
-    /// TODO: different controls for different types. e.g.:
-    ///   dropdown for bool: true/false
-    ///   plain text for nil: nil
-    ///   editable text field for values
-    ///   etc.
+    if ([Value_Type.BYTES, Value_Type.UINT64, Value_Type.ERROR].contains(node.valueType)) {
+      final _valueController = TextEditingController();
+      _valueController.text = node.value;
+      final maxLines = node.valueType == Value_Type.UINT64 ? 1 : 5;
+      return Flexible(
+        child: TextFormField(
+          controller: _valueController,
+          style: Theme.of(context).textTheme.bodyText2,
+          decoration: textFieldDecoration,
+          onFieldSubmitted: (v) {
+            FocusHelper.unfocus(context);
+            node.setValue(v);
+          },
+          maxLines: maxLines,
+          textInputAction: TextInputAction.next,
+        ),
+      );
+    }
 
     return Text(node.value);
   }

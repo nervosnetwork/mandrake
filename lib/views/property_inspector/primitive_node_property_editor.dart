@@ -7,6 +7,7 @@ import 'ast_node_property_editor.dart';
 import '../../models/document.dart';
 import '../../models/node.dart';
 import '../../models/node_action.dart';
+import '../../utils/focus_helper.dart';
 
 class PrimitiveNodePropertyEditor extends StatelessWidget {
   @override
@@ -78,6 +79,29 @@ class PrimitiveNodePropertyEditor extends StatelessWidget {
           DropdownMenuItem(
             child: Text('false'),
             value: 'false',
+          ),
+        ],
+      );
+    }
+
+    if ([Value_Type.BYTES, Value_Type.UINT64, Value_Type.ERROR].contains(node.valueType)) {
+      final _valueController = TextEditingController();
+      _valueController.text = node.value;
+      final maxLines = node.valueType == Value_Type.UINT64 ? 1 : 5;
+      return Row(
+        children: [
+          Flexible(
+            child: TextFormField(
+              controller: _valueController,
+              style: Theme.of(context).textTheme.bodyText2,
+              decoration: PropertyEditorTextFieldDecoration(),
+              onFieldSubmitted: (v) {
+                FocusHelper.unfocus(context);
+                node.setValue(v);
+              },
+              maxLines: maxLines,
+              textInputAction: TextInputAction.next,
+            ),
           ),
         ],
       );
