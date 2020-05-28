@@ -69,6 +69,7 @@ class PrimitiveNodeView extends AstNodeView {
       final maxLines = node.valueType == Value_Type.UINT64 ? 1 : 5;
       return Flexible(
         child: TextFormField(
+          enabled: false, // isSelected(context), // Disable until we feel inline editing is smooth.
           controller: _valueController,
           style: Theme.of(context).textTheme.bodyText2,
           decoration: textFieldDecoration,

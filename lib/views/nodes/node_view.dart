@@ -12,6 +12,12 @@ class NodeView extends StatelessWidget {
   static const Color hoveredBorderColor = Color(0xffef5350);
   static const Color subtitleColor = Color(0xff757575);
 
+  bool isSelected(BuildContext context) {
+    final node = Provider.of<Node>(context, listen: false);
+    final selection = Provider.of<Selection>(context, listen: false);
+    return selection.isNodeSelected(node);
+  }
+
   BoxDecoration titleDecoration(Color color) {
     return BoxDecoration(
       color: color,
