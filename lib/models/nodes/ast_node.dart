@@ -153,6 +153,7 @@ extension ValueTypeName on Value_Type {
 }
 
 extension VelueTypeKind on Value_Type {
+  bool get isOperation => NT(this).group == NodeTemplateGroup.operation;
   bool get isPrimitiveField => NT(this).group == NodeTemplateGroup.primitive;
   bool get isGetOperator {
     return isCellGetOp || isScriptGetOp || isTxGetOp || isHeaderGetOp;
@@ -214,6 +215,7 @@ extension VelueTypeKind on Value_Type {
     Value_Type.SERIALIZE_TO_CORE,
     Value_Type.SERIALIZE_TO_JSON,
     Value_Type.NOT,
+    Value_Type.LEN,
   ];
 
   static const List<Value_Type> binaryOperatorValueTypes = [

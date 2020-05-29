@@ -84,10 +84,9 @@ class PrimitiveNodePropertyEditor extends StatelessWidget {
       );
     }
 
-    if ([Value_Type.BYTES, Value_Type.UINT64, Value_Type.ERROR].contains(node.valueType)) {
+    if (node.editableAsText) {
       final _valueController = TextEditingController();
       _valueController.text = node.value;
-      final maxLines = node.valueType == Value_Type.UINT64 ? 1 : 5;
       return Row(
         children: [
           Flexible(
@@ -99,7 +98,7 @@ class PrimitiveNodePropertyEditor extends StatelessWidget {
                 FocusHelper.unfocus(context);
                 node.setValue(v);
               },
-              maxLines: maxLines,
+              maxLines: node.allowedEditLines,
               textInputAction: TextInputAction.next,
             ),
           ),

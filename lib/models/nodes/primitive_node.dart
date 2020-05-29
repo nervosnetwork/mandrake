@@ -27,7 +27,7 @@ class PrimitiveNode extends AstNode {
     if (valueType == Value_Type.BYTES || valueType == Value_Type.ERROR) {
       return 110;
     }
-    return 40;
+    return 45;
   }
 
   @override
@@ -39,6 +39,17 @@ class PrimitiveNode extends AstNode {
   }
 
   String get value => _value;
+  bool get editableAsText {
+    return [Value_Type.BYTES, Value_Type.ERROR, Value_Type.UINT64, Value_Type.ARG, Value_Type.PARAM]
+        .contains(valueType);
+  }
+
+  int get allowedEditLines {
+    if (valueType == Value_Type.BYTES || valueType == Value_Type.ERROR) {
+      return 5;
+    }
+    return 1;
+  }
 
   void setValue(String v) {
     _value = normalize(v);
@@ -48,7 +59,9 @@ class PrimitiveNode extends AstNode {
   String normalize(String v) {
     var normalized = v.trim();
 
-    if (valueType == Value_Type.UINT64) {
+    if (valueType == Value_Type.UINT64 ||
+        valueType == Value_Type.ARG ||
+        valueType == Value_Type.PARAM) {
       if (!StringUtils.isDigit(normalized)) {
         normalized = '0';
       }

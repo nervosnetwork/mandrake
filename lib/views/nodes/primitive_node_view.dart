@@ -63,7 +63,7 @@ class PrimitiveNodeView extends AstNodeView {
         ],
       );
     }
-    if ([Value_Type.BYTES, Value_Type.UINT64, Value_Type.ERROR].contains(node.valueType)) {
+    if (node.editableAsText) {
       final _valueController = TextEditingController();
       _valueController.text = node.value;
       final maxLines = node.valueType == Value_Type.UINT64 ? 1 : 5;
