@@ -195,7 +195,7 @@ class _PointerLayerState extends State<PointerLayer> {
       final slot = source.hitTest(_startConnectorOffset - source.position);
       final target = _hitTest(event.localPosition);
       if (document.canConnect(parent: source, child: target)) {
-        document.connectNode(parent: source, child: target, slot_id: slot?.id);
+        document.connectNode(parent: source, child: target, slotId: slot?.id);
         // selection.select(target);
       }
       selection.hover(null);

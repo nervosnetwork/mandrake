@@ -27,8 +27,8 @@ class Document extends ChangeNotifier {
       root.position + Offset(root.size.width + 100, -50),
     );
     addNode(callResult);
-    callResult.updateName('Call Result');
-    connectNode(parent: root, child: callResult, slot_id: slot.id);
+    callResult.setName('Call Result');
+    connectNode(parent: root, child: callResult, slotId: slot.id);
   }
 
   void resizeCanvas(Size size) {
@@ -76,21 +76,21 @@ class Document extends ChangeNotifier {
     return _allNodes.firstWhere((n) => n.children.contains(node), orElse: () => null);
   }
 
-  void connectNode({@required Node parent, @required Node child, String slot_id}) {
+  void connectNode({@required Node parent, @required Node child, String slotId}) {
     assert(canConnect(parent: parent, child: child));
 
     _topLevelNodes.remove(child);
-    parent.addChild(child, slot_id);
+    parent.addChild(child, slotId);
 
     _rebuildNodes();
     _rebuildLinks();
     notifyListeners();
   }
 
-  void disconnectNode({@required Node parent, @required String child_id}) {
-    final child = _allNodes.firstWhere((n) => n.id == child_id, orElse: () => null);
+  void disconnectNode({@required Node parent, @required String childId}) {
+    final child = _allNodes.firstWhere((n) => n.id == childId, orElse: () => null);
     _topLevelNodes.add(child);
-    parent?.removeChild(child_id);
+    parent?.removeChild(childId);
 
     _rebuildNodes();
     _rebuildLinks();
@@ -98,13 +98,13 @@ class Document extends ChangeNotifier {
   }
 
   void disconnectNodeFromParent(Node node) {
-    disconnectNode(parent: parentOf(node), child_id: node.id);
+    disconnectNode(parent: parentOf(node), childId: node.id);
   }
 
   void disconnectAllChildren(Node node) {
-    final child_ids = node.children.map((c) => c.id).toList();
-    for (final child_id in child_ids) {
-      disconnectNode(parent: node, child_id: child_id);
+    final childIds = node.children.map((c) => c.id).toList();
+    for (final childId in childIds) {
+      disconnectNode(parent: node, childId: childId);
     }
   }
 

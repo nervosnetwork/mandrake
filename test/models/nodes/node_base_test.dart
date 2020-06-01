@@ -13,7 +13,7 @@ void main() {
     test('is connected', () {
       var slot = ChildSlot();
       expect(slot.isConnected, false);
-      slot.child_id = Node().id;
+      slot.childId = Node().id;
       expect(slot.isConnected, true);
     });
   });
@@ -63,9 +63,9 @@ void main() {
     final slot = node.addSlot('first');
     final child = Node();
     node.addChild(child, slot.id);
-    expect(slot.child_id, child.id);
+    expect(slot.childId, child.id);
     node.removeChild(child.id);
-    expect(slot.child_id, null);
+    expect(slot.childId, null);
   });
 
   test('add slot when children are added', () {
@@ -118,9 +118,9 @@ void main() {
     final node = Node();
     final child1 = Node(), child2 = Node();
     var child1Slot = node.addSlot('child1');
-    child1Slot.child_id = child1.id;
+    child1Slot.childId = child1.id;
     var child2Slot = node.addSlot('child2');
-    child2Slot.child_id = child2.id;
+    child2Slot.childId = child2.id;
 
     expect(node.childConnectorPosition(child1), node.slotConnectorPosition(child1Slot));
     expect(node.childConnectorPosition(child2), node.slotConnectorPosition(child2Slot));
@@ -146,7 +146,7 @@ void main() {
       var slot = node.addSlot('');
       final pos = node.slotConnectorPosition(slot) - node.position;
       expect(node.hitTest(pos), slot);
-      slot.child_id = child.id;
+      slot.childId = child.id;
       expect(node.hitTest(pos), null);
     });
     test('on second slot connector', () {
@@ -156,7 +156,7 @@ void main() {
       var slot = node.addSlot('');
       final pos = node.slotConnectorPosition(slot) - node.position;
       expect(node.hitTest(pos), slot);
-      slot.child_id = child.id;
+      slot.childId = child.id;
       expect(node.hitTest(pos), null);
     });
 

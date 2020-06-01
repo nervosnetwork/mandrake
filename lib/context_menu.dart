@@ -31,7 +31,7 @@ class _ContextMenuState extends State<ContextMenu> {
     return Material(
       borderRadius: BorderRadius.circular(ContextMenu._padding / 2),
       color: Theme.of(context).dialogBackgroundColor,
-      elevation: 2,
+      elevation: 8,
       child: Container(
         width: size.width,
         height: size.height,

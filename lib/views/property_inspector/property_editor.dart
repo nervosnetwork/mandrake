@@ -82,7 +82,7 @@ class BasicInfoProperty extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: PropertyEditorTextFieldDecoration(),
                 onFieldSubmitted: (v) {
-                  node.updateName(v); // TODO: simple validation
+                  node.setName(v); // TODO: simple validation
                 },
               ),
             ),
@@ -137,14 +137,14 @@ class SlotProperty extends StatelessWidget {
     final node = Provider.of<Node>(context);
 
     void _deleteSlot(ChildSlot slot) {
-      if (slot.child_id != null) {
-        document.disconnectNode(parent: node, child_id: slot.child_id);
+      if (slot.childId != null) {
+        document.disconnectNode(parent: node, childId: slot.childId);
       }
       node.removeSlot(slot.id);
     }
 
     void _deleteChild(ChildSlot slot) {
-      document.disconnectNode(parent: node, child_id: slot.child_id);
+      document.disconnectNode(parent: node, childId: slot.childId);
     }
 
     return Container(

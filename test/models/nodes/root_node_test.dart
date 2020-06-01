@@ -59,12 +59,12 @@ void main() {
     final call = Node();
     node.addChild(call, callSlot.id);
     expect(node.callSlots.length, 1);
-    expect(node.callSlots[0].child_id, call.id);
+    expect(node.callSlots[0].childId, call.id);
 
     final anotherCall = Node();
     node.addChild(anotherCall, RootNode.addCallChildSlot.id);
     expect(node.callSlots.length, 2);
-    expect(node.callSlots[1].child_id, anotherCall.id);
+    expect(node.callSlots[1].childId, anotherCall.id);
   });
 
   test('add stream child', () {
@@ -73,12 +73,12 @@ void main() {
     final stream = Node();
     node.addChild(stream, streamSlot.id);
     expect(node.streamSlots.length, 1);
-    expect(node.streamSlots[0].child_id, stream.id);
+    expect(node.streamSlots[0].childId, stream.id);
 
     final anotherStream = Node();
     node.addChild(anotherStream, RootNode.addStreamChildSlot.id);
     expect(node.streamSlots.length, 2);
-    expect(node.streamSlots[1].child_id, anotherStream.id);
+    expect(node.streamSlots[1].childId, anotherStream.id);
   });
 
   test('child connector position', () {
@@ -86,11 +86,11 @@ void main() {
     final call = Node(), stream = Node();
     node.addCallSlot();
     var callSlot = node.addCallSlot();
-    callSlot.child_id = call.id;
+    callSlot.childId = call.id;
     node.addCallSlot();
     node.addStreamSlot();
     var streamSlot = node.addStreamSlot();
-    streamSlot.child_id = stream.id;
+    streamSlot.childId = stream.id;
     node.addStreamSlot();
 
     expect(node.childConnectorPosition(call), node.slotConnectorPosition(callSlot));
@@ -117,7 +117,7 @@ void main() {
       var slot = node.addCallSlot();
       final pos = node.slotConnectorPosition(slot) - node.position;
       expect(node.hitTest(pos), slot);
-      slot.child_id = child.id;
+      slot.childId = child.id;
       expect(node.hitTest(pos), null);
     });
     test('on second call slot connector', () {
@@ -127,7 +127,7 @@ void main() {
       var slot = node.addCallSlot();
       final pos = node.slotConnectorPosition(slot) - node.position;
       expect(node.hitTest(pos), slot);
-      slot.child_id = child.id;
+      slot.childId = child.id;
       expect(node.hitTest(pos), null);
     });
 
@@ -143,7 +143,7 @@ void main() {
       var slot = node.addStreamSlot();
       final pos = node.slotConnectorPosition(slot) - node.position;
       expect(node.hitTest(pos), slot);
-      slot.child_id = child.id;
+      slot.childId = child.id;
       expect(node.hitTest(pos), null);
     });
     test('on second stream slot connector', () {
@@ -153,7 +153,7 @@ void main() {
       var slot = node.addStreamSlot();
       final pos = node.slotConnectorPosition(slot) - node.position;
       expect(node.hitTest(pos), slot);
-      slot.child_id = child.id;
+      slot.childId = child.id;
       expect(node.hitTest(pos), null);
     });
     test('on stream slot connector with call slot', () {
@@ -164,7 +164,7 @@ void main() {
       var slot = node.addStreamSlot();
       final pos = node.slotConnectorPosition(slot) - node.position;
       expect(node.hitTest(pos), slot);
-      slot.child_id = child.id;
+      slot.childId = child.id;
       expect(node.hitTest(pos), null);
     });
 

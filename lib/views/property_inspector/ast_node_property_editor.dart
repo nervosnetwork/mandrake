@@ -22,7 +22,20 @@ class AstNodeInfoProperty extends StatelessWidget {
               child: Text('Type'),
               width: 60,
             ),
-            Text(node.valueType.toString()),
+            DropdownButton(
+              isDense: true,
+              style: Theme.of(context).textTheme.subtitle1.copyWith(fontSize: 13),
+              onChanged: (value) {
+                node.setValueType(value);
+              },
+              value: node.valueType,
+              items: node.exchangeableValueTypes.map((t) {
+                return DropdownMenuItem(
+                  child: Text(t.toString()),
+                  value: t,
+                );
+              }).toList(),
+            ),
           ],
         ),
       ],

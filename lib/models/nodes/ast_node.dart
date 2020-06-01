@@ -5,16 +5,43 @@ import 'node_base.dart';
 
 class AstNode extends Node {
   AstNode({
-    this.valueType,
+    Value_Type valueType,
     Offset position,
-  }) : super(
+  })  : _valueType = valueType,
+        super(
           name: valueType.uiName,
           position: position,
           minimumSlotCount: valueType.minimumSlotCount,
           maximumSlotCount: valueType.maximumSlotCount,
         );
 
-  final Value_Type valueType;
+  Value_Type _valueType;
+  Value_Type get valueType => _valueType;
+
+  /// Value Types this node can be changed to.
+  List<Value_Type> get exchangeableValueTypes {
+    final templates = NodeTemplate.grouped[NT(valueType).group];
+    return templates.map<Value_Type>((e) => e.valueType).toList();
+  }
+
+  void setValueType(Value_Type newValueType) {
+    if (!exchangeableValueTypes.contains(newValueType)) {
+      return;
+    }
+    if (valueType == newValueType) {
+      return;
+    }
+
+    if (name == valueType.uiName) {
+      setName(newValueType.uiName);
+    }
+    _valueType = newValueType;
+
+    updateValueAfterTypeChange();
+    notifyListeners();
+  }
+
+  void updateValueAfterTypeChange() {}
 }
 
 /// Just for short constructor

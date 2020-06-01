@@ -31,15 +31,15 @@ class PrimitiveNodePropertyEditor extends StatelessWidget {
             ],
           ),
           PropertyEditorSection(
-            title: 'Value',
-            children: [
-              _valueField(context, node),
-            ],
-          ),
-          PropertyEditorSection(
             title: 'Ast Info',
             children: [
               AstNodeInfoProperty(),
+            ],
+          ),
+          PropertyEditorSection(
+            title: 'Value',
+            children: [
+              _valueField(context, node),
             ],
           ),
           PropertyEditorSection(

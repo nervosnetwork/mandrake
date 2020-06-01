@@ -98,7 +98,7 @@ void main() {
       doc.addNode(node3);
       doc.connectNode(parent: node1, child: node3);
       expect(doc.canConnect(parent: node2, child: node3), false);
-      doc.disconnectNode(parent: node1, child_id: node3.id);
+      doc.disconnectNode(parent: node1, childId: node3.id);
       expect(doc.canConnect(parent: node2, child: node3), true);
       expect(node1.children.contains(node3), false);
       expect(node2.children.contains(node3), false);

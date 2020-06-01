@@ -59,6 +59,16 @@ class PrimitiveNode extends AstNode {
   String normalize(String v) {
     var normalized = v.trim();
 
+    if (valueType == Value_Type.NIL) {
+      normalized = 'NIL';
+    }
+
+    if (valueType == Value_Type.BOOL) {
+      if (!['true', 'false'].contains(normalized)) {
+        normalized = 'true';
+      }
+    }
+
     if (valueType == Value_Type.UINT64 ||
         valueType == Value_Type.ARG ||
         valueType == Value_Type.PARAM) {
@@ -72,8 +82,12 @@ class PrimitiveNode extends AstNode {
         normalized = '0x';
       }
     }
-    // TODO: other format validation
 
     return normalized;
+  }
+
+  @override
+  void updateValueAfterTypeChange() {
+    _value = normalize(_value);
   }
 }

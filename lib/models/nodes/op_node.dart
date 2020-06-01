@@ -9,6 +9,29 @@ class OperationNode extends AstNode {
     _addSlots();
   }
 
+  @override
+  List<Value_Type> get exchangeableValueTypes {
+    final all = super.exchangeableValueTypes;
+    return all.where((t) {
+      return t.minimumSlotCount == valueType.minimumSlotCount &&
+          t.maximumSlotCount == valueType.maximumSlotCount;
+    }).toList();
+  }
+
+  @override
+  void updateValueAfterTypeChange() {
+    final expectedSlots = _slotNameMap[valueType];
+    if (expectedSlots != null) {
+      for (var i = 0; i < expectedSlots.length; i++) {
+        renameSlot(slots[i].id, expectedSlots[i]);
+      }
+    } else {
+      for (var i = 0; i < slots.length; i++) {
+        renameSlot(slots[i].id, 'Operand ${i + 1}');
+      }
+    }
+  }
+
   /// TODO: override canConnect to limit child types
 
   void _addSlots() {

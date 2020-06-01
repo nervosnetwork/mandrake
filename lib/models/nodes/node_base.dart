@@ -70,7 +70,7 @@ class Node extends NodeBase with ChangeNotifier {
     return UnmodifiableListView([this] + descendants);
   }
 
-  void updateName(String name) {
+  void setName(String name) {
     _name = name;
     notifyListeners();
   }
@@ -92,34 +92,40 @@ class Node extends NodeBase with ChangeNotifier {
   }
 
   /// Remove both the slot and the child if there's one connected.
-  void removeSlot(String slot_id) {
-    final slot = slots.firstWhere((s) => s.id == slot_id, orElse: () => null);
+  void removeSlot(String slotId) {
+    final slot = slots.firstWhere((s) => s.id == slotId, orElse: () => null);
     if (slot != null) {
-      removeChild(slot.child_id);
+      removeChild(slot.childId);
       _slots.remove(slot);
 
       notifyListeners();
     }
   }
 
-  void _fillSlot(Node child, String slot_id) {
-    final slot = slots.firstWhere((s) => s.id == slot_id && !s.isConnected, orElse: () => null);
+  void _fillSlot(Node child, String slotId) {
+    final slot = slots.firstWhere((s) => s.id == slotId && !s.isConnected, orElse: () => null);
     assert(slot != null);
-    slot.child_id = child.id;
+    slot.childId = child.id;
   }
 
-  /// Add a child. If slot_id is provided fill the child to that slot.
-  void addChild(Node child, [String slot_id]) {
+  void renameSlot(String slotId, String name) {
+    final slot = slots.firstWhere((s) => s.id == slotId, orElse: () => null);
+    assert(slot != null);
+    slot.name = name;
+  }
+
+  /// Add a child. If slotId is provided fill the child to that slot.
+  void addChild(Node child, [String slotId]) {
     assert(canAddChild);
     if (_children.contains(child)) {
       return;
     }
 
     _children.add(child);
-    if (slot_id == addChildSlot.id) {
+    if (slotId == addChildSlot.id) {
       _fillSlot(child, addSlot('new child').id);
-    } else if (slot_id != null) {
-      _fillSlot(child, slot_id);
+    } else if (slotId != null) {
+      _fillSlot(child, slotId);
     }
 
     notifyListeners();
@@ -127,23 +133,23 @@ class Node extends NodeBase with ChangeNotifier {
 
   /// Remove a child from this node. Not this merely deletes the connection
   /// between this node and its child. It would keep the slot.
-  void removeChild(String child_id) {
-    if (child_id == null) {
+  void removeChild(String childId) {
+    if (childId == null) {
       return;
     }
 
-    final slot = slots.firstWhere((s) => s.child_id == child_id, orElse: () => null);
+    final slot = slots.firstWhere((s) => s.childId == childId, orElse: () => null);
     if (slot != null) {
-      slot.child_id = null;
+      slot.childId = null;
     }
 
-    _children.removeWhere((c) => c.id == child_id);
+    _children.removeWhere((c) => c.id == childId);
 
     notifyListeners();
   }
 
   Offset childConnectorPosition(Node child) {
-    final callSlot = slots.firstWhere((s) => s.child_id == child.id, orElse: () => null);
+    final callSlot = slots.firstWhere((s) => s.childId == child.id, orElse: () => null);
     if (callSlot != null) {
       return slotConnectorPosition(callSlot);
     }
@@ -213,13 +219,13 @@ class Node extends NodeBase with ChangeNotifier {
 /// A slot of a [Node] can either hold a reference to a child, or empty
 /// before connecting to child.
 class ChildSlot {
-  ChildSlot({this.name = '', this.child_id});
+  ChildSlot({this.name = '', this.childId});
 
   final String id = Uuid().v4();
   String name;
-  String child_id;
+  String childId;
 
-  bool get isConnected => child_id != null;
+  bool get isConnected => childId != null;
 
   @override
   bool operator ==(dynamic other) => other is ChildSlot && other.id == id;

@@ -50,32 +50,32 @@ class RootNode extends Node {
   }
 
   @override
-  void removeSlot(String slot_id) {
-    _callSlots.removeWhere((s) => s.id == slot_id);
-    _streamSlots.removeWhere((s) => s.id == slot_id);
+  void removeSlot(String slotId) {
+    _callSlots.removeWhere((s) => s.id == slotId);
+    _streamSlots.removeWhere((s) => s.id == slotId);
 
-    super.removeSlot(slot_id);
+    super.removeSlot(slotId);
   }
 
   @override
-  void addChild(Node child, [String slot_id]) {
-    if (slot_id == addCallChildSlot.id) {
+  void addChild(Node child, [String slotId]) {
+    if (slotId == addCallChildSlot.id) {
       super.addChild(child, addCallSlot().id);
-    } else if (slot_id == addStreamChildSlot.id) {
+    } else if (slotId == addStreamChildSlot.id) {
       super.addChild(child, addStreamSlot().id);
     } else {
-      super.addChild(child, slot_id);
+      super.addChild(child, slotId);
     }
   }
 
   @override
   Offset childConnectorPosition(Node child) {
-    final callSlot = _callSlots.firstWhere((s) => s.child_id == child.id, orElse: () => null);
+    final callSlot = _callSlots.firstWhere((s) => s.childId == child.id, orElse: () => null);
     if (callSlot != null) {
       return slotConnectorPosition(callSlot);
     }
 
-    final streamSlot = _streamSlots.firstWhere((s) => s.child_id == child.id, orElse: () => null);
+    final streamSlot = _streamSlots.firstWhere((s) => s.childId == child.id, orElse: () => null);
     if (streamSlot != null) {
       return slotConnectorPosition(streamSlot);
     }
