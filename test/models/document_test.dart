@@ -26,7 +26,7 @@ void main() {
   });
 
   group('connect (links)', () {
-    test('cannot add a node to multiple parents', () {
+    test('can add a node to multiple parents', () {
       final doc = Document();
       final node1 = Node(), node2 = Node(), node3 = Node();
       doc.addNode(node1);
@@ -34,7 +34,7 @@ void main() {
       doc.addNode(node3);
       expect(doc.canConnect(parent: node1, child: node3), true);
       expect(doc.canConnect(parent: node3, child: node1), true);
-      expect(doc.canConnect(parent: node3, child: node2), false);
+      expect(doc.canConnect(parent: node3, child: node2), true);
     });
 
     test('cannot add null node', () {
@@ -70,6 +70,7 @@ void main() {
       expect(doc.canConnect(parent: normal, child: root), false);
     });
 
+    /*
     test('a node should be a top level node before it can be connected', () {
       final doc = Document();
       final node1 = Node(), node2 = Node();
@@ -78,6 +79,7 @@ void main() {
         doc.connectNode(parent: node1, child: node2);
       }, throwsA(isA<AssertionError>()));
     });
+    */
 
     test('a node should be in the doc before it can be connected', () {
       final doc = Document();
@@ -90,16 +92,17 @@ void main() {
   });
 
   group('disconnect (links)', () {
-    test('a node becomes top level node after it is disconnected from parent', () {
+    test('a node becomes top level node after it is disconnected from all parents', () {
       final doc = Document();
       final node1 = Node(), node2 = Node(), node3 = Node();
       doc.addNode(node1);
       doc.addNode(node2);
       doc.addNode(node3);
       doc.connectNode(parent: node1, child: node3);
-      expect(doc.canConnect(parent: node2, child: node3), false);
-      doc.disconnectNode(parent: node1, childId: node3.id);
       expect(doc.canConnect(parent: node2, child: node3), true);
+      doc.connectNode(parent: node2, child: node3);
+      doc.disconnectNode(parent: node1, childId: node3.id);
+      doc.disconnectNode(parent: node2, childId: node3.id);
       expect(node1.children.contains(node3), false);
       expect(node2.children.contains(node3), false);
     });
@@ -163,12 +166,24 @@ void main() {
     expect(doc.nodes.contains(node4), false);
   });
 
-  test('parent of', () {
+  test('parents of', () {
     final doc = Document();
     final node1 = Node(), node2 = Node();
     doc.addNode(node1);
     doc.addNode(node2);
     doc.connectNode(parent: node1, child: node2);
-    expect(doc.parentOf(node2), node1);
+    expect(doc.parentsOf(node2).first, node1);
+  });
+  test('multiple parents of', () {
+    final doc = Document();
+    final node1 = Node(), node2 = Node(), node3 = Node();
+    doc.addNode(node1);
+    doc.addNode(node2);
+    doc.addNode(node3);
+    doc.connectNode(parent: node1, child: node3);
+    doc.connectNode(parent: node2, child: node3);
+    expect(doc.parentsOf(node3).length, 2);
+    expect(doc.parentsOf(node3).contains(node1), true);
+    expect(doc.parentsOf(node3).contains(node2), true);
   });
 }

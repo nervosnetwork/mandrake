@@ -38,10 +38,10 @@ class NodeActionBuilder {
 
   List<NodeActionItem> _buildAstNodeNode() {
     return [
-      if (_canDisconnectParent)
+      if (_canDisconnectParents)
         NodeActionItem(
           value: NodeAction.disconnectFromParent,
-          label: 'Disconnect from parent',
+          label: 'Disconnect from parent(s)',
         ),
       if (_canDisconnectAllChildren)
         NodeActionItem(
@@ -74,7 +74,7 @@ class NodeActionBuilder {
 }
 
 extension on NodeActionBuilder {
-  bool get _canDisconnectParent => document.parentOf(node) != null;
+  bool get _canDisconnectParents => document.parentsOf(node).isNotEmpty;
 
   bool get _canDisconnectAllChildren => node.children.isNotEmpty;
 

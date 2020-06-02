@@ -69,11 +69,11 @@ class Document extends ChangeNotifier {
     if (child is RootNode) {
       return false;
     }
-    return _allNodes.contains(parent) && _topLevelNodes.contains(child);
+    return _allNodes.contains(parent); // && _topLevelNodes.contains(child);
   }
 
-  Node parentOf(Node node) {
-    return _allNodes.firstWhere((n) => n.children.contains(node), orElse: () => null);
+  List<Node> parentsOf(Node node) {
+    return _allNodes.where((n) => n.children.contains(node)).toList();
   }
 
   void connectNode({@required Node parent, @required Node child, String slotId}) {
@@ -89,7 +89,9 @@ class Document extends ChangeNotifier {
 
   void disconnectNode({@required Node parent, @required String childId}) {
     final child = _allNodes.firstWhere((n) => n.id == childId, orElse: () => null);
-    _topLevelNodes.add(child);
+    if (parentsOf(child).length == 1) {
+      _topLevelNodes.add(child);
+    }
     parent?.removeChild(childId);
 
     _rebuildNodes();
@@ -98,7 +100,9 @@ class Document extends ChangeNotifier {
   }
 
   void disconnectNodeFromParent(Node node) {
-    disconnectNode(parent: parentOf(node), childId: node.id);
+    for (final parent in parentsOf(node)) {
+      disconnectNode(parent: parent, childId: node.id);
+    }
   }
 
   void disconnectAllChildren(Node node) {

@@ -23,6 +23,13 @@ class PrimitiveNode extends AstNode {
 
   String _value = '';
 
+  double get bodyWidth {
+    if (valueType == Value_Type.BYTES || valueType == Value_Type.ERROR) {
+      return 250;
+    }
+    return 200;
+  }
+
   double get bodyHeight {
     if (valueType == Value_Type.BYTES || valueType == Value_Type.ERROR) {
       return 110;
@@ -33,7 +40,7 @@ class PrimitiveNode extends AstNode {
   @override
   Size get size {
     return Size(
-      200,
+      bodyWidth,
       titleHeight + bodyHeight + bottomPadding,
     );
   }

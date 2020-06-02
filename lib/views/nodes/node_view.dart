@@ -110,6 +110,9 @@ class NodeView extends StatelessWidget {
           child: Center(
             child: Text(
               node.name,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
