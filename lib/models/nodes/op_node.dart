@@ -1,16 +1,15 @@
 import 'dart:ui' show Offset;
 
-import '../../protos/ast.pb.dart' show Value_Type;
 import 'ast_node.dart';
 
 class OperationNode extends AstNode {
-  OperationNode({Value_Type valueType, Offset position})
+  OperationNode({ValueType valueType, Offset position})
       : super(valueType: valueType, position: position) {
     _addSlots();
   }
 
   @override
-  List<Value_Type> get exchangeableValueTypes {
+  List<ValueType> get exchangeableValueTypes {
     final all = super.exchangeableValueTypes;
     return all.where((t) {
       return t.minimumSlotCount == valueType.minimumSlotCount &&
@@ -48,10 +47,10 @@ class OperationNode extends AstNode {
   }
 
   static final _slotNameMap = {
-    Value_Type.HASH: ['Hash'],
-    Value_Type.LEN: ['Bytes'],
-    Value_Type.INDEX: ['Index', 'List'],
-    Value_Type.SLICE: ['Start', 'End', 'Bytes'],
-    Value_Type.COND: ['Condition', 'Expr1', 'Expr1'],
+    ValueType.hash: ['Hash'],
+    ValueType.len: ['Bytes'],
+    ValueType.index: ['Index', 'List'],
+    ValueType.slice: ['Start', 'End', 'Bytes'],
+    ValueType.cond: ['Condition', 'Expr1', 'Expr1'],
   };
 }

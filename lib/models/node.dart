@@ -13,7 +13,6 @@ export 'nodes/ast_node.dart';
 export 'nodes/op_node.dart';
 export 'nodes/primitive_node.dart';
 export 'nodes/get_op_node.dart';
-export '../protos/ast.pb.dart' show Value_Type;
 
 class NodeCreator {
   static Node create(NodeTemplate template, Offset pos) {

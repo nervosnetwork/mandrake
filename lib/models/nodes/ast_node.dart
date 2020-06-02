@@ -1,11 +1,13 @@
 import 'dart:ui' show Offset;
 
-import '../../protos/ast.pb.dart' show Value_Type;
+import '../value_type.dart';
 import 'node_base.dart';
+
+export '../value_type.dart';
 
 class AstNode extends Node {
   AstNode({
-    Value_Type valueType,
+    ValueType valueType,
     Offset position,
   })  : _valueType = valueType,
         super(
@@ -15,16 +17,16 @@ class AstNode extends Node {
           maximumSlotCount: valueType.maximumSlotCount,
         );
 
-  Value_Type _valueType;
-  Value_Type get valueType => _valueType;
+  ValueType _valueType;
+  ValueType get valueType => _valueType;
 
   /// Value Types this node can be changed to.
-  List<Value_Type> get exchangeableValueTypes {
+  List<ValueType> get exchangeableValueTypes {
     final templates = NodeTemplate.grouped[NT(valueType).group];
-    return templates.map<Value_Type>((e) => e.valueType).toList();
+    return templates.map<ValueType>((e) => e.valueType).toList();
   }
 
-  void setValueType(Value_Type newValueType) {
+  void setValueType(ValueType newValueType) {
     if (!exchangeableValueTypes.contains(newValueType)) {
       return;
     }
@@ -45,12 +47,12 @@ class AstNode extends Node {
 }
 
 /// Just for short constructor
-NodeTemplate NT(Value_Type valueType) => NodeTemplate(valueType);
+NodeTemplate NT(ValueType valueType) => NodeTemplate(valueType);
 
 class NodeTemplate {
   NodeTemplate(this.valueType);
 
-  final Value_Type valueType;
+  final ValueType valueType;
 
   @override
   bool operator ==(dynamic other) => other is NodeTemplate && other.valueType == valueType;
@@ -71,85 +73,85 @@ class NodeTemplate {
   /// For categorized grouping, used by Object Library.
   static final grouped = {
     NodeTemplateGroup.operation: [
-      NT(Value_Type.HASH),
-      NT(Value_Type.SERIALIZE_TO_CORE),
-      NT(Value_Type.SERIALIZE_TO_JSON),
-      NT(Value_Type.NOT),
-      NT(Value_Type.AND),
-      NT(Value_Type.OR),
-      NT(Value_Type.EQUAL),
-      NT(Value_Type.LESS),
-      NT(Value_Type.LEN),
-      NT(Value_Type.SLICE),
-      NT(Value_Type.INDEX),
-      NT(Value_Type.ADD),
-      NT(Value_Type.SUBTRACT),
-      NT(Value_Type.MULTIPLY),
-      NT(Value_Type.DIVIDE),
-      NT(Value_Type.MOD),
-      NT(Value_Type.COND),
-      NT(Value_Type.TAIL_RECURSION),
+      NT(ValueType.hash),
+      NT(ValueType.serializeToCore),
+      NT(ValueType.serializeToJson),
+      NT(ValueType.not),
+      NT(ValueType.and),
+      NT(ValueType.or),
+      NT(ValueType.equal),
+      NT(ValueType.less),
+      NT(ValueType.len),
+      NT(ValueType.slice),
+      NT(ValueType.index),
+      NT(ValueType.add),
+      NT(ValueType.subtract),
+      NT(ValueType.multiply),
+      NT(ValueType.divide),
+      NT(ValueType.mod),
+      NT(ValueType.cond),
+      NT(ValueType.tailRecursion),
     ],
     NodeTemplateGroup.prefab: [],
     NodeTemplateGroup.primitive: [
-      NT(Value_Type.NIL),
-      NT(Value_Type.UINT64),
-      NT(Value_Type.BOOL),
-      NT(Value_Type.BYTES),
-      NT(Value_Type.ERROR),
-      NT(Value_Type.ARG),
-      NT(Value_Type.PARAM),
+      NT(ValueType.nil),
+      NT(ValueType.uint64),
+      NT(ValueType.bool),
+      NT(ValueType.bytes),
+      NT(ValueType.error),
+      NT(ValueType.arg),
+      NT(ValueType.param),
       // TODO: to which category arg and param should belong?
     ],
     NodeTemplateGroup.blockchain: [
-      NT(Value_Type.OUT_POINT),
-      NT(Value_Type.CELL_INPUT),
-      NT(Value_Type.CELL_DEP),
-      NT(Value_Type.SCRIPT),
-      NT(Value_Type.CELL),
-      NT(Value_Type.TRANSACTION),
-      NT(Value_Type.HEADER),
+      NT(ValueType.outPoint),
+      NT(ValueType.cellInput),
+      NT(ValueType.cellDep),
+      NT(ValueType.script),
+      NT(ValueType.cell),
+      NT(ValueType.transaction),
+      NT(ValueType.header),
     ],
     NodeTemplateGroup.list: [
-      NT(Value_Type.APPLY),
-      NT(Value_Type.REDUCE),
-      NT(Value_Type.LIST),
-      NT(Value_Type.QUERY_CELLS),
-      NT(Value_Type.MAP),
-      NT(Value_Type.FILTER),
+      NT(ValueType.apply),
+      NT(ValueType.reduce),
+      NT(ValueType.list),
+      NT(ValueType.queryCells),
+      NT(ValueType.map),
+      NT(ValueType.filter),
     ],
     NodeTemplateGroup.cell: [
-      NT(Value_Type.GET_CAPACITY),
-      NT(Value_Type.GET_DATA),
-      NT(Value_Type.GET_LOCK),
-      NT(Value_Type.GET_TYPE),
-      NT(Value_Type.GET_DATA_HASH),
-      NT(Value_Type.GET_OUT_POINT),
+      NT(ValueType.getCapacity),
+      NT(ValueType.getData),
+      NT(ValueType.getLock),
+      NT(ValueType.getType),
+      NT(ValueType.getDataHash),
+      NT(ValueType.getOutputs),
     ],
     NodeTemplateGroup.script: [
-      NT(Value_Type.GET_CODE_HASH),
-      NT(Value_Type.GET_HASH_TYPE),
-      NT(Value_Type.GET_ARGS),
+      NT(ValueType.getCodeHash),
+      NT(ValueType.getHashType),
+      NT(ValueType.getArgs),
     ],
     NodeTemplateGroup.transaction: [
-      NT(Value_Type.GET_CELL_DEPS),
-      NT(Value_Type.GET_HEADER_DEPS),
-      NT(Value_Type.GET_INPUTS),
-      NT(Value_Type.GET_OUTPUTS),
-      NT(Value_Type.GET_WITNESSES),
+      NT(ValueType.getCellDeps),
+      NT(ValueType.getHeaderDeps),
+      NT(ValueType.getInputs),
+      NT(ValueType.getOutputs),
+      NT(ValueType.getWitnesses),
     ],
     NodeTemplateGroup.header: [
-      NT(Value_Type.GET_COMPACT_TARGET),
-      NT(Value_Type.GET_TIMESTAMP),
-      NT(Value_Type.GET_NUMBER),
-      NT(Value_Type.GET_EPOCH),
-      NT(Value_Type.GET_PARENT_HASH),
-      NT(Value_Type.GET_TRANSACTIONS_ROOT),
-      NT(Value_Type.GET_PROPOSALS_HASH),
-      NT(Value_Type.GET_UNCLES_HASH),
-      NT(Value_Type.GET_DAO),
-      NT(Value_Type.GET_NONCE),
-      NT(Value_Type.GET_HEADER),
+      NT(ValueType.getCompactTarget),
+      NT(ValueType.getTimestamp),
+      NT(ValueType.getNumber),
+      NT(ValueType.getEpoch),
+      NT(ValueType.getParentHash),
+      NT(ValueType.getTransactionsRoot),
+      NT(ValueType.getProposalsHash),
+      NT(ValueType.getUnclesHash),
+      NT(ValueType.getDao),
+      NT(ValueType.getNonce),
+      NT(ValueType.getHeader),
     ],
   };
 }
@@ -167,7 +169,7 @@ enum NodeTemplateGroup {
   header,
 }
 
-extension ValueTypeName on Value_Type {
+extension ValueTypeName on ValueType {
   String get uiName {
     final separated = toString().split('_');
     return separated.map((w) {
@@ -179,7 +181,7 @@ extension ValueTypeName on Value_Type {
   }
 }
 
-extension VelueTypeKind on Value_Type {
+extension VelueTypeKind on ValueType {
   bool get isOperation => NT(this).group == NodeTemplateGroup.operation;
   bool get isPrimitiveField => NT(this).group == NodeTemplateGroup.primitive;
   bool get isGetOperator {
@@ -237,35 +239,35 @@ extension VelueTypeKind on Value_Type {
     return NodeBase.maxAllowedSlotCount;
   }
 
-  static const List<Value_Type> unaryOperatorValueTypes = [
-    Value_Type.HASH,
-    Value_Type.SERIALIZE_TO_CORE,
-    Value_Type.SERIALIZE_TO_JSON,
-    Value_Type.NOT,
-    Value_Type.LEN,
+  static const List<ValueType> unaryOperatorValueTypes = [
+    ValueType.hash,
+    ValueType.serializeToCore,
+    ValueType.serializeToJson,
+    ValueType.not,
+    ValueType.len,
   ];
 
-  static const List<Value_Type> binaryOperatorValueTypes = [
-    Value_Type.EQUAL,
-    Value_Type.LESS,
-    Value_Type.ADD,
-    Value_Type.SUBTRACT,
-    Value_Type.MULTIPLY,
-    Value_Type.DIVIDE,
-    Value_Type.MOD,
-    Value_Type.INDEX,
+  static const List<ValueType> binaryOperatorValueTypes = [
+    ValueType.equal,
+    ValueType.less,
+    ValueType.add,
+    ValueType.subtract,
+    ValueType.multiply,
+    ValueType.divide,
+    ValueType.mod,
+    ValueType.index,
   ];
 
-  static const List<Value_Type> ternaryOperatorValueTypes = [
-    Value_Type.COND,
-    Value_Type.SLICE,
+  static const List<ValueType> ternaryOperatorValueTypes = [
+    ValueType.cond,
+    ValueType.slice,
   ];
 
-  static const List<Value_Type> listValueTypes = [
-    Value_Type.AND,
-    Value_Type.OR,
-    Value_Type.LIST,
-    Value_Type.MAP,
-    Value_Type.FILTER,
+  static const List<ValueType> listValueTypes = [
+    ValueType.and,
+    ValueType.or,
+    ValueType.list,
+    ValueType.map,
+    ValueType.filter,
   ];
 }

@@ -2,19 +2,18 @@ import 'dart:ui' show Offset, Size;
 import 'package:string_validator/string_validator.dart';
 import 'package:basic_utils/basic_utils.dart';
 
-import '../../protos/ast.pb.dart' show Value_Type;
 import 'ast_node.dart';
 
 class PrimitiveNode extends AstNode {
-  PrimitiveNode({Value_Type valueType, Offset position})
+  PrimitiveNode({ValueType valueType, Offset position})
       : super(valueType: valueType, position: position) {
-    if (valueType == Value_Type.NIL) {
+    if (valueType == ValueType.nil) {
       _value = 'NIL';
-    } else if (valueType == Value_Type.BOOL) {
+    } else if (valueType == ValueType.bool) {
       _value = 'true';
-    } else if (valueType == Value_Type.BYTES) {
+    } else if (valueType == ValueType.bytes) {
       _value = '0x';
-    } else if (valueType == Value_Type.ERROR) {
+    } else if (valueType == ValueType.error) {
       _value = 'Error message';
     } else {
       _value = '0';
@@ -24,14 +23,14 @@ class PrimitiveNode extends AstNode {
   String _value = '';
 
   double get bodyWidth {
-    if (valueType == Value_Type.BYTES || valueType == Value_Type.ERROR) {
+    if (valueType == ValueType.bytes || valueType == ValueType.error) {
       return 250;
     }
     return 200;
   }
 
   double get bodyHeight {
-    if (valueType == Value_Type.BYTES || valueType == Value_Type.ERROR) {
+    if (valueType == ValueType.bytes || valueType == ValueType.error) {
       return 110;
     }
     return 45;
@@ -47,12 +46,12 @@ class PrimitiveNode extends AstNode {
 
   String get value => _value;
   bool get editableAsText {
-    return [Value_Type.BYTES, Value_Type.ERROR, Value_Type.UINT64, Value_Type.ARG, Value_Type.PARAM]
+    return [ValueType.bytes, ValueType.error, ValueType.uint64, ValueType.arg, ValueType.param]
         .contains(valueType);
   }
 
   int get allowedEditLines {
-    if (valueType == Value_Type.BYTES || valueType == Value_Type.ERROR) {
+    if (valueType == ValueType.bytes || valueType == ValueType.error) {
       return 5;
     }
     return 1;
@@ -66,25 +65,25 @@ class PrimitiveNode extends AstNode {
   String normalize(String v) {
     var normalized = v.trim();
 
-    if (valueType == Value_Type.NIL) {
+    if (valueType == ValueType.nil) {
       normalized = 'NIL';
     }
 
-    if (valueType == Value_Type.BOOL) {
+    if (valueType == ValueType.bool) {
       if (!['true', 'false'].contains(normalized)) {
         normalized = 'true';
       }
     }
 
-    if (valueType == Value_Type.UINT64 ||
-        valueType == Value_Type.ARG ||
-        valueType == Value_Type.PARAM) {
+    if (valueType == ValueType.uint64 ||
+        valueType == ValueType.arg ||
+        valueType == ValueType.param) {
       if (!StringUtils.isDigit(normalized)) {
         normalized = '0';
       }
     }
 
-    if (valueType == Value_Type.BYTES) {
+    if (valueType == ValueType.bytes) {
       if (normalized.substring(0, 1) != '0x' && !isHexadecimal(normalized.substring(2))) {
         normalized = '0x';
       }

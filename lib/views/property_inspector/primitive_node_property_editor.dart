@@ -64,7 +64,7 @@ class PrimitiveNodePropertyEditor extends StatelessWidget {
   }
 
   Widget _valueField(BuildContext context, PrimitiveNode node) {
-    if (node.valueType == Value_Type.BOOL) {
+    if (node.valueType == ValueType.bool) {
       return DropdownButton(
         isDense: true,
         onChanged: (value) {
