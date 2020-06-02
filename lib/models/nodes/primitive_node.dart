@@ -52,7 +52,7 @@ class PrimitiveNode extends AstNode {
 
   int get allowedEditLines {
     if (valueType == ValueType.bytes || valueType == ValueType.error) {
-      return 5;
+      return 4;
     }
     return 1;
   }

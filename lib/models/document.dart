@@ -144,7 +144,11 @@ class Document extends ChangeNotifier {
   void _rebuildNodes() {
     _allNodes.clear();
     for (final root in _topLevelNodes) {
-      _allNodes.addAll(root.nodes);
+      for (final child in root.nodes) {
+        if (!_allNodes.contains(child)) {
+          _allNodes.add(child);
+        }
+      }
     }
   }
 

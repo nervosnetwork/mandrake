@@ -92,7 +92,9 @@ class NodeTemplate {
       NT(ValueType.cond),
       NT(ValueType.tailRecursion),
     ],
-    NodeTemplateGroup.prefab: [],
+    NodeTemplateGroup.prefab: [
+      NT(ValueType.exampleQueryCell),
+    ],
     NodeTemplateGroup.primitive: [
       NT(ValueType.nil),
       NT(ValueType.uint64),
@@ -167,18 +169,6 @@ enum NodeTemplateGroup {
   script,
   transaction,
   header,
-}
-
-extension ValueTypeName on ValueType {
-  String get uiName {
-    final separated = toString().split('_');
-    return separated.map((w) {
-      if (['JSON', 'DAO'].contains(w)) {
-        return w;
-      }
-      return w[0] + w.substring(1).toLowerCase();
-    }).join(' ');
-  }
 }
 
 extension VelueTypeKind on ValueType {

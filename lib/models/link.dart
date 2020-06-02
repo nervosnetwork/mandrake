@@ -18,6 +18,9 @@ class Link {
 
   static List<Link> linksOf(Node node) {
     final links = node.children.map((e) => Link(parent: node, child: e)).toList();
+    if (node.name == 'args' && node.children.length == 3) {
+      final i = 1;
+    }
     final childLinks = node.children
         .map((child) => linksOf(child))
         .fold(<Link>[], (previousValue, element) => previousValue + element);

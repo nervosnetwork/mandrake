@@ -2,13 +2,30 @@ import '../protos/ast.pbenum.dart' show Value_Type;
 
 /// Encapsulate protos AST Value_Type class.
 class ValueType {
-  const ValueType._(this._rawType);
+  const ValueType._(this._rawType, [this._name = '']);
   final Value_Type _rawType;
+  final String _name;
 
   Value_Type get rawValueType => _rawType;
 
   @override
-  String toString() => rawValueType.toString();
+  String toString() => rawValueType?.toString() ?? _name;
+
+  String get uiName {
+    if (rawValueType == null) {
+      return _name;
+    }
+
+    final separated = toString().split('_');
+    return separated.map((w) {
+      if (['JSON', 'DAO'].contains(w)) {
+        return w;
+      }
+      return w[0] + w.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
+  static const ValueType exampleQueryCell = ValueType._(null, 'Query Cell Example');
 
   static const ValueType nil = ValueType._(Value_Type.NIL);
   static const ValueType uint64 = ValueType._(Value_Type.UINT64);
