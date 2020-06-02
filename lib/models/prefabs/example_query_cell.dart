@@ -74,13 +74,13 @@ class QueryCellExampleNode {
     queryTest.addChild(args, queryTest.addSlot('args').id);
     final getArgs = GetOpNode(
       valueType: ValueType.getArgs,
-      position: _standByMe(args, 3, 1),
+      position: _standByMe(args, 3, 2),
     );
     getArgs.addChild(lock, getArgs.slots.first.id);
     args.addChild(getArgs, args.slots.first.id);
     final param0 = PrimitiveNode(
       valueType: ValueType.param,
-      position: _standByMe(args, 3, 2),
+      position: _standByMe(args, 3, 3),
     );
     param0.setName('param0');
     args.addChild(param0, args.slots.last.id);
@@ -93,8 +93,8 @@ class QueryCellExampleNode {
   }
 
   static Offset _standByMe(AstNode parent, int childrenCount, int index) {
-    final h = parent.size.width + 100;
-    final v = (index - childrenCount / 2) * 200 + 100;
+    final h = parent.size.width + 80;
+    final v = (index - childrenCount / 2) * 160 + 80;
     return parent.position + Offset(h, v);
   }
 }
