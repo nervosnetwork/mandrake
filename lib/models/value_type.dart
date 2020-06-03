@@ -12,10 +12,6 @@ class ValueType {
   String toString() => rawValueType?.toString() ?? _name;
 
   String get uiName {
-    if (rawValueType == null) {
-      return _name;
-    }
-
     final separated = toString().split('_');
     return separated.map((w) {
       if (['JSON', 'DAO'].contains(w)) {
@@ -25,7 +21,7 @@ class ValueType {
     }).join(' ');
   }
 
-  static const ValueType exampleQueryCell = ValueType._(null, 'Query Cell Example');
+  static const ValueType prefabQueryCell = ValueType._(null, 'PREFAB_QUERY_CELLS');
 
   static const ValueType nil = ValueType._(Value_Type.NIL);
   static const ValueType uint64 = ValueType._(Value_Type.UINT64);

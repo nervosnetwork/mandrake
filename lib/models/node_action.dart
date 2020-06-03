@@ -8,6 +8,7 @@ enum NodeAction {
   disconnectAllChildren,
   delete,
   deleteWithDescendants,
+  flatten,
 }
 
 class NodeActionItem {
@@ -38,6 +39,11 @@ class NodeActionBuilder {
 
   List<NodeActionItem> _buildAstNodeNode() {
     return [
+      if (_canFlatten)
+        NodeActionItem(
+          value: NodeAction.flatten,
+          label: 'Flatten',
+        ),
       if (_canDisconnectParents)
         NodeActionItem(
           value: NodeAction.disconnectFromParent,
@@ -74,6 +80,8 @@ class NodeActionBuilder {
 }
 
 extension on NodeActionBuilder {
+  bool get _canFlatten => node is PrefabNode;
+
   bool get _canDisconnectParents => document.parentsOf(node).isNotEmpty;
 
   bool get _canDisconnectAllChildren => node.children.isNotEmpty;
@@ -89,6 +97,9 @@ class NodeActionExecutor {
 
   void execute(NodeAction action) {
     switch (action) {
+      case NodeAction.flatten:
+        document.flattenPrefabNode(node);
+        break;
       case NodeAction.disconnectFromParent:
         document.disconnectNodeFromParent(node);
         break;

@@ -51,9 +51,7 @@ class Document extends ChangeNotifier {
       _topLevelNodes.add(node);
     }
 
-    _rebuildNodes();
-    _rebuildLinks();
-    notifyListeners();
+    _nodesChanged();
   }
 
   bool canConnect({@required Node parent, @required Node child}) {
@@ -82,9 +80,7 @@ class Document extends ChangeNotifier {
     _topLevelNodes.remove(child);
     parent.addChild(child, slotId);
 
-    _rebuildNodes();
-    _rebuildLinks();
-    notifyListeners();
+    _nodesChanged();
   }
 
   void disconnectNode({@required Node parent, @required String childId}) {
@@ -94,9 +90,7 @@ class Document extends ChangeNotifier {
     }
     parent?.removeChild(childId);
 
-    _rebuildNodes();
-    _rebuildLinks();
-    notifyListeners();
+    _nodesChanged();
   }
 
   void disconnectNodeFromParent(Node node) {
@@ -118,9 +112,7 @@ class Document extends ChangeNotifier {
 
     _topLevelNodes.removeWhere((n) => n == node);
 
-    _rebuildNodes();
-    _rebuildLinks();
-    notifyListeners();
+    _nodesChanged();
   }
 
   void deleteNodeAndDescendants(Node node) {
@@ -129,15 +121,45 @@ class Document extends ChangeNotifier {
       _topLevelNodes.removeWhere((e) => e == n);
     }
 
-    _rebuildNodes();
-    _rebuildLinks();
-    notifyListeners();
+    _nodesChanged();
+  }
+
+  void flattenPrefabNode(PrefabNode node) {
+    /// Perpahs this should be implemented in a more complicated way:
+    ///   * for each parent
+    ///     * find the child position, and replace that child
+    ///     * find the child slot, and replace that slot's childId
+    ///     * update document nodes
+    ///
+    /// For easier implementation, for now just do a quick id and child exchange.
+    var flattened = node.flatten(this);
+    flattened.setId(node.id);
+    flattened.setName(node.name);
+
+    final parents = parentsOf(node);
+    if (parents.isNotEmpty) {
+      for (final parent in parents) {
+        final index = parent.children.indexOf(node);
+        parent.children[index] = flattened;
+      }
+    } else {
+      final index = _topLevelNodes.indexOf(node);
+      _topLevelNodes[index] = flattened;
+    }
+
+    _nodesChanged();
   }
 
   /// Move a node by offset.
   void moveNodePosition(Node node, Offset offset) {
     assert(nodes.contains(node));
     node.moveTo(node.position + offset);
+    notifyListeners();
+  }
+
+  void _nodesChanged() {
+    _rebuildNodes();
+    _rebuildLinks();
     notifyListeners();
   }
 

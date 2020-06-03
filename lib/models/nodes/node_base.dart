@@ -7,12 +7,14 @@ import 'package:uuid/uuid.dart';
 /// an AST tree, and its geometry information on a canvas.
 abstract class NodeBase {
   NodeBase(this._name, this._position, [this.minimumSlotCount = 0, this.maximumSlotCount = 5])
-      : assert(_position != null);
+      : _id = Uuid().v4(),
+        assert(_position != null);
 
-  final String id = Uuid().v4();
+  String _id;
   String _name;
   Offset _position;
 
+  String get id => _id;
   String get name => _name;
   Offset get position => _position;
 
@@ -68,6 +70,12 @@ class Node extends NodeBase with ChangeNotifier {
     final descendants =
         children.map((e) => e.nodes).fold(<Node>[], (value, element) => value + element);
     return UnmodifiableListView([this] + descendants);
+  }
+
+  /// Not good, but easy to implement when converting node type on the fly.
+  void setId(String id) {
+    _id = id;
+    notifyListeners();
   }
 
   void setName(String name) {

@@ -93,7 +93,7 @@ class NodeTemplate {
       NT(ValueType.tailRecursion),
     ],
     NodeTemplateGroup.prefab: [
-      NT(ValueType.exampleQueryCell),
+      NT(ValueType.prefabQueryCell),
     ],
     NodeTemplateGroup.primitive: [
       NT(ValueType.nil),
@@ -172,6 +172,7 @@ enum NodeTemplateGroup {
 }
 
 extension VelueTypeKind on ValueType {
+  bool get isPrefab => NT(this).group == NodeTemplateGroup.prefab;
   bool get isOperation => NT(this).group == NodeTemplateGroup.operation;
   bool get isPrimitiveField => NT(this).group == NodeTemplateGroup.primitive;
   bool get isGetOperator {
@@ -189,7 +190,7 @@ extension VelueTypeKind on ValueType {
   bool get isList => listValueTypes.contains(this);
 
   int get minimumSlotCount {
-    if (isPrimitiveField) {
+    if (isPrimitiveField || isPrefab) {
       return 0;
     }
     if (isGetOperator) {
@@ -211,7 +212,7 @@ extension VelueTypeKind on ValueType {
   }
 
   int get maximumSlotCount {
-    if (isPrimitiveField) {
+    if (isPrimitiveField || isPrefab) {
       return 0;
     }
     if (isGetOperator) {

@@ -2,17 +2,17 @@ import 'dart:ui' show Offset;
 
 import 'package:mandrake/models/nodes/op_node.dart';
 
-import '../models/document.dart';
-import '../models/nodes/node_base.dart';
-import '../models/nodes/ast_node.dart';
-import '../models/nodes/primitive_node.dart';
-import '../models/nodes/get_op_node.dart';
-
-import '../models/prefabs/example_query_cell.dart';
+import 'document.dart';
+import 'nodes/node_base.dart';
+import 'nodes/ast_node.dart';
+import 'nodes/prefab_node.dart';
+import 'nodes/primitive_node.dart';
+import 'nodes/get_op_node.dart';
 
 export 'nodes/node_base.dart';
 export 'nodes/root_node.dart';
 export 'nodes/ast_node.dart';
+export 'nodes/prefab_node.dart';
 export 'nodes/op_node.dart';
 export 'nodes/primitive_node.dart';
 export 'nodes/get_op_node.dart';
@@ -21,8 +21,8 @@ class NodeCreator {
   static Node create(NodeTemplate template, Offset pos, [Document document]) {
     final valueType = template.valueType;
 
-    if (valueType == ValueType.exampleQueryCell) {
-      return QueryCellExampleNode.create(document, pos);
+    if (valueType.isPrefab) {
+      return PrefabNode(valueType: valueType, position: pos);
     }
 
     if (valueType.isOperation) {
