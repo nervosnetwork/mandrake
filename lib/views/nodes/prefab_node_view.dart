@@ -14,7 +14,7 @@ class PrefabNodeView extends AstNodeView {
       children: [
         Container(
           height: node.titleHeight,
-          decoration: titleDecoration(Colors.purple),
+          decoration: titleDecoration(Theme.of(context).secondaryHeaderColor),
           child: Center(
             child: Text(
               node.name,

@@ -12,12 +12,14 @@ class MandrakeApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.red,
         accentColor: Colors.blue[600],
+        secondaryHeaderColor: Colors.purple,
         backgroundColor: Colors.white,
         dialogBackgroundColor: Colors.grey[300],
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       darkTheme: ThemeData.dark().copyWith(
         accentColor: Colors.grey[900],
+        secondaryHeaderColor: Colors.grey[600],
         backgroundColor: Color(0xff1d2022),
         dialogBackgroundColor: Colors.grey[600],
         visualDensity: VisualDensity.adaptivePlatformDensity,
