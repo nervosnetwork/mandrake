@@ -61,6 +61,9 @@ class Document extends ChangeNotifier {
     if (parent == child) {
       return false;
     }
+    if (parent.children.contains(child)) {
+      return false;
+    }
     if (child.nodes.contains(parent)) {
       return false;
     }

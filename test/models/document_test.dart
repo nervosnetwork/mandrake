@@ -64,6 +64,16 @@ void main() {
       expect(doc.canConnect(parent: node3, child: node1), false);
     });
 
+    test('cannot add to parent multiple times', () {
+      final doc = Document();
+      final node1 = Node(), node2 = Node();
+      doc.addNode(node1);
+      doc.addNode(node2);
+      expect(doc.canConnect(parent: node1, child: node2), true);
+      doc.connectNode(parent: node1, child: node2);
+      expect(doc.canConnect(parent: node1, child: node2), false);
+    });
+
     test('cannot add root node to other node as child', () {
       final doc = Document();
       final root = RootNode(), normal = Node();
