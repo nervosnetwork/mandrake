@@ -1,12 +1,12 @@
 import 'helper.dart';
-import '../../document.dart';
+
 import '../../nodes/ast_node.dart';
 import '../../nodes/prefab_node.dart';
 import '../../nodes/op_node.dart';
 import '../../nodes/get_op_node.dart';
 import '../../nodes/primitive_node.dart';
 
-AstNode convertQueryCells(Document doc, PrefabNode node) {
+AstNode convertQueryCells(PrefabNode node) {
   final queryCells = AstNode(valueType: ValueType.queryCells, position: node.position);
   queryCells.setName('cells');
 
@@ -83,10 +83,6 @@ AstNode convertQueryCells(Document doc, PrefabNode node) {
   );
   param0.setName('param0');
   args.addChild(param0, args.slots.last.id);
-
-  for (final node in queryCells.nodes) {
-    doc.addNode(node);
-  }
 
   return queryCells;
 }

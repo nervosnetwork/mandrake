@@ -20,15 +20,14 @@ class Document extends ChangeNotifier {
 
   Document() {
     final root = RootNode();
-    final slot = root.addCallSlot();
-    addNode(root);
     final callResult = NodeCreator.create(
       NodeTemplate(ValueType.uint64),
       root.position + Offset(root.size.width + 100, -50),
     );
-    addNode(callResult);
     callResult.setName('Call Result');
-    connectNode(parent: root, child: callResult, slotId: slot.id);
+    root.addChild(callResult, root.addCallSlot('call result').id);
+
+    addNode(root);
   }
 
   void resizeCanvas(Size size) {
@@ -128,22 +127,13 @@ class Document extends ChangeNotifier {
   }
 
   void flattenPrefabNode(PrefabNode node) {
-    /// Perpahs this should be implemented in a more complicated way:
-    ///   * for each parent
-    ///     * find the child position, and replace that child
-    ///     * find the child slot, and replace that slot's childId
-    ///     * update document nodes
-    ///
-    /// For easier implementation, for now just do a quick id and child exchange.
-    var flattened = node.flatten(this);
-    flattened.setId(node.id);
+    var flattened = node.flatten();
     flattened.setName(node.name);
 
     final parents = parentsOf(node);
     if (parents.isNotEmpty) {
       for (final parent in parents) {
-        final index = parent.children.indexOf(node);
-        parent.children[index] = flattened;
+        parent.replaceChild(node.id, flattened);
       }
     } else {
       final index = _topLevelNodes.indexOf(node);

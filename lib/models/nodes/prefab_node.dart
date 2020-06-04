@@ -1,6 +1,5 @@
 import 'dart:ui' show Offset, Size;
 
-import '../document.dart';
 import 'ast_node.dart';
 import 'prefabs/query_cells.dart';
 import 'prefabs/map_capacities.dart';
@@ -22,7 +21,7 @@ class PrefabNode extends AstNode {
 
   /// Convert to a tree of nodes. Once converted, that tree couldn't be
   /// converted back to the prefab node.
-  AstNode flatten(Document document) {
+  AstNode flatten() {
     final map = {
       ValueType.prefabQueryCells: convertQueryCells,
       ValueType.prefabMapCapacities: convertMapCapacities,
@@ -31,7 +30,7 @@ class PrefabNode extends AstNode {
 
     final convert = map[valueType];
     if (convert != null) {
-      return convert(document, this);
+      return convert(this);
     }
 
     throw UnimplementedError();

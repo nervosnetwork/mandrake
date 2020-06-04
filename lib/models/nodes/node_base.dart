@@ -156,6 +156,22 @@ class Node extends NodeBase with ChangeNotifier {
     notifyListeners();
   }
 
+  void replaceChild(String childId, Node newChild) {
+    if (childId == null) {
+      return;
+    }
+
+    final slot = slots.firstWhere((s) => s.childId == childId, orElse: () => null);
+    if (slot != null) {
+      slot.childId = newChild.id;
+    }
+
+    final index = _children.indexWhere((c) => c.id == childId);
+    _children[index] = newChild;
+
+    notifyListeners();
+  }
+
   Offset childConnectorPosition(Node child) {
     final callSlot = slots.firstWhere((s) => s.childId == child.id, orElse: () => null);
     if (callSlot != null) {

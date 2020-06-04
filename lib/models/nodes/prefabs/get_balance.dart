@@ -1,12 +1,12 @@
 import 'helper.dart';
 
-import '../../document.dart';
 import '../../nodes/ast_node.dart';
 import '../../nodes/prefab_node.dart';
 import '../../nodes/primitive_node.dart';
 
-AstNode convertGetBalance(Document doc, PrefabNode node) {
+AstNode convertGetBalance(PrefabNode node) {
   final balance = AstNode(valueType: ValueType.reduce, position: node.position);
+  balance.setName('balance');
 
   final func = AstNode(
     valueType: ValueType.add,
@@ -43,10 +43,6 @@ AstNode convertGetBalance(Document doc, PrefabNode node) {
   );
   capacities.setName('capacities');
   balance.addChild(capacities, balance.addSlot('capacities').id);
-
-  for (final node in balance.nodes) {
-    doc.addNode(node);
-  }
 
   return balance;
 }
