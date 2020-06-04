@@ -38,7 +38,7 @@ class NodeCreator {
 
     final node = AstNode(valueType: valueType, position: pos);
     for (var i = 0; i < node.minimumSlotCount; i++) {
-      node.addSlot('Child ${i + 1}');
+      node.addSlot('child ${i + 1}');
     }
     return node;
   }

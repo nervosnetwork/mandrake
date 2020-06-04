@@ -26,7 +26,7 @@ class OperationNode extends AstNode {
       }
     } else {
       for (var i = 0; i < slots.length; i++) {
-        renameSlot(slots[i].id, 'Operand ${i + 1}');
+        renameSlot(slots[i].id, 'operand ${i + 1}');
       }
     }
   }
@@ -41,16 +41,16 @@ class OperationNode extends AstNode {
       }
     } else {
       for (var i = 0; i < valueType.minimumSlotCount; i++) {
-        addSlot('Operand ${i + 1}');
+        addSlot('operand ${i + 1}');
       }
     }
   }
 
   static final _slotNameMap = {
-    ValueType.hash: ['Hash'],
-    ValueType.len: ['Bytes'],
-    ValueType.index: ['Index', 'List'],
-    ValueType.slice: ['Start', 'End', 'Bytes'],
-    ValueType.cond: ['Condition', 'Expr1', 'Expr1'],
+    ValueType.hash: ['hash'],
+    ValueType.len: ['bytes'],
+    ValueType.index: ['index', 'list'],
+    ValueType.slice: ['start', 'end', 'bytes'],
+    ValueType.cond: ['condition', 'expr1', 'expr1'],
   };
 }
