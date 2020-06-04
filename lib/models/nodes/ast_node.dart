@@ -93,7 +93,9 @@ class NodeTemplate {
       NT(ValueType.tailRecursion),
     ],
     NodeTemplateGroup.prefab: [
-      NT(ValueType.prefabQueryCell),
+      NT(ValueType.prefabQueryCells),
+      NT(ValueType.prefabMapCapacities),
+      NT(ValueType.prefabGetBalance),
     ],
     NodeTemplateGroup.primitive: [
       NT(ValueType.nil),

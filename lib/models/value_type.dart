@@ -21,7 +21,9 @@ class ValueType {
     }).join(' ');
   }
 
-  static const ValueType prefabQueryCell = ValueType._(null, 'PREFAB_QUERY_CELLS');
+  static const ValueType prefabQueryCells = ValueType._(null, 'PREFAB_QUERY_CELLS');
+  static const ValueType prefabMapCapacities = ValueType._(null, 'PREFAB_MAP_CAPACITIES');
+  static const ValueType prefabGetBalance = ValueType._(null, 'PREFAB_GET_BALANCE');
 
   static const ValueType nil = ValueType._(Value_Type.NIL);
   static const ValueType uint64 = ValueType._(Value_Type.UINT64);

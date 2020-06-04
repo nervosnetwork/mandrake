@@ -44,7 +44,7 @@ class _PointerLayerState extends State<PointerLayer> {
             onAcceptWithDetails: (details) {
               final renderBox = context.findRenderObject() as RenderBox;
               final pos = renderBox.globalToLocal(details.offset);
-              final node = NodeCreator.create(details.data, pos, document);
+              final node = NodeCreator.create(details.data, pos);
               if (!document.nodes.contains((node))) {
                 // NodeCreator is free to add the node to document if it wants to.
                 document.addNode(node);

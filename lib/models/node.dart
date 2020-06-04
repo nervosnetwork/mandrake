@@ -2,7 +2,6 @@ import 'dart:ui' show Offset;
 
 import 'package:mandrake/models/nodes/op_node.dart';
 
-import 'document.dart';
 import 'nodes/node_base.dart';
 import 'nodes/ast_node.dart';
 import 'nodes/prefab_node.dart';
@@ -18,7 +17,7 @@ export 'nodes/primitive_node.dart';
 export 'nodes/get_op_node.dart';
 
 class NodeCreator {
-  static Node create(NodeTemplate template, Offset pos, [Document document]) {
+  static Node create(NodeTemplate template, Offset pos) {
     final valueType = template.valueType;
 
     if (valueType.isPrefab) {
