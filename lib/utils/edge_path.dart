@@ -1,32 +1,38 @@
 import 'dart:ui' show Path, Offset;
 
 class EdgePath {
+  EdgePath(this.start, this.end);
+
   final Offset start;
   final Offset end;
 
-  EdgePath(this.start, this.end);
-
-  Path get path {
+  double get _controlOffset {
     final distance = (end - start).distance;
-    final offset = distance * 0.25;
+    return distance * 0.25;
+  }
 
+  Path get edgePath {
     final path = Path();
     path.moveTo(start.dx, start.dy);
     path.cubicTo(
-      start.dx + offset, // (end.dx > start.dx ? offset : -offset),
+      start.dx + _controlOffset, // (end.dx > start.dx ? offset : -offset),
       start.dy, // + (end.dy > start.dy ? offset : -offset),
-      end.dx - offset, //(end.dx > start.dx ? offset : -offset),
+      end.dx - _controlOffset, //(end.dx > start.dx ? offset : -offset),
       end.dy, // - (end.dy > start.dy ? offset : -offset),
       end.dx,
       end.dy,
     );
 
-    final arrowPos = end;
-    path..moveTo(arrowPos.dx, arrowPos.dy)
-    ..lineTo(arrowPos.dx - 3, arrowPos.dy - 2)
-    ..lineTo(arrowPos.dx - 3, arrowPos.dy + 2)
-    ..lineTo(arrowPos.dx, arrowPos.dy);
+    return path;
+  }
 
+  Path get arrowPath {
+    final path = Path();
+    path
+      ..moveTo(end.dx, end.dy)
+      ..relativeLineTo(-3, -2)
+      ..relativeLineTo(0, 4)
+      ..relativeLineTo(3, -2);
     return path;
   }
 }

@@ -38,9 +38,9 @@ class _EdgesPainter extends CustomPainter {
     for (final link in links) {
       final start = link.parent.childConnectorPosition(link.child);
       final end = link.child.position + Offset(0, 15);
-      final path = EdgePath(start, end).path;
-
-      canvas.drawPath(path, paint);
+      final edge = EdgePath(start, end);
+      canvas.drawPath(edge.edgePath, paint);
+      canvas.drawPath(edge.arrowPath, paint);
     }
   }
 

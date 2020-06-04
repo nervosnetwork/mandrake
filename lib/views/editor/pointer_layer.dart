@@ -280,8 +280,9 @@ class _ConnectingNodesPainter extends CustomPainter {
 
     canvas.drawCircle(start, 6, paint);
 
-    final path = EdgePath(start + Offset(6, 0), end).path;
-    canvas.drawPath(path, paint);
+    final edge = EdgePath(start + Offset(6, 0), end);
+    canvas.drawPath(edge.edgePath, paint);
+    canvas.drawPath(edge.arrowPath, paint);
   }
 
   @override
