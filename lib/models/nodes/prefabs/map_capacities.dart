@@ -20,7 +20,7 @@ AstNode convertMapCapacities(PrefabNode node) {
     position: standByMe(getCapacity, 1, 0),
   );
   arg0.setName('arg0');
-  getCapacity.addChild(arg0, getCapacity.addSlot('arg0').id);
+  getCapacity.addChild(arg0, getCapacity.slots.first.id);
 
   final cells = PrefabNode(
     valueType: ValueType.prefabQueryCells,

@@ -9,7 +9,7 @@ class PrefabNode extends AstNode {
   PrefabNode({ValueType valueType, Offset position})
       : super(valueType: valueType, position: position);
 
-  double get bodyHeight => 50;
+  double get bodyHeight => 100;
 
   @override
   Size get size {
@@ -18,6 +18,8 @@ class PrefabNode extends AstNode {
       titleHeight + bodyHeight + bottomPadding,
     );
   }
+
+  String get description => valueType.description;
 
   /// Convert to a tree of nodes. Once converted, that tree couldn't be
   /// converted back to the prefab node.

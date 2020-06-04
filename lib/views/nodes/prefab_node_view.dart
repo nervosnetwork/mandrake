@@ -27,12 +27,11 @@ class PrefabNodeView extends AstNodeView {
         Container(
           height: node.bodyHeight,
           padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Wrap(
+            runSpacing: 10,
             children: [
-              Container(
-                child: Text('Prefab: Flatten to edit'),
-              ),
+              Text(node.description),
+              Text('Flatten this prefab to edit and customize.'),
             ],
           ),
         ),

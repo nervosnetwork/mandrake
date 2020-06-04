@@ -2,14 +2,17 @@ import '../protos/ast.pbenum.dart' show Value_Type;
 
 /// Encapsulate protos AST Value_Type class.
 class ValueType {
-  const ValueType._(this._rawType, [this._name = '']);
+  const ValueType._(this._rawType, [this._name = '', this._description = '']);
   final Value_Type _rawType;
   final String _name;
+  final String _description;
 
   Value_Type get rawValueType => _rawType;
 
   @override
   String toString() => rawValueType?.toString() ?? _name;
+
+  String get description => _description;
 
   String get uiName {
     final separated = toString().split('_');
@@ -21,9 +24,21 @@ class ValueType {
     }).join(' ');
   }
 
-  static const ValueType prefabQueryCells = ValueType._(null, 'PREFAB_QUERY_CELLS');
-  static const ValueType prefabMapCapacities = ValueType._(null, 'PREFAB_MAP_CAPACITIES');
-  static const ValueType prefabGetBalance = ValueType._(null, 'PREFAB_GET_BALANCE');
+  static const ValueType prefabQueryCells = ValueType._(
+    null,
+    'PREFAB_QUERY_CELLS',
+    'Get all cells (default secp256k1_blake160).',
+  );
+  static const ValueType prefabMapCapacities = ValueType._(
+    null,
+    'PREFAB_MAP_CAPACITIES',
+    'Get cell capacities.',
+  );
+  static const ValueType prefabGetBalance = ValueType._(
+    null,
+    'PREFAB_GET_BALANCE',
+    'Calculate balance as total capacities.',
+  );
 
   static const ValueType nil = ValueType._(Value_Type.NIL);
   static const ValueType uint64 = ValueType._(Value_Type.UINT64);

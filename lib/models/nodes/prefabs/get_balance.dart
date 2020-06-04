@@ -12,8 +12,8 @@ AstNode convertGetBalance(PrefabNode node) {
     valueType: ValueType.add,
     position: standByMe(balance, 3, 0),
   );
-  func.setName('current');
-  balance.addChild(func, balance.addSlot('current').id);
+  func.setName('func');
+  balance.addChild(func, balance.addSlot('func').id);
 
   final arg0 = PrimitiveNode(
     valueType: ValueType.arg,
