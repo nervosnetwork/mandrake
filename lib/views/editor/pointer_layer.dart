@@ -61,20 +61,15 @@ class _PointerLayerState extends State<PointerLayer> {
               _endConnectorOffset,
             ),
           if (_isShowingContextMenu)
-            Positioned(
-              left: _contentMenuOffset.dx,
-              top: _contentMenuOffset.dy,
-              // Content menu should not be scaled
-              child: Transform(
-                transform: Matrix4.translationValues(0, 0, 0)
-                  ..scale(1 / editorState.zoomScale, 1 / editorState.zoomScale, 1),
-                child: ContextMenu(
-                  NodeActionBuilder(
-                    document,
-                    selection.selectedNode(document.nodes),
-                  ).build(),
-                  _handleActionItem,
-                ),
+            Transform(
+              transform: Matrix4.translationValues(_contentMenuOffset.dx, _contentMenuOffset.dy, 0)
+                ..scale(1 / editorState.zoomScale, 1 / editorState.zoomScale, 1),
+              child: ContextMenu(
+                NodeActionBuilder(
+                  document,
+                  selection.selectedNode(document.nodes),
+                ).build(),
+                _handleActionItem,
               ),
             ),
         ],
@@ -178,10 +173,8 @@ class _PointerLayerState extends State<PointerLayer> {
         _contentMenuOffset = menuOffset;
       });
     } else {
-      /// Do not rebuild immediately. This allows the button/action inside the context menu
-      /// to have enough time to respond if user clicks an menu item.
       if (_isShowingContextMenu) {
-        if (!menuSize().contains(localPosition - _contentMenuOffset)) {
+        if (!menuSize().contains(event.localPosition - _contentMenuOffset)) {
           // Not clicking menu items.
           setState(() {
             _isShowingContextMenu = false;
