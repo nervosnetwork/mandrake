@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/node.dart';
 import '../../models/selection.dart';
+import '../../models/editor_state.dart';
 
 class NodeView extends StatelessWidget {
   static const double borderRadius = 5;
@@ -125,6 +126,7 @@ class NodeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final editorState = Provider.of<EditorState>(context);
     final node = Provider.of<Node>(context);
     final selection = Provider.of<Selection>(context, listen: false);
     final isSelected = selection.isNodeSelected(node);
@@ -134,8 +136,8 @@ class NodeView extends StatelessWidget {
         isSelected ? selectedBorderColor : (isHovered ? hoveredBorderColor : normalBorderColor);
 
     return Positioned(
-      left: node.position.dx,
-      top: node.position.dy,
+      left: node.position.dx + editorState.canvasOffset.dx,
+      top: node.position.dy + editorState.canvasOffset.dy,
       width: node.size.width,
       height: node.size.height,
       child: Stack(

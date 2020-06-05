@@ -33,6 +33,8 @@ class _PointerLayerState extends State<PointerLayer> {
   Selection get selection => Provider.of<Selection>(context, listen: false);
   EditorState get editorState => Provider.of<EditorState>(context, listen: false);
 
+  Offset _translateLocalPosition(Offset pos) => pos - editorState.canvasOffset;
+
   @override
   Widget build(BuildContext context) {
     return Listener(
@@ -43,7 +45,7 @@ class _PointerLayerState extends State<PointerLayer> {
             onWillAccept: (data) => data != null,
             onAcceptWithDetails: (details) {
               final renderBox = context.findRenderObject() as RenderBox;
-              final pos = renderBox.globalToLocal(details.offset);
+              final pos = _translateLocalPosition(renderBox.globalToLocal(details.offset));
               final node = NodeCreator.create(details.data, pos);
               if (!document.nodes.contains((node))) {
                 // NodeCreator is free to add the node to document if it wants to.
@@ -54,7 +56,7 @@ class _PointerLayerState extends State<PointerLayer> {
             builder: (context, candidateData, rejectedData) => Container(),
           ),
           if (_isDraggingConnector)
-            ConnectingNodesView(
+            _ConnectingNodesView(
               _startConnectorOffset,
               _endConnectorOffset,
             ),
@@ -62,8 +64,9 @@ class _PointerLayerState extends State<PointerLayer> {
             Positioned(
               left: _contentMenuOffset.dx,
               top: _contentMenuOffset.dy,
+              // Content menu should not be scaled
               child: Transform(
-                transform: Matrix4.translationValues(1, 1, 0)
+                transform: Matrix4.translationValues(0, 0, 0)
                   ..scale(1 / editorState.zoomScale, 1 / editorState.zoomScale, 1),
                 child: ContextMenu(
                   NodeActionBuilder(
@@ -83,19 +86,20 @@ class _PointerLayerState extends State<PointerLayer> {
   }
 
   void _onPointerMove(PointerMoveEvent event) {
+    final localPosition = _translateLocalPosition(event.localPosition);
     if (!_isDragging) {
       _isDragging = true;
-      final node = _hitTest(event.localPosition);
+      final node = _hitTest(localPosition);
       selection.select(node);
       if (node == null) {
         _isDraggingCanvas = true;
       } else {
         _isDraggingCanvas = false;
-        final slot = node.hitTest(event.localPosition - node.position);
+        final slot = node.hitTest(localPosition - node.position);
         if (slot != null) {
           _isDraggingConnector = true;
           _startConnectorOffset = node.slotConnectorPosition(slot);
-          _endConnectorOffset = event.localPosition;
+          _endConnectorOffset = localPosition;
         }
       }
 
@@ -103,10 +107,11 @@ class _PointerLayerState extends State<PointerLayer> {
     }
 
     if (_isDraggingCanvas) {
-      editorState.moveCanvas(event.delta);
+      /// Canvas is drawing outside thus shulld be affected by the zoom scale.
+      editorState.moveCanvas(event.delta / editorState.zoomScale);
     } else if (_isDraggingConnector) {
       final source = selection.selectedNode(document.nodes);
-      final target = _hitTest(event.localPosition);
+      final target = _hitTest(localPosition);
       if (document.canConnect(parent: source, child: target)) {
         selection.hover(target);
       } else {
@@ -124,7 +129,8 @@ class _PointerLayerState extends State<PointerLayer> {
   }
 
   void _onPointerDown(PointerDownEvent event) {
-    final node = _hitTest(event.localPosition);
+    final localPosition = _translateLocalPosition(event.localPosition);
+    final node = _hitTest(localPosition);
     if (node != null) {
       selection.select(node);
     }
@@ -175,7 +181,7 @@ class _PointerLayerState extends State<PointerLayer> {
       /// Do not rebuild immediately. This allows the button/action inside the context menu
       /// to have enough time to respond if user clicks an menu item.
       if (_isShowingContextMenu) {
-        if (!menuSize().contains(event.localPosition - _contentMenuOffset)) {
+        if (!menuSize().contains(localPosition - _contentMenuOffset)) {
           // Not clicking menu items.
           setState(() {
             _isShowingContextMenu = false;
@@ -190,13 +196,14 @@ class _PointerLayerState extends State<PointerLayer> {
   }
 
   void _onPointerUp(PointerUpEvent event) {
+    final localPosition = _translateLocalPosition(event.localPosition);
     _isDragging = false;
     _isDraggingCanvas = false;
 
     if (_isDraggingConnector) {
       final source = selection.selectedNode(document.nodes);
       final slot = source.hitTest(_startConnectorOffset - source.position);
-      final target = _hitTest(event.localPosition);
+      final target = _hitTest(localPosition);
       if (document.canConnect(parent: source, child: target)) {
         document.connectNode(parent: source, child: target, slotId: slot?.id);
         // selection.select(target);
@@ -244,17 +251,22 @@ class _PointerLayerState extends State<PointerLayer> {
 }
 
 /// Draw a link from parent node to child node.
-class ConnectingNodesView extends StatelessWidget {
+class _ConnectingNodesView extends StatelessWidget {
   final Offset start, end;
-  ConnectingNodesView(this.start, this.end);
+  _ConnectingNodesView(this.start, this.end);
 
   @override
   Widget build(BuildContext context) {
+    final editorState = Provider.of<EditorState>(context);
+
     /// This view only draws the dragging connector to link nodes.
     /// It should not eat any mouse event itself.
     return IgnorePointer(
       child: CustomPaint(
-        painter: _ConnectingNodesPainter(start, end),
+        painter: _ConnectingNodesPainter(
+          start + editorState.canvasOffset,
+          end + editorState.canvasOffset,
+        ),
         child: Container(),
       ),
     );

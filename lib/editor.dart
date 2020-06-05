@@ -21,14 +21,7 @@ class Editor extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<Document>(create: (_) {
-          final doc = Document();
-          final initialCanvasSize = EditorDimensions.visibleCanvasArea(context).size -
-              Offset(
-                EditorDimensions.canvasMargin * 2,
-                EditorDimensions.canvasMargin * 2,
-              );
-          doc.resizeCanvas(initialCanvasSize);
-          return doc;
+          return Document();
         }),
         ChangeNotifierProvider<Selection>(create: (_) => Selection()),
         ChangeNotifierProvider<EditorState>(create: (_) => EditorState()),
@@ -73,36 +66,20 @@ class Editor extends StatelessWidget {
 class DesignEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final document = Provider.of<Document>(context);
+    final editorState = Provider.of<EditorState>(context);
 
     return Stack(
       children: [
-        Container(
-          color: Theme.of(context).dialogBackgroundColor,
-        ),
-        Positioned(
-          left: EditorDimensions.canvasMargin,
-          top: EditorDimensions.canvasMargin,
-          width: document.canvasSize.width,
-          height: document.canvasSize.height,
-          child: Consumer<EditorState>(
-            builder: (context, editorState, child) {
-              return Transform(
-                transform: Matrix4.translationValues(
-                  editorState.canvasOffset.dx,
-                  editorState.canvasOffset.dy,
-                  0,
-                )..scale(editorState.zoomScale, editorState.zoomScale, 1),
-                child: Stack(
-                  children: [
-                    CanvasLayer(),
-                    EdgesLayer(),
-                    NodesLayer(),
-                    PointerLayer(),
-                  ],
-                ),
-              );
-            },
+        CanvasLayer(), // endless scrolling
+        Transform.scale(
+          scale: editorState.zoomScale,
+          alignment: Alignment.topLeft,
+          child: Stack(
+            children: [
+              EdgesLayer(),
+              NodesLayer(),
+              PointerLayer(),
+            ],
           ),
         ),
       ],
