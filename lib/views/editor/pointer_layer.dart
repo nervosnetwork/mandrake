@@ -80,6 +80,7 @@ class _PointerLayerState extends State<PointerLayer> {
       onPointerMove: _onPointerMove,
       onPointerDown: _onPointerDown,
       onPointerUp: _onPointerUp,
+      onPointerSignal: _onPointerSignal,
     );
   }
 
@@ -208,6 +209,12 @@ class _PointerLayerState extends State<PointerLayer> {
       _startConnectorOffset = _endConnectorOffset = null;
       _isDraggingConnector = false;
       setState(() {});
+    }
+  }
+
+  void _onPointerSignal(PointerSignalEvent event) {
+    if (event is PointerScrollEvent) {
+      editorState.moveCanvas(-event.scrollDelta / editorState.zoomScale);
     }
   }
 
