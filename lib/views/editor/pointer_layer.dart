@@ -33,7 +33,8 @@ class _PointerLayerState extends State<PointerLayer> {
   Selection get selection => Provider.of<Selection>(context, listen: false);
   EditorState get editorState => Provider.of<EditorState>(context, listen: false);
 
-  Offset _translateLocalPosition(Offset pos) => pos - editorState.canvasOffset;
+  Offset _translateLocalPosition(Offset pos) =>
+      pos / editorState.zoomScale - editorState.canvasOffset;
 
   @override
   Widget build(BuildContext context) {
@@ -56,14 +57,16 @@ class _PointerLayerState extends State<PointerLayer> {
             builder: (context, candidateData, rejectedData) => Container(),
           ),
           if (_isDraggingConnector)
-            _ConnectingNodesView(
-              _startConnectorOffset,
-              _endConnectorOffset,
+            Transform(
+              transform: Matrix4.translationValues(0, 0, 0)..scale(editorState.zoomScale),
+              child: _ConnectingNodesView(
+                _startConnectorOffset,
+                _endConnectorOffset,
+              ),
             ),
           if (_isShowingContextMenu)
             Transform(
-              transform: Matrix4.translationValues(_contentMenuOffset.dx, _contentMenuOffset.dy, 0)
-                ..scale(1 / editorState.zoomScale, 1 / editorState.zoomScale, 1),
+              transform: Matrix4.translationValues(_contentMenuOffset.dx, _contentMenuOffset.dy, 0),
               child: ContextMenu(
                 NodeActionBuilder(
                   document,

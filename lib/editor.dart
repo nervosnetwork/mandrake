@@ -93,10 +93,14 @@ class DesignEditor extends StatelessWidget {
             children: [
               EdgesLayer(),
               NodesLayer(),
-              PointerLayer(),
             ],
           ),
         ),
+
+        /// Pointer layer doesn't scale with edges/nodes to make sure even when
+        /// drawing area is smaller than canvas background events outside that
+        /// area are still handled.
+        PointerLayer(),
       ],
     );
   }

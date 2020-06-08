@@ -13,6 +13,7 @@ class NodesLayer extends StatelessWidget {
     return Consumer2<Document, Selection>(
       builder: (context, document, selection, child) {
         return Stack(
+          overflow: Overflow.visible,
           children: document.nodes.map((node) {
             return ChangeNotifierProvider<Node>.value(
               value: node,
