@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'models/document.dart';
 import 'models/editor_state.dart';
+import 'models/node.dart';
 
 class Toolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<EditorState>(builder: (context, editorState, child) {
+    return Consumer2<Document, EditorState>(builder: (context, document, editorState, child) {
       return Container(
         decoration: BoxDecoration(
           color: Theme.of(context).canvasColor,
@@ -52,6 +54,22 @@ class Toolbar extends StatelessWidget {
             _iconButton(
               icon: Icon(Icons.zoom_in),
               onPressed: editorState.zoomInAction,
+            ),
+            _separator(),
+            _iconButton(
+              icon: Icon(Icons.filter_center_focus),
+              onPressed: () {
+                editorState.resetCanvasOffset();
+              },
+            ),
+            _iconButton(
+              icon: Icon(Icons.developer_board),
+              onPressed: () {
+                final root = document.root;
+                editorState.resetCanvasOffset();
+                final pos = root.position + Offset(-80, -200);
+                editorState.moveCanvas(-pos);
+              },
             ),
           ],
         ),

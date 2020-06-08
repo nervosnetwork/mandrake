@@ -13,6 +13,8 @@ class Document extends ChangeNotifier {
   UnmodifiableListView<Node> get nodes => UnmodifiableListView(_allNodes);
   UnmodifiableListView<Link> get links => UnmodifiableListView(_links);
 
+  RootNode get root => _allNodes.firstWhere((n) => n is RootNode);
+
   Document() {
     final root = RootNode();
     final callResult = NodeCreator.create(
