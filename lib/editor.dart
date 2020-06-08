@@ -8,6 +8,7 @@ import 'models/editor_state.dart';
 import 'toolbar.dart';
 import 'object_library.dart';
 import 'property_inspector.dart';
+import 'ruler.dart';
 
 import 'views/editor/editor_dimensions.dart';
 import 'views/editor/canvas_layer.dart';
@@ -29,11 +30,25 @@ class Editor extends StatelessWidget {
       child: Stack(
         children: [
           Positioned(
-            top: EditorDimensions.toolbarHeight,
-            left: EditorDimensions.objectLibraryPanelWidth,
+            top: EditorDimensions.toolbarHeight + EditorDimensions.rulerWidth,
+            left: EditorDimensions.objectLibraryPanelWidth + EditorDimensions.rulerWidth,
             right: EditorDimensions.propertyInspectorPanelWidth,
             bottom: 0,
             child: DesignEditor(),
+          ),
+          Positioned(
+            top: EditorDimensions.toolbarHeight + EditorDimensions.rulerWidth - 1,
+            left: EditorDimensions.objectLibraryPanelWidth,
+            bottom: 0,
+            width: EditorDimensions.rulerWidth,
+            child: Ruler(RulerDirection.vertical),
+          ),
+          Positioned(
+            top: EditorDimensions.toolbarHeight,
+            left: EditorDimensions.objectLibraryPanelWidth + EditorDimensions.rulerWidth - 1,
+            right: EditorDimensions.propertyInspectorPanelWidth,
+            height: EditorDimensions.rulerWidth,
+            child: Ruler(RulerDirection.horizontal),
           ),
           Positioned(
             top: EditorDimensions.toolbarHeight,
