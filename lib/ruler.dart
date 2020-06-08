@@ -116,7 +116,11 @@ class _RulerPainter extends CustomPainter {
     final step = _smallMarker * _scale;
     if (_direction == RulerDirection.horizontal) {
       final start = _canvasOffset.dx % _smallMarker * _scale;
-      for (var i = 0.0; i < size.width / step; i++) {
+      for (var i = -2.0; i < size.width / step + 1; i++) {
+        // Hackhack: the initial start iterator -2 is just to allow
+        // the first label to have chance to draw. Same for the last
+        // plus one offset. (example: top left large marker of the
+        // horizontal rule.)
         final x = start + i * step;
         final position = (x / _scale - _canvasOffset.dx).round();
         final isLargeMarker = position % _largeMarker.toInt() == 0;
@@ -140,7 +144,7 @@ class _RulerPainter extends CustomPainter {
       }
     } else {
       final start = _canvasOffset.dy % _smallMarker * _scale;
-      for (var i = 0.0; i < size.height / step; i++) {
+      for (var i = 0.0; i < size.height / step + 1; i++) {
         final y = start + i * step;
         final position = (y / _scale - _canvasOffset.dy).round();
         final isLargeMarker = position % _largeMarker.toInt() == 0;
