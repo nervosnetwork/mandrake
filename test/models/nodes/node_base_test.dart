@@ -8,6 +8,13 @@ class _SomeNode extends Node {
   int get maximumSlotCount => 3;
 }
 
+class _SingleNode extends Node {
+  @override
+  int get minimumSlotCount => 0;
+  @override
+  int get maximumSlotCount => 0;
+}
+
 void main() {
   group('child slot', () {
     test('is connected', () {
@@ -164,6 +171,12 @@ void main() {
       final node = Node();
       final pos = node.slotConnectorPosition(Node.addChildSlot) - node.position;
       expect(node.hitTest(pos), Node.addChildSlot);
+    });
+
+    test('no add child button', () {
+      final node = _SingleNode();
+      final pos = node.slotConnectorPosition(Node.addChildSlot) - node.position;
+      expect(node.hitTest(pos), null);
     });
   });
 }

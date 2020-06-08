@@ -9,6 +9,14 @@ void main() {
     expect(state.canvasOffset, offsetMoreOrLessEquals(Offset(100, 100)));
   });
 
+  test('reset canvas offset', () {
+    final state = EditorState();
+    state.moveCanvas(Offset(100, 100));
+    expect(state.canvasOffset, offsetMoreOrLessEquals(Offset(100, 100)));
+    state.resetCanvasOffset();
+    expect(state.canvasOffset, offsetMoreOrLessEquals(Offset.zero));
+  });
+
   group('zooming', () {
     test('zoom in', () {
       final state = EditorState();

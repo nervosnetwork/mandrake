@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'models/document.dart';
 import 'models/editor_state.dart';
 
 class Toolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<EditorState>(builder: (context, editorState, child) {
+    return Consumer2<Document, EditorState>(builder: (context, document, editorState, child) {
       return Container(
         decoration: BoxDecoration(
           color: Theme.of(context).canvasColor,
@@ -21,27 +22,27 @@ class Toolbar extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             SizedBox(width: 20),
-            IconButton(
+            _iconButton(
               icon: Icon(Icons.note_add),
               onPressed: null,
             ),
-            IconButton(
+            _iconButton(
               icon: Icon(Icons.file_download),
               onPressed: null,
             ),
-            IconButton(
+            _iconButton(
               icon: Icon(Icons.file_upload),
               onPressed: null,
             ),
             _separator(),
-            IconButton(
+            _iconButton(
               icon: Icon(Icons.zoom_out),
               onPressed: editorState.zoomOutAction,
             ),
             SizedBox(
               width: 30,
               child: Text(
-                '${(editorState.zoomScale * 100).round().toInt()}%',
+                '${(editorState.zoomScale * 100).round()}%',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.grey,
@@ -49,14 +50,40 @@ class Toolbar extends StatelessWidget {
                 ),
               ),
             ),
-            IconButton(
+            _iconButton(
               icon: Icon(Icons.zoom_in),
               onPressed: editorState.zoomInAction,
+            ),
+            _separator(),
+            _iconButton(
+              icon: Icon(Icons.filter_center_focus),
+              onPressed: () {
+                editorState.resetCanvasOffset();
+              },
+            ),
+            _iconButton(
+              icon: Icon(Icons.developer_board),
+              onPressed: () {
+                final root = document.root;
+                editorState.resetCanvasOffset();
+                final pos = root.position + Offset(-80, -200);
+                editorState.moveCanvas(-pos);
+              },
             ),
           ],
         ),
       );
     });
+  }
+
+  Widget _iconButton({Widget icon, Function onPressed}) {
+    return IconButton(
+      icon: icon,
+      onPressed: onPressed,
+      hoverColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+    );
   }
 
   Widget _separator() {

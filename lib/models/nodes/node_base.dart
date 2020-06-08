@@ -226,14 +226,17 @@ class Node extends NodeBase with ChangeNotifier {
         return slots[i];
       }
     }
-    final addCallButtonRect = Rect.fromLTWH(
-      size.width - hitWidth,
-      verticalOffset + slotRowHeight * slots.length,
-      hitWidth,
-      slotRowHeight,
-    );
-    if (addCallButtonRect.contains(point)) {
-      return addChildSlot;
+
+    if (canAddSlot) {
+      final addSlotButtonRect = Rect.fromLTWH(
+        size.width - hitWidth,
+        verticalOffset + slotRowHeight * slots.length,
+        hitWidth,
+        slotRowHeight,
+      );
+      if (addSlotButtonRect.contains(point)) {
+        return addChildSlot;
+      }
     }
 
     return null;

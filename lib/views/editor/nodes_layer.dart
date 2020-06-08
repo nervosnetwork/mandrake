@@ -10,15 +10,18 @@ import '../node.dart';
 class NodesLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer2<Document, Selection>(builder: (context, document, selection, child) {
-      return Stack(
-        children: document.nodes.map((node) {
-          return ChangeNotifierProvider<Node>.value(
-            value: node,
-            child: ViewCreator.create(node),
-          );
-        }).toList(),
-      );
-    });
+    return Consumer2<Document, Selection>(
+      builder: (context, document, selection, child) {
+        return Stack(
+          overflow: Overflow.visible,
+          children: document.nodes.map((node) {
+            return ChangeNotifierProvider<Node>.value(
+              value: node,
+              child: ViewCreator.create(node),
+            );
+          }).toList(),
+        );
+      },
+    );
   }
 }

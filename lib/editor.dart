@@ -8,6 +8,7 @@ import 'models/editor_state.dart';
 import 'toolbar.dart';
 import 'object_library.dart';
 import 'property_inspector.dart';
+import 'ruler.dart';
 
 import 'views/editor/editor_dimensions.dart';
 import 'views/editor/canvas_layer.dart';
@@ -21,14 +22,7 @@ class Editor extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<Document>(create: (_) {
-          final doc = Document();
-          final initialCanvasSize = EditorDimensions.visibleCanvasArea(context).size -
-              Offset(
-                EditorDimensions.canvasMargin * 2,
-                EditorDimensions.canvasMargin * 2,
-              );
-          doc.resizeCanvas(initialCanvasSize);
-          return doc;
+          return Document();
         }),
         ChangeNotifierProvider<Selection>(create: (_) => Selection()),
         ChangeNotifierProvider<EditorState>(create: (_) => EditorState()),
@@ -36,11 +30,25 @@ class Editor extends StatelessWidget {
       child: Stack(
         children: [
           Positioned(
-            top: EditorDimensions.toolbarHeight,
-            left: EditorDimensions.objectLibraryPanelWidth,
+            top: EditorDimensions.toolbarHeight + EditorDimensions.rulerWidth,
+            left: EditorDimensions.objectLibraryPanelWidth + EditorDimensions.rulerWidth,
             right: EditorDimensions.propertyInspectorPanelWidth,
             bottom: 0,
             child: DesignEditor(),
+          ),
+          Positioned(
+            top: EditorDimensions.toolbarHeight + EditorDimensions.rulerWidth - 1,
+            left: EditorDimensions.objectLibraryPanelWidth,
+            bottom: 0,
+            width: EditorDimensions.rulerWidth,
+            child: Ruler(RulerDirection.vertical),
+          ),
+          Positioned(
+            top: EditorDimensions.toolbarHeight,
+            left: EditorDimensions.objectLibraryPanelWidth + EditorDimensions.rulerWidth - 1,
+            right: EditorDimensions.propertyInspectorPanelWidth,
+            height: EditorDimensions.rulerWidth,
+            child: Ruler(RulerDirection.horizontal),
           ),
           Positioned(
             top: EditorDimensions.toolbarHeight,
@@ -73,38 +81,26 @@ class Editor extends StatelessWidget {
 class DesignEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final document = Provider.of<Document>(context);
+    final editorState = Provider.of<EditorState>(context);
 
     return Stack(
       children: [
-        Container(
-          color: Theme.of(context).dialogBackgroundColor,
-        ),
-        Positioned(
-          left: EditorDimensions.canvasMargin,
-          top: EditorDimensions.canvasMargin,
-          width: document.canvasSize.width,
-          height: document.canvasSize.height,
-          child: Consumer<EditorState>(
-            builder: (context, editorState, child) {
-              return Transform(
-                transform: Matrix4.translationValues(
-                  editorState.canvasOffset.dx,
-                  editorState.canvasOffset.dy,
-                  0,
-                )..scale(editorState.zoomScale, editorState.zoomScale, 1),
-                child: Stack(
-                  children: [
-                    CanvasLayer(),
-                    EdgesLayer(),
-                    NodesLayer(),
-                    PointerLayer(),
-                  ],
-                ),
-              );
-            },
+        CanvasLayer(), // endless scrolling
+        Transform.scale(
+          scale: editorState.zoomScale,
+          alignment: Alignment.topLeft,
+          child: Stack(
+            children: [
+              EdgesLayer(),
+              NodesLayer(),
+            ],
           ),
         ),
+
+        /// Pointer layer doesn't scale with edges/nodes to make sure even when
+        /// drawing area is smaller than canvas background events outside that
+        /// area are still handled.
+        PointerLayer(),
       ],
     );
   }

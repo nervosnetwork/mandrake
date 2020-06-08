@@ -26,6 +26,11 @@ class EditorState extends ChangeNotifier {
     return zoomOut;
   }
 
+  void resetCanvasOffset() {
+    _canvasOffset = Offset.zero;
+    notifyListeners();
+  }
+
   void moveCanvas(Offset offset) {
     _canvasOffset += offset;
     notifyListeners();
