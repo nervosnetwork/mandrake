@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import 'models/document.dart';
 import 'models/editor_state.dart';
-import 'models/node.dart';
 
 class Toolbar extends StatelessWidget {
   @override
