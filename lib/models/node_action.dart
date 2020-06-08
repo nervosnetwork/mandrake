@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'document.dart';
+import 'selection.dart';
 import 'node.dart';
 
 enum NodeAction {
@@ -90,15 +91,17 @@ extension on NodeActionBuilder {
 }
 
 class NodeActionExecutor {
-  NodeActionExecutor(this.document, this.node);
+  NodeActionExecutor(this.document, this.selection);
 
   final Document document;
-  final Node node;
+  final Selection selection;
+  Node get node => selection.selectedNode(document.nodes);
 
   void execute(NodeAction action) {
     switch (action) {
       case NodeAction.flatten:
-        document.flattenPrefabNode(node);
+        final flattened = document.flattenPrefabNode(node);
+        selection.select(flattened);
         break;
       case NodeAction.disconnectFromParent:
         document.disconnectNodeFromParent(node);
@@ -108,9 +111,11 @@ class NodeActionExecutor {
         break;
       case NodeAction.delete:
         document.deleteNode(node);
+        selection.select(null);
         break;
       case NodeAction.deleteWithDescendants:
         document.deleteNodeAndDescendants(node);
+        selection.select(null);
         break;
     }
   }

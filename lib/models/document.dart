@@ -111,7 +111,7 @@ class Document extends ChangeNotifier {
     _nodesChanged();
   }
 
-  void flattenPrefabNode(PrefabNode node) {
+  AstNode flattenPrefabNode(PrefabNode node) {
     var flattened = node.flatten();
     flattened.setName(node.name);
 
@@ -126,6 +126,8 @@ class Document extends ChangeNotifier {
     }
 
     _nodesChanged();
+
+    return flattened;
   }
 
   /// Move a node by offset.

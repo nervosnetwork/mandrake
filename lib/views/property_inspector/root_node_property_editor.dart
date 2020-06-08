@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'property_editor.dart';
 
 import '../../models/document.dart';
+import '../../models/selection.dart';
 import '../../models/node.dart';
 import '../../models/node_action.dart';
 
@@ -11,10 +12,11 @@ class RootNodePropertyEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final document = Provider.of<Document>(context);
+    final selection = Provider.of<Selection>(context);
     final node = Provider.of<Node>(context) as RootNode;
 
     final onNodeActionItemSelected = (NodeActionItem item) {
-      NodeActionExecutor(document, node).execute(item.value);
+      NodeActionExecutor(document, selection).execute(item.value);
     };
 
     return SingleChildScrollView(

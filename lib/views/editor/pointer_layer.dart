@@ -231,10 +231,7 @@ class _PointerLayerState extends State<PointerLayer> {
     setState(() {
       _isShowingContextMenu = false;
     });
-    final executor = NodeActionExecutor(
-      document,
-      selection.selectedNode(document.nodes),
-    );
+    final executor = NodeActionExecutor(document, selection);
     executor.execute(item.value);
   }
 
