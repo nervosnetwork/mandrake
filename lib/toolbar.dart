@@ -1,8 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'models/document.dart';
 import 'models/editor_state.dart';
+import 'io/doc_reader.dart';
+import 'io/doc_writer.dart';
+import 'io/ast_writer.dart';
 
 class Toolbar extends StatelessWidget {
   @override
@@ -27,12 +31,16 @@ class Toolbar extends StatelessWidget {
               onPressed: null,
             ),
             _iconButton(
-              icon: Icon(Icons.file_download),
-              onPressed: null,
+              icon: Icon(Icons.file_upload),
+              onPressed: () => _openDocument(),
             ),
             _iconButton(
-              icon: Icon(Icons.file_upload),
-              onPressed: null,
+              icon: Icon(Icons.file_download),
+              onPressed: () => _saveDocument(document),
+            ),
+            _iconButton(
+              icon: Icon(Icons.arrow_forward),
+              onPressed: () => _exportAst(document),
             ),
             _separator(),
             _iconButton(
@@ -57,23 +65,46 @@ class Toolbar extends StatelessWidget {
             _separator(),
             _iconButton(
               icon: Icon(Icons.filter_center_focus),
-              onPressed: () {
-                editorState.resetCanvasOffset();
-              },
+              onPressed: () => editorState.resetCanvasOffset(),
             ),
             _iconButton(
               icon: Icon(Icons.developer_board),
-              onPressed: () {
-                final root = document.root;
-                editorState.resetCanvasOffset();
-                final pos = root.position + Offset(-80, -200);
-                editorState.moveCanvas(-pos);
-              },
+              onPressed: () => _jumpToRoot(document, editorState),
             ),
           ],
         ),
       );
     });
+  }
+
+  void _openDocument() {
+    // TODO: Pick open path
+    final path = 'todo.mand';
+    final doc = DocReader(path).read();
+    print('$doc read from disk');
+    // TODO: load as current project/document
+  }
+
+  void _saveDocument(Document document) {
+    // TODO: Pick save path
+    final path = 'todo.mand';
+    DocWriter(document, path).write();
+  }
+
+  void _exportAst(Document document) {
+    if (kIsWeb) {
+    } else {}
+
+    // TODO: Pick save path
+    final path = 'todo.bin';
+    AstWriter(document, path).write();
+  }
+
+  void _jumpToRoot(Document document, EditorState editorState) {
+    final root = document.root;
+    editorState.resetCanvasOffset();
+    final pos = root.position + Offset(-80, -200);
+    editorState.moveCanvas(-pos);
   }
 
   Widget _iconButton({Widget icon, Function onPressed}) {
