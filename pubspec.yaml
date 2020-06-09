@@ -19,6 +19,12 @@ dependencies:
   string_validator: ^0.1.4
   uuid: ^2.0.4
 
+  file_chooser:
+    git:
+      url: git://github.com/google/flutter-desktop-embedding.git
+      path: plugins/file_chooser
+      ref: 64ce78da00a050f5eebfad0de5f0adf491ae5a98
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:file_chooser/file_chooser.dart';
 
 import 'models/document.dart';
 import 'models/editor_state.dart';
@@ -91,13 +92,21 @@ class Toolbar extends StatelessWidget {
     DocWriter(document, path).write();
   }
 
-  void _exportAst(Document document) {
+  void _exportAst(Document document) async {
+    String path;
     if (kIsWeb) {
-    } else {}
+      // TODO: handle web export
+      path = 'ast.bin';
+    } else {
+      final result = await showSavePanel(suggestedFileName: 'ast.bin');
+      if (!result.canceled) {
+        path = result.paths.first;
+      }
+    }
 
-    // TODO: Pick save path
-    final path = 'todo.bin';
-    AstWriter(document, path).write();
+    if (path != null) {
+      await AstWriter(document, path).write();
+    }
   }
 
   void _jumpToRoot(Document document, EditorState editorState) {
