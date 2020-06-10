@@ -36,7 +36,7 @@ class Toolbar extends StatelessWidget {
               onPressed: () => _openDocument(),
             ),
             _iconButton(
-              icon: Icon(Icons.file_download),
+              icon: Icon(Icons.save),
               onPressed: () => _saveDocument(document),
             ),
             _iconButton(
@@ -78,18 +78,44 @@ class Toolbar extends StatelessWidget {
     });
   }
 
-  void _openDocument() {
-    // TODO: Pick open path
-    final path = 'todo.mand';
-    final doc = DocReader(path).read();
+  void _openDocument() async {
+    String path;
+    if (kIsWeb) {
+      // TODO: handle web export
+      path = 'todo.json';
+    } else {
+      final result = await showOpenPanel(
+        allowedFileTypes: [
+          FileTypeFilterGroup(fileExtensions: ['json'], label: 'JSON')
+        ],
+        allowsMultipleSelection: false,
+        canSelectDirectories: false,
+      );
+      if (!result.canceled) {
+        path = result.paths.first;
+      }
+    }
+    final doc = await DocReader(path).read();
+    // TODO: check success, reload current project
     print('$doc read from disk');
-    // TODO: load as current project/document
   }
 
-  void _saveDocument(Document document) {
-    // TODO: Pick save path
-    final path = 'todo.mand';
-    DocWriter(document, path).write();
+  void _saveDocument(Document document) async {
+    String path;
+    if (kIsWeb) {
+      // TODO: handle web export
+      path = document.fileName;
+    } else {
+      final result = await showSavePanel(
+        suggestedFileName: document.fileName,
+      );
+      if (!result.canceled) {
+        path = result.paths.first;
+      }
+    }
+    if (path != null) {
+      await DocWriter(document, path).write();
+    }
   }
 
   void _exportAst(Document document) async {
@@ -98,7 +124,9 @@ class Toolbar extends StatelessWidget {
       // TODO: handle web export
       path = 'ast.bin';
     } else {
-      final result = await showSavePanel(suggestedFileName: 'ast.bin');
+      final result = await showSavePanel(
+        suggestedFileName: 'ast.bin',
+      );
       if (!result.canceled) {
         path = result.paths.first;
       }

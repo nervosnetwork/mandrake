@@ -1,8 +1,7 @@
-import '../models/document.dart';
-
-import '../experimental/ast_example.dart';
-
 import 'web.dart' if (dart.library.io) 'desktop.dart';
+
+import '../models/document.dart';
+import '../experimental/ast_example.dart';
 
 class AstWriter {
   AstWriter(this._doc, this._path);

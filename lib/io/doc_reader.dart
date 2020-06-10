@@ -1,12 +1,19 @@
+import 'web.dart' if (dart.library.io) 'desktop.dart';
+import 'dart:convert';
+
 import '../models/document.dart';
 
 class DocReader {
   DocReader(this._path);
   final String _path;
 
-  Document read() {
-    print('read from $_path');
-    return Document();
-    // TODO: implement document/project file reading
+  Future<Document> read() async {
+    try {
+      final content = await readFileAsString(_path);
+      final json = jsonDecode(content);
+      return Document.fromJson(json);
+    } catch (e) {
+      return null;
+    }
   }
 }

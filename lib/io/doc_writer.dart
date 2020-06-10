@@ -1,3 +1,6 @@
+import 'web.dart' if (dart.library.io) 'desktop.dart';
+import 'dart:convert';
+
 import '../models/document.dart';
 
 class DocWriter {
@@ -5,9 +8,7 @@ class DocWriter {
   final Document _doc;
   final String _path;
 
-  bool write() {
-    // TODO: implement document/project persistence
-    print('write $_doc to $_path');
-    return false;
+  Future<void> write() async {
+    await writeFileAsString(_path, jsonEncode(_doc));
   }
 }

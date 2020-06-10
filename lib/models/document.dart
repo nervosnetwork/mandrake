@@ -9,9 +9,25 @@ class Document extends ChangeNotifier {
   final List<Node> _topLevelNodes = []; // Reference to top level nodes only
   final List<Node> _allNodes = [];
   final List<Link> _links = [];
+  String _fileName = '';
 
   UnmodifiableListView<Node> get nodes => UnmodifiableListView(_allNodes);
   UnmodifiableListView<Link> get links => UnmodifiableListView(_links);
+  String get fileName {
+    var name = 'Untitled';
+    if (_fileName.isNotEmpty) {
+      name = _fileName;
+    } else if (root.name.isNotEmpty) {
+      name = root.name;
+    }
+
+    if (name.endsWith(fileExtension)) {
+      return name;
+    }
+    return '$name$fileExtension';
+  }
+
+  String get fileExtension => '.json';
 
   RootNode get root => _allNodes.firstWhere((n) => n is RootNode);
 
@@ -25,6 +41,25 @@ class Document extends ChangeNotifier {
     root.addChild(callResult, root.addCallSlot('call result').id);
 
     addNode(root);
+  }
+
+  Document.fromJson(Map<String, dynamic> json) {
+    setFileName('read from disk');
+    // TODO
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'file': fileName,
+      // TODO
+    };
+  }
+
+  void setFileName(String name) {
+    _fileName = name;
+    if (!_fileName.endsWith(fileExtension)) {
+      _fileName += fileExtension;
+    }
   }
 
   void addNode(Node node, {Node parent}) {
