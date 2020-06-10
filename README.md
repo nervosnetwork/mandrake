@@ -29,3 +29,13 @@ flutter config --enable-macos-desktop
 ```
 
 Refer to [Desktop support for Flutter](https://flutter.dev/desktop) for more information.
+
+## Generate JSON serialization code
+
+Several mode classes use [json_serializable](https://pub.dev/packages/json_serializable) to generate code. To re-generate, run:
+
+```shell
+flutter pub run build_runner build
+```
+
+Generated code files are named after `file`.g.dart, where `file` is the normal model file name.
