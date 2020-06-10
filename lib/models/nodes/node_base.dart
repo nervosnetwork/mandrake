@@ -6,6 +6,9 @@ import 'package:json_annotation/json_annotation.dart';
 
 import '../../utils/offset_json_converter.dart';
 
+export 'package:json_annotation/json_annotation.dart';
+export '../../utils/offset_json_converter.dart';
+
 part 'node_base.g.dart';
 
 /// Base class for [Node], which describes an object representing part of
@@ -23,7 +26,12 @@ class Node with ChangeNotifier {
         assert(position != null);
 
   factory Node.fromJson(Map<String, dynamic> json) => _$NodeFromJson(json);
-  Map<String, dynamic> toJson() => _$NodeToJson(this);
+  Map<String, dynamic> toJson() => toTypedJson(_$NodeToJson(this));
+
+  Map<String, dynamic> toTypedJson(Map<String, dynamic> json) {
+    json['node_type'] = runtimeType.toString();
+    return json;
+  }
 
   String _id;
   String _name;

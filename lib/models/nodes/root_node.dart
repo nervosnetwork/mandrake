@@ -3,9 +3,16 @@ import 'dart:ui' show Offset, Size, Rect;
 
 import 'node_base.dart';
 
+part 'root_node.g.dart';
+
 /// AST Root.
+@JsonSerializable()
 class RootNode extends Node {
   RootNode() : super(name: 'Root Node', position: Offset(80, 200));
+
+  factory RootNode.fromJson(Map<String, dynamic> json) => _$RootNodeFromJson(json);
+  @override
+  Map<String, dynamic> toJson() => toTypedJson(_$RootNodeToJson(this));
 
   final List<ChildSlot> _callSlots = [];
   final List<ChildSlot> _streamSlots = [];
