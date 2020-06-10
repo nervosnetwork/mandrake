@@ -6,27 +6,9 @@ part of 'node_base.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-NodeBase _$NodeBaseFromJson(Map<String, dynamic> json) {
-  return NodeBase(
-    json['name'] as String,
-    OffsetJsonConverter.offsetFromJson(
-        json['position'] as Map<String, dynamic>),
-    json['minimum_slot_count'] as int,
-    json['maximum_slot_count'] as int,
-  )..id = json['id'] as String;
-}
-
-Map<String, dynamic> _$NodeBaseToJson(NodeBase instance) => <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'position': OffsetJsonConverter.offsetToJson(instance.position),
-      'minimum_slot_count': instance.minimumSlotCount,
-      'maximum_slot_count': instance.maximumSlotCount,
-    };
-
 Node _$NodeFromJson(Map<String, dynamic> json) {
   return Node(
-    name: json['name'],
+    name: json['name'] as String,
     position: OffsetJsonConverter.offsetFromJson(
         json['position'] as Map<String, dynamic>),
     minimumSlotCount: json['minimum_slot_count'] as int,

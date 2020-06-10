@@ -11,15 +11,19 @@ part 'node_base.g.dart';
 /// Base class for [Node], which describes an object representing part of
 /// an AST tree, and its geometry information on a canvas.
 @JsonSerializable()
-class NodeBase with ChangeNotifier {
-  NodeBase(String name, Offset position, [this.minimumSlotCount = 0, this.maximumSlotCount = 5])
-      : _id = Uuid().v4(),
+class Node with ChangeNotifier {
+  Node({
+    String name = '',
+    Offset position = Offset.zero,
+    this.minimumSlotCount = 0,
+    this.maximumSlotCount = 5,
+  })  : _id = Uuid().v4(),
         _name = name,
         _position = position,
         assert(position != null);
 
-  factory NodeBase.fromJson(Map<String, dynamic> json) => _$NodeBaseFromJson(json);
-  Map<String, dynamic> toJson() => _$NodeBaseToJson(this);
+  factory Node.fromJson(Map<String, dynamic> json) => _$NodeFromJson(json);
+  Map<String, dynamic> toJson() => _$NodeToJson(this);
 
   String _id;
   String _name;
@@ -79,26 +83,6 @@ class NodeBase with ChangeNotifier {
 
   static const int maxAllowedSlotCount = 100; // Is this even big enough?
 
-  @override
-  bool operator ==(dynamic other) => other is NodeBase && other.id == id;
-
-  @override
-  int get hashCode => id.hashCode;
-}
-
-@JsonSerializable()
-class Node extends NodeBase {
-  Node({
-    name = 'Node',
-    position = Offset.zero,
-    int minimumSlotCount = 0,
-    int maximumSlotCount = 5,
-  }) : super(name, position, minimumSlotCount, maximumSlotCount);
-
-  factory Node.fromJson(Map<String, dynamic> json) => _$NodeFromJson(json);
-  @override
-  Map<String, dynamic> toJson() => _$NodeToJson(this);
-
   /// Full list as this node plus its children.
   UnmodifiableListView<Node> get nodes {
     final descendants =
@@ -109,6 +93,12 @@ class Node extends NodeBase {
   /// Assign a virtual slot to the add child button so that one can drag
   /// from the add child button to another node to connect.
   static final ChildSlot addChildSlot = ChildSlot();
+
+  @override
+  bool operator ==(dynamic other) => other is Node && other.id == id;
+
+  @override
+  int get hashCode => id.hashCode;
 
   ChildSlot addSlot(String name) {
     final slot = ChildSlot(name: name);

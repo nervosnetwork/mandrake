@@ -229,7 +229,7 @@ extension VelueTypeKind on ValueType {
     if (isTernaryOperator) {
       return 3;
     }
-    return NodeBase.maxAllowedSlotCount;
+    return Node.maxAllowedSlotCount;
   }
 
   static const List<ValueType> unaryOperatorValueTypes = [
