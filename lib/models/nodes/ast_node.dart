@@ -35,7 +35,7 @@ class AstNode extends Node {
     }
 
     if (name == valueType.uiName) {
-      setName(newValueType.uiName);
+      name = newValueType.uiName;
     }
     _valueType = newValueType;
 

@@ -2,21 +2,50 @@ import 'dart:collection';
 import 'dart:ui' show Offset, Size, Rect;
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+import '../../utils/offset_json_converter.dart';
+
+part 'node_base.g.dart';
 
 /// Base class for [Node], which describes an object representing part of
 /// an AST tree, and its geometry information on a canvas.
-abstract class NodeBase {
-  NodeBase(this._name, this._position, [this.minimumSlotCount = 0, this.maximumSlotCount = 5])
+@JsonSerializable()
+class NodeBase with ChangeNotifier {
+  NodeBase(String name, Offset position, [this.minimumSlotCount = 0, this.maximumSlotCount = 5])
       : _id = Uuid().v4(),
-        assert(_position != null);
+        _name = name,
+        _position = position,
+        assert(position != null);
+
+  factory NodeBase.fromJson(Map<String, dynamic> json) => _$NodeBaseFromJson(json);
+  Map<String, dynamic> toJson() => _$NodeBaseToJson(this);
 
   String _id;
   String _name;
   Offset _position;
 
   String get id => _id;
+  set id(String id) {
+    _id = id;
+    notifyListeners();
+  }
+
   String get name => _name;
+  set name(String name) {
+    _name = name;
+    notifyListeners();
+  }
+
+  @JsonKey(
+    fromJson: OffsetJsonConverter.offsetFromJson,
+    toJson: OffsetJsonConverter.offsetToJson,
+  )
   Offset get position => _position;
+  set position(Offset position) {
+    _position = position;
+    notifyListeners();
+  }
 
   Size get size {
     final height = titleHeight + subtitleHeight + slots.length * slotRowHeight + bottomPadding;
@@ -57,7 +86,8 @@ abstract class NodeBase {
   int get hashCode => id.hashCode;
 }
 
-class Node extends NodeBase with ChangeNotifier {
+@JsonSerializable()
+class Node extends NodeBase {
   Node({
     name = 'Node',
     position = Offset.zero,
@@ -65,27 +95,15 @@ class Node extends NodeBase with ChangeNotifier {
     int maximumSlotCount = 5,
   }) : super(name, position, minimumSlotCount, maximumSlotCount);
 
+  factory Node.fromJson(Map<String, dynamic> json) => _$NodeFromJson(json);
+  @override
+  Map<String, dynamic> toJson() => _$NodeToJson(this);
+
   /// Full list as this node plus its children.
   UnmodifiableListView<Node> get nodes {
     final descendants =
         children.map((e) => e.nodes).fold(<Node>[], (value, element) => value + element);
     return UnmodifiableListView([this] + descendants);
-  }
-
-  /// Not good, but easy to implement when converting node type on the fly.
-  void setId(String id) {
-    _id = id;
-    notifyListeners();
-  }
-
-  void setName(String name) {
-    _name = name;
-    notifyListeners();
-  }
-
-  void moveTo(Offset position) {
-    _position = position;
-    notifyListeners();
   }
 
   /// Assign a virtual slot to the add child button so that one can drag
@@ -245,8 +263,12 @@ class Node extends NodeBase with ChangeNotifier {
 
 /// A slot of a [Node] can either hold a reference to a child, or empty
 /// before connecting to child.
+@JsonSerializable()
 class ChildSlot {
   ChildSlot({this.name = '', this.childId});
+
+  factory ChildSlot.fromJson(Map<String, dynamic> json) => _$ChildSlotFromJson(json);
+  Map<String, dynamic> toJson() => _$ChildSlotToJson(this);
 
   final String id = Uuid().v4();
   String name;

@@ -7,7 +7,7 @@ import '../../nodes/primitive_node.dart';
 
 AstNode convertMapCapacities(PrefabNode node) {
   final mapCapacities = AstNode(valueType: ValueType.map, position: node.position);
-  mapCapacities.setName('capacities');
+  mapCapacities.name = 'capacities';
 
   final getCapacity = GetOpNode(
     valueType: ValueType.getCapacity,
@@ -19,7 +19,7 @@ AstNode convertMapCapacities(PrefabNode node) {
     valueType: ValueType.arg,
     position: standByMe(getCapacity, 1, 0),
   );
-  arg0.setName('arg0');
+  arg0.name = 'arg0';
   getCapacity.addChild(arg0, getCapacity.slots.first.id);
 
   final cells = PrefabNode(

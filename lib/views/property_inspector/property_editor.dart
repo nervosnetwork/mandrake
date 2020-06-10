@@ -82,7 +82,7 @@ class BasicInfoProperty extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: PropertyEditorTextFieldDecoration(),
                 onFieldSubmitted: (v) {
-                  node.setName(v); // TODO: simple validation
+                  node.name = v;
                 },
               ),
             ),

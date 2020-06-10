@@ -8,7 +8,7 @@ import '../../nodes/primitive_node.dart';
 
 AstNode convertQueryCells(PrefabNode node) {
   final queryCells = AstNode(valueType: ValueType.queryCells, position: node.position);
-  queryCells.setName('cells');
+  queryCells.name = 'cells';
 
   final queryTest = AstNode(valueType: ValueType.and, position: standByMe(queryCells, 1, 0));
   queryCells.addChild(queryTest, queryCells.addSlot('and').id);
@@ -17,7 +17,7 @@ AstNode convertQueryCells(PrefabNode node) {
     valueType: ValueType.equal,
     position: standByMe(queryTest, 3, 0),
   );
-  codeHash.setName('code hash');
+  codeHash.name = 'code hash';
   queryTest.addChild(codeHash, queryTest.addSlot('code hash').id);
 
   final codeHashValue = PrimitiveNode(
@@ -36,12 +36,12 @@ AstNode convertQueryCells(PrefabNode node) {
     valueType: ValueType.getLock,
     position: standByMe(getCodeHash, 1, 0),
   );
-  lock.setName('script lock');
+  lock.name = 'script lock';
   final arg0 = PrimitiveNode(
     valueType: ValueType.arg,
     position: standByMe(lock, 1, 0),
   );
-  arg0.setName('arg0 as cell');
+  arg0.name = 'arg0 as cell';
   lock.addChild(arg0, lock.slots.first.id);
 
   getCodeHash.addChild(lock, getCodeHash.slots.first.id);
@@ -50,7 +50,7 @@ AstNode convertQueryCells(PrefabNode node) {
     valueType: ValueType.equal,
     position: standByMe(queryTest, 3, 1),
   );
-  hashType.setName('hash type');
+  hashType.name = 'hash type';
   queryTest.addChild(hashType, queryTest.addSlot('hash type').id);
   final hashTypeValue = PrimitiveNode(
     valueType: ValueType.uint64,
@@ -69,7 +69,7 @@ AstNode convertQueryCells(PrefabNode node) {
     valueType: ValueType.equal,
     position: standByMe(queryTest, 3, 2),
   );
-  args.setName('args');
+  args.name = 'args';
   queryTest.addChild(args, queryTest.addSlot('args').id);
   final getArgs = GetOpNode(
     valueType: ValueType.getArgs,
@@ -81,7 +81,7 @@ AstNode convertQueryCells(PrefabNode node) {
     valueType: ValueType.param,
     position: standByMe(args, 3, 3),
   );
-  param0.setName('param0');
+  param0.name = 'param0';
   args.addChild(param0, args.slots.last.id);
 
   return queryCells;
