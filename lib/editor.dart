@@ -22,7 +22,7 @@ class Editor extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<Document>(create: (_) {
-          return Document();
+          return Document.template();
         }),
         ChangeNotifierProvider<Selection>(create: (_) => Selection()),
         ChangeNotifierProvider<EditorState>(create: (_) => EditorState()),

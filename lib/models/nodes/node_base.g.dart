@@ -9,7 +9,8 @@ part of 'node_base.dart';
 NodeBase _$NodeBaseFromJson(Map<String, dynamic> json) {
   return NodeBase(
     json['name'] as String,
-    OffsetJsonConverter.offsetFromJson(json['position'] as String),
+    OffsetJsonConverter.offsetFromJson(
+        json['position'] as Map<String, dynamic>),
     json['minimum_slot_count'] as int,
     json['maximum_slot_count'] as int,
   )..id = json['id'] as String;
@@ -26,7 +27,8 @@ Map<String, dynamic> _$NodeBaseToJson(NodeBase instance) => <String, dynamic>{
 Node _$NodeFromJson(Map<String, dynamic> json) {
   return Node(
     name: json['name'],
-    position: OffsetJsonConverter.offsetFromJson(json['position'] as String),
+    position: OffsetJsonConverter.offsetFromJson(
+        json['position'] as Map<String, dynamic>),
     minimumSlotCount: json['minimum_slot_count'] as int,
     maximumSlotCount: json['maximum_slot_count'] as int,
   )..id = json['id'] as String;

@@ -10,7 +10,7 @@ part 'document.g.dart';
 
 @JsonSerializable()
 class Document extends ChangeNotifier {
-  final List<Node> topLevelNodes = []; // Reference to top level nodes only
+  final List<Node> topLevelNodes; // Reference to top level nodes only
   final List<Node> _allNodes = [];
   final List<Link> _links = [];
 
@@ -44,7 +44,10 @@ class Document extends ChangeNotifier {
 
   RootNode get root => _allNodes.firstWhere((n) => n is RootNode);
 
-  Document() {
+  Document({this.topLevelNodes});
+
+  factory Document.template() {
+    final doc = Document(topLevelNodes: []);
     final root = RootNode();
     final callResult = NodeCreator.create(
       NodeTemplate(ValueType.uint64),
@@ -52,8 +55,9 @@ class Document extends ChangeNotifier {
     );
     callResult.name = 'Call Result';
     root.addChild(callResult, root.addCallSlot('call result').id);
+    doc.addNode(root);
 
-    addNode(root);
+    return doc;
   }
 
   factory Document.fromJson(Map<String, dynamic> json) => _$DocumentFromJson(json);

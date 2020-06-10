@@ -7,9 +7,15 @@ part of 'document.dart';
 // **************************************************************************
 
 Document _$DocumentFromJson(Map<String, dynamic> json) {
-  return Document()..fileName = json['file_name'] as String;
+  return Document(
+    topLevelNodes: (json['top_level_nodes'] as List)
+        ?.map(
+            (e) => e == null ? null : Node.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+  )..fileName = json['file_name'] as String;
 }
 
 Map<String, dynamic> _$DocumentToJson(Document instance) => <String, dynamic>{
+      'top_level_nodes': instance.topLevelNodes,
       'file_name': instance.fileName,
     };

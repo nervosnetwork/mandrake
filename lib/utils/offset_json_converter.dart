@@ -1,11 +1,12 @@
 import 'dart:ui' show Offset;
-import 'dart:convert';
 
 class OffsetJsonConverter {
-  static Offset offsetFromJson(String json) {
-    Map<String, dynamic> offset = jsonDecode(json);
-    return Offset(offset['dx'] as double, offset['dy'] as double);
+  static Offset offsetFromJson(Map<String, dynamic> json) {
+    return Offset(json['dx'] as double, json['dy'] as double);
   }
 
-  static String offsetToJson(Offset offset) => '{"dx":${offset.dx}, "dy":${offset.dy}}';
+  static Map<String, dynamic> offsetToJson(Offset offset) => {
+        'dx': offset.dx,
+        'dy': offset.dy,
+      };
 }

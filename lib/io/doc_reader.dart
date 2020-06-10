@@ -13,6 +13,7 @@ class DocReader {
       final json = jsonDecode(content);
       return Document.fromJson(json);
     } catch (e) {
+      print('Read and parse document error: $e');
       return null;
     }
   }
