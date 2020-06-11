@@ -4,6 +4,7 @@ import '../value_type.dart';
 import 'node_base.dart';
 
 export '../value_type.dart';
+export 'node_base.dart';
 
 part 'ast_node.g.dart';
 

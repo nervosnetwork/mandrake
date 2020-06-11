@@ -4,6 +4,9 @@ import 'package:basic_utils/basic_utils.dart';
 
 import 'ast_node.dart';
 
+part 'primitive_node.g.dart';
+
+@JsonSerializable()
 class PrimitiveNode extends AstNode {
   PrimitiveNode({ValueType valueType, Offset position})
       : super(valueType: valueType, position: position) {
@@ -20,7 +23,16 @@ class PrimitiveNode extends AstNode {
     }
   }
 
+  factory PrimitiveNode.fromJson(Map<String, dynamic> json) => _$PrimitiveNodeFromJson(json);
+  @override
+  Map<String, dynamic> toJson() => toTypedJson(_$PrimitiveNodeToJson(this));
+
   String _value = '';
+  String get value => _value;
+  set value(String v) {
+    _value = normalize(v);
+    notifyListeners();
+  }
 
   double get bodyWidth {
     if (valueType == ValueType.bytes || valueType == ValueType.error) {
@@ -44,7 +56,6 @@ class PrimitiveNode extends AstNode {
     );
   }
 
-  String get value => _value;
   bool get editableAsText {
     return [ValueType.bytes, ValueType.error, ValueType.uint64, ValueType.arg, ValueType.param]
         .contains(valueType);
@@ -55,11 +66,6 @@ class PrimitiveNode extends AstNode {
       return 4;
     }
     return 1;
-  }
-
-  void setValue(String v) {
-    _value = normalize(v);
-    notifyListeners();
   }
 
   String normalize(String v) {

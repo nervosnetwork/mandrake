@@ -34,7 +34,7 @@ AstNode convertGetBalance(PrefabNode node) {
     position: standByMe(balance, 3, 1),
   );
   current.name = 'current';
-  current.setValue('0');
+  current.value = '0';
   balance.addChild(current, balance.addSlot('current').id);
 
   final capacities = PrefabNode(

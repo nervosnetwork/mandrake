@@ -48,7 +48,7 @@ class PrimitiveNodeView extends AstNodeView {
       return DropdownButton(
         isDense: true,
         onChanged: (value) {
-          node.setValue(value);
+          node.value = value;
         },
         value: node.value,
         items: [
@@ -75,7 +75,7 @@ class PrimitiveNodeView extends AstNodeView {
           decoration: textFieldDecoration,
           onFieldSubmitted: (v) {
             FocusHelper.unfocus(context);
-            node.setValue(v);
+            node.value = v;
           },
           maxLines: maxLines,
           textInputAction: TextInputAction.next,

@@ -5,9 +5,16 @@ import 'prefabs/query_cells.dart';
 import 'prefabs/map_capacities.dart';
 import 'prefabs/get_balance.dart';
 
+part 'prefab_node.g.dart';
+
+@JsonSerializable()
 class PrefabNode extends AstNode {
   PrefabNode({ValueType valueType, Offset position})
       : super(valueType: valueType, position: position);
+
+  factory PrefabNode.fromJson(Map<String, dynamic> json) => _$PrefabNodeFromJson(json);
+  @override
+  Map<String, dynamic> toJson() => toTypedJson(_$PrefabNodeToJson(this));
 
   double get bodyHeight => 100;
 
