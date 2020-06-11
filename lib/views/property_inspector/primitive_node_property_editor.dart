@@ -70,7 +70,7 @@ class PrimitiveNodePropertyEditor extends StatelessWidget {
       return DropdownButton(
         isDense: true,
         onChanged: (value) {
-          node.setValue(value);
+          node.value = value;
         },
         value: node.value,
         items: [
@@ -98,7 +98,7 @@ class PrimitiveNodePropertyEditor extends StatelessWidget {
               decoration: PropertyEditorTextFieldDecoration(),
               onFieldSubmitted: (v) {
                 FocusHelper.unfocus(context);
-                node.setValue(v);
+                node.value = v;
               },
               maxLines: node.allowedEditLines,
               textInputAction: TextInputAction.next,

@@ -27,7 +27,7 @@ class AstNodeInfoProperty extends StatelessWidget {
               isDense: true,
               style: Theme.of(context).textTheme.subtitle1.copyWith(fontSize: 13),
               onChanged: (value) {
-                node.setValueType(value);
+                node.valueType = value;
               },
               value: node.valueType,
               items: node.exchangeableValueTypes.map((t) {

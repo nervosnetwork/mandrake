@@ -2,11 +2,18 @@ import 'dart:ui' show Offset;
 
 import 'ast_node.dart';
 
+part 'op_node.g.dart';
+
+@JsonSerializable()
 class OperationNode extends AstNode {
   OperationNode({ValueType valueType, Offset position})
       : super(valueType: valueType, position: position) {
     _addSlots();
   }
+
+  factory OperationNode.fromJson(Map<String, dynamic> json) => _$OperationNodeFromJson(json);
+  @override
+  Map<String, dynamic> toJson() => toTypedJson(_$OperationNodeToJson(this));
 
   @override
   List<ValueType> get exchangeableValueTypes {

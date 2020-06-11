@@ -3,14 +3,30 @@ import 'dart:ui' show Offset, Size, Rect;
 
 import 'node_base.dart';
 
+part 'root_node.g.dart';
+
 /// AST Root.
+@JsonSerializable()
 class RootNode extends Node {
   RootNode() : super(name: 'Root Node', position: Offset(80, 200));
 
+  factory RootNode.fromJson(Map<String, dynamic> json) => _$RootNodeFromJson(json);
+  @override
+  Map<String, dynamic> toJson() => toTypedJson(_$RootNodeToJson(this));
+
   final List<ChildSlot> _callSlots = [];
+  List<ChildSlot> get callSlots => UnmodifiableListView(_callSlots);
+  set callSlots(List<ChildSlot> value) {
+    _callSlots.clear();
+    _callSlots.addAll(value);
+  }
+
   final List<ChildSlot> _streamSlots = [];
-  UnmodifiableListView<ChildSlot> get callSlots => UnmodifiableListView(_callSlots);
-  UnmodifiableListView<ChildSlot> get streamSlots => UnmodifiableListView(_streamSlots);
+  List<ChildSlot> get streamSlots => UnmodifiableListView(_streamSlots);
+  set streamSlots(List<ChildSlot> value) {
+    _streamSlots.clear();
+    _streamSlots.addAll(value);
+  }
 
   /// Child slots binding to 'add call' and 'add stream' buttons to allow
   /// recognizing them as connectors and dragging connecting link from them.

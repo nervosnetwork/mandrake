@@ -1,9 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:file_chooser/file_chooser.dart';
 
 import 'models/document.dart';
 import 'models/selection.dart';
 import 'models/editor_state.dart';
+
+import 'io/doc_reader.dart';
+import 'io/doc_writer.dart';
+import 'io/ast_writer.dart';
 
 import 'toolbar.dart';
 import 'object_library.dart';
@@ -16,16 +22,106 @@ import 'views/editor/edges_layer.dart';
 import 'views/editor/nodes_layer.dart';
 import 'views/editor/pointer_layer.dart';
 
-class Editor extends StatelessWidget {
+class Editor extends StatefulWidget {
+  @override
+  _EditorState createState() => _EditorState();
+}
+
+class _EditorState extends State<Editor> {
+  Document _doc;
+  Selection _selection;
+  EditorState _editorState;
+
+  void _newDocument() {
+    // TODO: prompt to save current doc if it's modified but not saved
+    setState(() {
+      _doc = Document.template();
+      _selection = Selection();
+      _editorState = EditorState();
+    });
+  }
+
+  void _openDocument() async {
+    String path;
+    if (kIsWeb) {
+      // TODO: handle web export
+      path = 'todo.json';
+    } else {
+      final result = await showOpenPanel(
+        allowedFileTypes: [
+          FileTypeFilterGroup(fileExtensions: ['json'], label: 'JSON')
+        ],
+        allowsMultipleSelection: false,
+        canSelectDirectories: false,
+      );
+      if (!result.canceled) {
+        path = result.paths.first;
+      }
+    }
+
+    final doc = await DocReader(path).read();
+    if (doc != null) {
+      setState(() {
+        _doc = doc;
+        _doc.rebuild();
+        _selection = Selection();
+        _editorState = EditorState();
+      });
+    }
+  }
+
+  void _saveDocument() async {
+    String path;
+    if (kIsWeb) {
+      // TODO: handle web export
+      path = _doc.fileName;
+    } else {
+      final result = await showSavePanel(
+        suggestedFileName: _doc.fileName,
+      );
+      if (!result.canceled) {
+        path = result.paths.first;
+      }
+    }
+    if (path != null) {
+      await DocWriter(_doc, path).write();
+    }
+  }
+
+  void _exportAst() async {
+    String path;
+    if (kIsWeb) {
+      // TODO: handle web export
+      path = 'ast.bin';
+    } else {
+      final result = await showSavePanel(
+        suggestedFileName: 'ast.bin',
+      );
+      if (!result.canceled) {
+        path = result.paths.first;
+      }
+    }
+
+    if (path != null) {
+      await AstWriter(_doc, path).write();
+    }
+  }
+
+  @override
+  void initState() {
+    _doc = Document.template();
+    _selection = Selection();
+    _editorState = EditorState();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<Document>(create: (_) {
-          return Document();
-        }),
-        ChangeNotifierProvider<Selection>(create: (_) => Selection()),
-        ChangeNotifierProvider<EditorState>(create: (_) => EditorState()),
+        ChangeNotifierProvider<Document>.value(value: _doc),
+        ChangeNotifierProvider<Selection>.value(value: _selection),
+        ChangeNotifierProvider<EditorState>.value(value: _editorState),
       ],
       child: Stack(
         children: [
@@ -69,7 +165,12 @@ class Editor extends StatelessWidget {
             left: 0,
             right: 0,
             height: EditorDimensions.toolbarHeight,
-            child: Toolbar(),
+            child: Toolbar(
+              onNewDocument: _newDocument,
+              onOpenDocument: _openDocument,
+              onSaveDocument: _saveDocument,
+              onExportAst: _exportAst,
+            ),
           ),
         ],
       ),

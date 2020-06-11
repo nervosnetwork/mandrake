@@ -5,6 +5,12 @@ import 'models/document.dart';
 import 'models/editor_state.dart';
 
 class Toolbar extends StatelessWidget {
+  Toolbar({this.onOpenDocument, this.onNewDocument, this.onSaveDocument, this.onExportAst});
+  final Function onNewDocument;
+  final Function onOpenDocument;
+  final Function onSaveDocument;
+  final Function onExportAst;
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<Document, EditorState>(builder: (context, document, editorState, child) {
@@ -24,15 +30,19 @@ class Toolbar extends StatelessWidget {
             SizedBox(width: 20),
             _iconButton(
               icon: Icon(Icons.note_add),
-              onPressed: null,
-            ),
-            _iconButton(
-              icon: Icon(Icons.file_download),
-              onPressed: null,
+              onPressed: () => onNewDocument(),
             ),
             _iconButton(
               icon: Icon(Icons.file_upload),
-              onPressed: null,
+              onPressed: () => onOpenDocument(),
+            ),
+            _iconButton(
+              icon: Icon(Icons.save),
+              onPressed: () => onSaveDocument(),
+            ),
+            _iconButton(
+              icon: Icon(Icons.arrow_forward),
+              onPressed: () => onExportAst(),
             ),
             _separator(),
             _iconButton(
@@ -57,23 +67,23 @@ class Toolbar extends StatelessWidget {
             _separator(),
             _iconButton(
               icon: Icon(Icons.filter_center_focus),
-              onPressed: () {
-                editorState.resetCanvasOffset();
-              },
+              onPressed: () => editorState.resetCanvasOffset(),
             ),
             _iconButton(
               icon: Icon(Icons.developer_board),
-              onPressed: () {
-                final root = document.root;
-                editorState.resetCanvasOffset();
-                final pos = root.position + Offset(-80, -200);
-                editorState.moveCanvas(-pos);
-              },
+              onPressed: () => _jumpToRoot(document, editorState),
             ),
           ],
         ),
       );
     });
+  }
+
+  void _jumpToRoot(Document document, EditorState editorState) {
+    final root = document.root;
+    editorState.resetCanvasOffset();
+    final pos = root.position + Offset(-80, -200);
+    editorState.moveCanvas(-pos);
   }
 
   Widget _iconButton({Widget icon, Function onPressed}) {

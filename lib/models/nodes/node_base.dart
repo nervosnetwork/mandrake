@@ -2,21 +2,68 @@ import 'dart:collection';
 import 'dart:ui' show Offset, Size, Rect;
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+import '../../utils/offset_json_converter.dart';
+import '../node.dart' show NodeDeserializer; // Is circular import a problem?
+
+export 'package:json_annotation/json_annotation.dart';
+export '../../utils/offset_json_converter.dart';
+
+part 'node_base.g.dart';
 
 /// Base class for [Node], which describes an object representing part of
 /// an AST tree, and its geometry information on a canvas.
-abstract class NodeBase {
-  NodeBase(this._name, this._position, [this.minimumSlotCount = 0, this.maximumSlotCount = 5])
-      : _id = Uuid().v4(),
-        assert(_position != null);
+@JsonSerializable()
+class Node with ChangeNotifier {
+  Node({
+    String name = '',
+    Offset position = Offset.zero,
+    this.minimumSlotCount = 0,
+    this.maximumSlotCount = 5,
+  })  : _id = Uuid().v4(),
+        _name = name,
+        _position = position,
+        assert(position != null);
+
+  factory Node.fromJson(Map<String, dynamic> json) {
+    if (json['node_type'] == 'Node') {
+      return _$NodeFromJson(json);
+    }
+    return NodeDeserializer.fromJson(json);
+  }
+  Map<String, dynamic> toJson() => toTypedJson(_$NodeToJson(this));
+
+  Map<String, dynamic> toTypedJson(Map<String, dynamic> json) {
+    json['node_type'] = runtimeType.toString();
+    return json;
+  }
 
   String _id;
   String _name;
   Offset _position;
 
   String get id => _id;
+  set id(String id) {
+    _id = id;
+    notifyListeners();
+  }
+
   String get name => _name;
+  set name(String name) {
+    _name = name;
+    notifyListeners();
+  }
+
+  @JsonKey(
+    fromJson: OffsetJsonConverter.offsetFromJson,
+    toJson: OffsetJsonConverter.offsetToJson,
+  )
   Offset get position => _position;
+  set position(Offset position) {
+    _position = position;
+    notifyListeners();
+  }
 
   Size get size {
     final height = titleHeight + subtitleHeight + slots.length * slotRowHeight + bottomPadding;
@@ -27,10 +74,19 @@ abstract class NodeBase {
   }
 
   final List<Node> _children = [];
-  UnmodifiableListView<Node> get children => UnmodifiableListView(_children);
+  List<Node> get children => UnmodifiableListView(_children);
+  // This set method merely exists to make JSON serialization easy. Same for `set slots`.
+  set children(List<Node> value) {
+    _children.clear();
+    _children.addAll(value);
+  }
 
   final List<ChildSlot> _slots = [];
-  UnmodifiableListView<ChildSlot> get slots => UnmodifiableListView(_slots);
+  List<ChildSlot> get slots => UnmodifiableListView(_slots);
+  set slots(List<ChildSlot> value) {
+    _slots.clear();
+    _slots.addAll(value);
+  }
 
   /// Number of child slots the node must keep. Subclass of a specified node
   /// should overide [minmimSlotCount] and/or [maximumSlotCount] to limit
@@ -50,21 +106,6 @@ abstract class NodeBase {
 
   static const int maxAllowedSlotCount = 100; // Is this even big enough?
 
-  @override
-  bool operator ==(dynamic other) => other is NodeBase && other.id == id;
-
-  @override
-  int get hashCode => id.hashCode;
-}
-
-class Node extends NodeBase with ChangeNotifier {
-  Node({
-    name = 'Node',
-    position = Offset.zero,
-    int minimumSlotCount = 0,
-    int maximumSlotCount = 5,
-  }) : super(name, position, minimumSlotCount, maximumSlotCount);
-
   /// Full list as this node plus its children.
   UnmodifiableListView<Node> get nodes {
     final descendants =
@@ -72,25 +113,15 @@ class Node extends NodeBase with ChangeNotifier {
     return UnmodifiableListView([this] + descendants);
   }
 
-  /// Not good, but easy to implement when converting node type on the fly.
-  void setId(String id) {
-    _id = id;
-    notifyListeners();
-  }
-
-  void setName(String name) {
-    _name = name;
-    notifyListeners();
-  }
-
-  void moveTo(Offset position) {
-    _position = position;
-    notifyListeners();
-  }
-
   /// Assign a virtual slot to the add child button so that one can drag
   /// from the add child button to another node to connect.
   static final ChildSlot addChildSlot = ChildSlot();
+
+  @override
+  bool operator ==(dynamic other) => other is Node && other.id == id;
+
+  @override
+  int get hashCode => id.hashCode;
 
   ChildSlot addSlot(String name) {
     final slot = ChildSlot(name: name);
@@ -245,8 +276,12 @@ class Node extends NodeBase with ChangeNotifier {
 
 /// A slot of a [Node] can either hold a reference to a child, or empty
 /// before connecting to child.
+@JsonSerializable()
 class ChildSlot {
   ChildSlot({this.name = '', this.childId});
+
+  factory ChildSlot.fromJson(Map<String, dynamic> json) => _$ChildSlotFromJson(json);
+  Map<String, dynamic> toJson() => _$ChildSlotToJson(this);
 
   final String id = Uuid().v4();
   String name;
