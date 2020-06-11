@@ -5,6 +5,9 @@ import 'node_base.dart';
 
 export '../value_type.dart';
 
+part 'ast_node.g.dart';
+
+@JsonSerializable()
 class AstNode extends Node {
   AstNode({
     ValueType valueType,
@@ -17,16 +20,13 @@ class AstNode extends Node {
           maximumSlotCount: valueType.maximumSlotCount,
         );
 
+  factory AstNode.fromJson(Map<String, dynamic> json) => _$AstNodeFromJson(json);
+  @override
+  Map<String, dynamic> toJson() => toTypedJson(_$AstNodeToJson(this));
+
   ValueType _valueType;
   ValueType get valueType => _valueType;
-
-  /// Value Types this node can be changed to.
-  List<ValueType> get exchangeableValueTypes {
-    final templates = NodeTemplate.grouped[NT(valueType).group];
-    return templates.map<ValueType>((e) => e.valueType).toList();
-  }
-
-  void setValueType(ValueType newValueType) {
+  set valueType(ValueType newValueType) {
     if (!exchangeableValueTypes.contains(newValueType)) {
       return;
     }
@@ -41,6 +41,12 @@ class AstNode extends Node {
 
     updateValueAfterTypeChange();
     notifyListeners();
+  }
+
+  /// Value Types this node can be changed to.
+  List<ValueType> get exchangeableValueTypes {
+    final templates = NodeTemplate.grouped[NT(valueType).group];
+    return templates.map<ValueType>((e) => e.valueType).toList();
   }
 
   void updateValueAfterTypeChange() {}
