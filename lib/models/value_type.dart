@@ -10,7 +10,17 @@ part 'value_type.g.dart';
 class ValueType {
   const ValueType(this.rawType, [this.name = '', this.description = '']);
 
-  factory ValueType.fromJson(Map<String, dynamic> json) => _$ValueTypeFromJson(json);
+  factory ValueType.fromJson(Map<String, dynamic> json) {
+    final parsed = _$ValueTypeFromJson(json);
+
+    /// Map to static constants to make sure each value type only has one instance in use.
+    for (final v in values) {
+      if (v.rawType?.value == parsed.rawType?.value && v.name == parsed.name) {
+        return v;
+      }
+    }
+    return parsed;
+  }
   Map<String, dynamic> toJson() => _$ValueTypeToJson(this);
 
   final Value_Type rawType;
@@ -109,4 +119,73 @@ class ValueType {
   static const ValueType mod = ValueType(Value_Type.MOD);
   static const ValueType cond = ValueType(Value_Type.COND);
   static const ValueType tailRecursion = ValueType(Value_Type.TAIL_RECURSION);
+
+  static List<ValueType> values = [
+    prefabQueryCells,
+    prefabMapCapacities,
+    prefabGetBalance,
+    nil,
+    uint64,
+    bool,
+    bytes,
+    error,
+    arg,
+    param,
+    outPoint,
+    cellInput,
+    cellDep,
+    script,
+    cell,
+    transaction,
+    header,
+    apply,
+    reduce,
+    list,
+    queryCells,
+    map,
+    filter,
+    getCapacity,
+    getData,
+    getLock,
+    getType,
+    getDataHash,
+    getOutPoint,
+    getCodeHash,
+    getHashType,
+    getArgs,
+    getCellDeps,
+    getHeaderDeps,
+    getInputs,
+    getOutputs,
+    getWitnesses,
+    getCompactTarget,
+    getTimestamp,
+    getNumber,
+    getEpoch,
+    getParentHash,
+    getTransactionsRoot,
+    getProposalsHash,
+    getUnclesHash,
+    getDao,
+    getNonce,
+    getHeader,
+    hash,
+    serializeToCore,
+    serializeToJson,
+    not,
+    and,
+    or,
+    equal,
+    less,
+    len,
+    slice,
+    index,
+    add,
+    subtract,
+    multiply,
+    divide,
+    mod,
+    cond,
+    tailRecursion,
+  ];
 }
