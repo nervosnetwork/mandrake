@@ -3,6 +3,7 @@ import 'dart:ui' show Offset;
 import 'package:mandrake/models/nodes/op_node.dart';
 
 import 'nodes/node_base.dart';
+import 'nodes/root_node.dart';
 import 'nodes/ast_node.dart';
 import 'nodes/prefab_node.dart';
 import 'nodes/primitive_node.dart';
@@ -41,5 +42,26 @@ class NodeCreator {
       node.addSlot('child ${i + 1}');
     }
     return node;
+  }
+}
+
+class NodeDeserializer {
+  static Node fromJson(Map<String, dynamic> json) {
+    switch (json['node_type'] as String) {
+      case 'RootNode':
+        return RootNode.fromJson(json);
+      case 'PrefabNode':
+        return PrefabNode.fromJson(json);
+      case 'OperationNode':
+        return OperationNode.fromJson(json);
+      case 'PrimitiveNode':
+        return PrimitiveNode.fromJson(json);
+      case 'GetOpNode':
+        return GetOpNode.fromJson(json);
+      case 'AstNode':
+        return AstNode.fromJson(json);
+    }
+    assert(false, 'Fail to parse node JSON ${json["node_type"]}');
+    return null;
   }
 }

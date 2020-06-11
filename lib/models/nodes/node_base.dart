@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../utils/offset_json_converter.dart';
+import '../node.dart' show NodeDeserializer; // Is circular import a problem?
 
 export 'package:json_annotation/json_annotation.dart';
 export '../../utils/offset_json_converter.dart';
@@ -25,7 +26,12 @@ class Node with ChangeNotifier {
         _position = position,
         assert(position != null);
 
-  factory Node.fromJson(Map<String, dynamic> json) => _$NodeFromJson(json);
+  factory Node.fromJson(Map<String, dynamic> json) {
+    if (json['node_type'] == 'Node') {
+      return _$NodeFromJson(json);
+    }
+    return NodeDeserializer.fromJson(json);
+  }
   Map<String, dynamic> toJson() => toTypedJson(_$NodeToJson(this));
 
   Map<String, dynamic> toTypedJson(Map<String, dynamic> json) {

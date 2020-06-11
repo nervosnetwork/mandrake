@@ -6,7 +6,7 @@ import '../protos/ast.pbenum.dart' show Value_Type;
 
 class OffsetJsonConverter {
   static Offset offsetFromJson(Map<String, dynamic> json) {
-    return Offset(json['dx'] as double, json['dy'] as double);
+    return Offset((json['dx'] as int).toDouble(), (json['dy'] as int).toDouble());
   }
 
   static Map<String, dynamic> offsetToJson(Offset offset) => {
