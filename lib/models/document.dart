@@ -9,7 +9,7 @@ import 'link.dart';
 part 'document.g.dart';
 
 @JsonSerializable()
-class Document extends ChangeNotifier {
+class Document with ChangeNotifier {
   final List<Node> topLevelNodes; // Reference to top level nodes only
   final List<Node> _allNodes = [];
   final List<Link> _links = [];
@@ -174,9 +174,13 @@ class Document extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _nodesChanged() {
+  void rebuild() {
     _rebuildNodes();
     _rebuildLinks();
+  }
+
+  void _nodesChanged() {
+    rebuild();
     notifyListeners();
   }
 

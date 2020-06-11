@@ -1,15 +1,16 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:file_chooser/file_chooser.dart';
 
 import 'models/document.dart';
 import 'models/editor_state.dart';
-import 'io/doc_reader.dart';
-import 'io/doc_writer.dart';
-import 'io/ast_writer.dart';
 
 class Toolbar extends StatelessWidget {
+  Toolbar({this.onOpenDocument, this.onNewDocument, this.onSaveDocument, this.onExportAst});
+  final Function onNewDocument;
+  final Function onOpenDocument;
+  final Function onSaveDocument;
+  final Function onExportAst;
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<Document, EditorState>(builder: (context, document, editorState, child) {
@@ -29,19 +30,19 @@ class Toolbar extends StatelessWidget {
             SizedBox(width: 20),
             _iconButton(
               icon: Icon(Icons.note_add),
-              onPressed: null,
+              onPressed: () => onNewDocument(),
             ),
             _iconButton(
               icon: Icon(Icons.file_upload),
-              onPressed: () => _openDocument(),
+              onPressed: () => onOpenDocument(),
             ),
             _iconButton(
               icon: Icon(Icons.save),
-              onPressed: () => _saveDocument(document),
+              onPressed: () => onSaveDocument(),
             ),
             _iconButton(
               icon: Icon(Icons.arrow_forward),
-              onPressed: () => _exportAst(document),
+              onPressed: () => onExportAst(),
             ),
             _separator(),
             _iconButton(
@@ -76,65 +77,6 @@ class Toolbar extends StatelessWidget {
         ),
       );
     });
-  }
-
-  void _openDocument() async {
-    String path;
-    if (kIsWeb) {
-      // TODO: handle web export
-      path = 'todo.json';
-    } else {
-      final result = await showOpenPanel(
-        allowedFileTypes: [
-          FileTypeFilterGroup(fileExtensions: ['json'], label: 'JSON')
-        ],
-        allowsMultipleSelection: false,
-        canSelectDirectories: false,
-      );
-      if (!result.canceled) {
-        path = result.paths.first;
-      }
-    }
-    final doc = await DocReader(path).read();
-    // TODO: check success, reload current project
-    print('$doc read from disk');
-  }
-
-  void _saveDocument(Document document) async {
-    String path;
-    if (kIsWeb) {
-      // TODO: handle web export
-      path = document.fileName;
-    } else {
-      final result = await showSavePanel(
-        suggestedFileName: document.fileName,
-      );
-      if (!result.canceled) {
-        path = result.paths.first;
-      }
-    }
-    if (path != null) {
-      await DocWriter(document, path).write();
-    }
-  }
-
-  void _exportAst(Document document) async {
-    String path;
-    if (kIsWeb) {
-      // TODO: handle web export
-      path = 'ast.bin';
-    } else {
-      final result = await showSavePanel(
-        suggestedFileName: 'ast.bin',
-      );
-      if (!result.canceled) {
-        path = result.paths.first;
-      }
-    }
-
-    if (path != null) {
-      await AstWriter(document, path).write();
-    }
   }
 
   void _jumpToRoot(Document document, EditorState editorState) {
