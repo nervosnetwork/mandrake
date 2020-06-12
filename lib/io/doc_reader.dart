@@ -1,5 +1,6 @@
 import 'web.dart' if (dart.library.io) 'desktop.dart';
 import 'dart:convert';
+import 'package:path/path.dart' as path;
 
 import '../models/document.dart';
 
@@ -11,7 +12,9 @@ class DocReader {
     try {
       final content = await readFileAsString(_path);
       final json = jsonDecode(content);
-      return Document.fromJson(json);
+      final doc = Document.fromJson(json);
+      doc.fileName = path.basename(_path);
+      return doc;
     } catch (e) {
       print('Read and parse document error: $e');
       return null;

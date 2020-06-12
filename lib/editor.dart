@@ -29,6 +29,7 @@ class Editor extends StatefulWidget {
 
 class _EditorState extends State<Editor> {
   Document _doc;
+  String _docPath;
   Selection _selection;
   EditorState _editorState;
 
@@ -36,6 +37,7 @@ class _EditorState extends State<Editor> {
     // TODO: prompt to save current doc if it's modified but not saved
     setState(() {
       _doc = Document.template();
+      _docPath = '';
       _selection = Selection();
       _editorState = EditorState();
     });
@@ -64,6 +66,7 @@ class _EditorState extends State<Editor> {
       setState(() {
         _doc = doc;
         _doc.rebuild();
+        _docPath = path;
         _selection = Selection();
         _editorState = EditorState();
       });
@@ -71,20 +74,21 @@ class _EditorState extends State<Editor> {
   }
 
   void _saveDocument() async {
-    String path;
-    if (kIsWeb) {
-      // TODO: handle web export
-      path = _doc.fileName;
-    } else {
-      final result = await showSavePanel(
-        suggestedFileName: _doc.fileName,
-      );
-      if (!result.canceled) {
-        path = result.paths.first;
+    if (_docPath.isEmpty) {
+      if (kIsWeb) {
+        // TODO: handle web export
+        _docPath = _doc.fileName;
+      } else {
+        final result = await showSavePanel(
+          suggestedFileName: _doc.fileName,
+        );
+        if (!result.canceled) {
+          _docPath = result.paths.first;
+        }
       }
     }
-    if (path != null) {
-      await DocWriter(_doc, path).write();
+    if (_docPath != null) {
+      await DocWriter(_doc, _docPath).write();
     }
   }
 
@@ -110,6 +114,7 @@ class _EditorState extends State<Editor> {
   @override
   void initState() {
     _doc = Document.template();
+    _docPath = '';
     _selection = Selection();
     _editorState = EditorState();
     super.initState();
