@@ -34,47 +34,59 @@ class _EditorState extends State<Editor> {
   EditorState _editorState;
 
   void _newDocument() {
-    // TODO: prompt to save current doc if it's modified but not saved
-    setState(() {
-      _doc = Document.template();
-      _docPath = '';
-      _selection = Selection();
-      _editorState = EditorState();
-    });
-  }
-
-  void _openDocument() async {
-    // TODO: prompt to save current doc if it's modified but not saved
-    String path;
-    if (kIsWeb) {
-      // TODO: handle web export
-      path = 'todo.json';
-    } else {
-      final result = await showOpenPanel(
-        allowedFileTypes: [
-          FileTypeFilterGroup(fileExtensions: ['json'], label: 'JSON')
-        ],
-        allowsMultipleSelection: false,
-        canSelectDirectories: false,
-      );
-      if (!result.canceled) {
-        path = result.paths.first;
-      }
-    }
-
-    final doc = await DocReader(path).read();
-    if (doc != null) {
+    final action = () {
       setState(() {
-        _doc = doc;
-        _doc.rebuild();
-        _docPath = path;
+        _doc = Document.template();
+        _docPath = '';
         _selection = Selection();
         _editorState = EditorState();
       });
+    };
+    if (_doc.isDirty) {
+      _promptToSave(action);
+    } else {
+      action();
     }
   }
 
-  void _saveDocument() async {
+  void _openDocument() async {
+    final action = () async {
+      String path;
+      if (kIsWeb) {
+        // TODO: handle web export
+        path = 'todo.json';
+      } else {
+        final result = await showOpenPanel(
+          allowedFileTypes: [
+            FileTypeFilterGroup(fileExtensions: ['json'], label: 'JSON')
+          ],
+          allowsMultipleSelection: false,
+          canSelectDirectories: false,
+        );
+        if (!result.canceled) {
+          path = result.paths.first;
+        }
+      }
+
+      final doc = await DocReader(path).read();
+      if (doc != null) {
+        setState(() {
+          _doc = doc;
+          _doc.rebuild();
+          _docPath = path;
+          _selection = Selection();
+          _editorState = EditorState();
+        });
+      }
+    };
+    if (_doc.isDirty) {
+      await _promptToSave(action);
+    } else {
+      await action();
+    }
+  }
+
+  Future<bool> _saveDocument() async {
     if (_docPath.isEmpty) {
       if (kIsWeb) {
         // TODO: handle web export
@@ -88,14 +100,17 @@ class _EditorState extends State<Editor> {
         }
       }
     }
-    if (_docPath != null) {
+
+    if (_docPath.isNotEmpty) {
       await DocWriter(_doc, _docPath).write();
       _doc.markNotDirty();
+      return true;
     }
+    return false;
   }
 
   void _exportAst() async {
-    String path;
+    String path = '';
     if (kIsWeb) {
       // TODO: handle web export
       path = 'ast.bin';
@@ -108,8 +123,49 @@ class _EditorState extends State<Editor> {
       }
     }
 
-    if (path != null) {
+    if (path.isNotEmpty) {
       await AstWriter(_doc, path).write();
+    }
+  }
+
+  Future<void> _promptToSave(Function dangerAction) async {
+    final result = await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Unsaved document'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text("There're unsaved changes. Do you want to save the current document first?"),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Yes, save the document.'),
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+            ),
+            FlatButton(
+              child: Text('No, discard the changes.'),
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result) {
+      if (await _saveDocument()) {
+        dangerAction();
+      }
+    } else {
+      dangerAction();
     }
   }
 
