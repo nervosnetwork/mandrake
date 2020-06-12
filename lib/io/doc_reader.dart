@@ -14,6 +14,7 @@ class DocReader {
       final json = jsonDecode(content);
       final doc = Document.fromJson(json);
       doc.fileName = path.basename(_path);
+      doc.markNotDirty();
       return doc;
     } catch (e) {
       print('Read and parse document error: $e');

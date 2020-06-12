@@ -44,6 +44,7 @@ class _EditorState extends State<Editor> {
   }
 
   void _openDocument() async {
+    // TODO: prompt to save current doc if it's modified but not saved
     String path;
     if (kIsWeb) {
       // TODO: handle web export
@@ -89,6 +90,7 @@ class _EditorState extends State<Editor> {
     }
     if (_docPath != null) {
       await DocWriter(_doc, _docPath).write();
+      _doc.markNotDirty();
     }
   }
 

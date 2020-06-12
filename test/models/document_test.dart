@@ -19,14 +19,6 @@ void main() {
     doc.addNode(Node(position: Offset(100, 200)));
   });
 
-  test("change a node's position", () {
-    final doc = createDocument();
-    final node = Node(position: Offset(100, 200));
-    doc.addNode(node);
-    doc.moveNodePosition(node, Offset(100, 0));
-    expect(node.position, Offset(200, 200));
-  });
-
   group('connect (links)', () {
     test('can add a node to multiple parents', () {
       final doc = createDocument();

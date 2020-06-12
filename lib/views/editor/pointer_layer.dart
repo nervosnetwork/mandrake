@@ -120,10 +120,8 @@ class _PointerLayerState extends State<PointerLayer> {
         _endConnectorOffset += event.delta / editorState.zoomScale;
       });
     } else {
-      document.moveNodePosition(
-        selection.selectedNode(document.nodes),
-        event.delta / editorState.zoomScale,
-      );
+      final node = selection.selectedNode(document.nodes);
+      node.position = node.position + event.delta / editorState.zoomScale;
     }
   }
 

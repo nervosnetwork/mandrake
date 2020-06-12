@@ -59,7 +59,6 @@ class BasicInfoProperty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final document = Provider.of<Document>(context, listen: false);
     final node = Provider.of<Node>(context);
 
     _nameController.text = node.name;
@@ -101,8 +100,7 @@ class BasicInfoProperty extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: PropertyEditorTextFieldDecoration().copyWith(suffixText: 'x'),
                 onFieldSubmitted: (v) {
-                  // TODO: simple validation
-                  document.moveNodePosition(node, Offset(double.parse(v) - node.position.dx, 0));
+                  node.position = node.position + Offset(double.parse(v) - node.position.dx, 0);
                 },
               ),
             ),
@@ -113,8 +111,7 @@ class BasicInfoProperty extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: PropertyEditorTextFieldDecoration().copyWith(suffixText: 'y'),
                 onFieldSubmitted: (v) {
-                  // TODO: simple validation
-                  document.moveNodePosition(node, Offset(0, double.parse(v) - node.position.dy));
+                  node.position = node.position + Offset(0, double.parse(v) - node.position.dy);
                 },
               ),
             ),

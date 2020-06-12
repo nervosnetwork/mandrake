@@ -5,20 +5,21 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'node.dart';
 import 'link.dart';
+import '../utils/dirty_tracker.dart';
 
 part 'document.g.dart';
 
 @JsonSerializable()
-class Document with ChangeNotifier {
+class Document with ChangeNotifier, DirtyTracker {
   final List<Node> topLevelNodes; // Reference to top level nodes only
   final List<Node> _allNodes = [];
   final List<Link> _links = [];
 
-  String _fileName = '';
-
   UnmodifiableListView<Node> get nodes => UnmodifiableListView(_allNodes);
   UnmodifiableListView<Link> get links => UnmodifiableListView(_links);
+  RootNode get root => _allNodes.firstWhere((n) => n is RootNode);
 
+  String _fileName = '';
   String get fileName {
     var name = 'Untitled';
     if (_fileName.isNotEmpty) {
@@ -42,7 +43,27 @@ class Document with ChangeNotifier {
 
   String get fileExtension => '.json';
 
-  RootNode get root => _allNodes.firstWhere((n) => n is RootNode);
+  bool get isDirty {
+    if (dirty) {
+      return true;
+    }
+
+    for (final node in nodes) {
+      if (node.dirty) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  void markNotDirty() {
+    markClean();
+
+    for (var node in _allNodes) {
+      node.markClean();
+    }
+  }
 
   Document({this.topLevelNodes});
 
@@ -57,11 +78,11 @@ class Document with ChangeNotifier {
     root.addChild(callResult, root.addCallSlot('call result').id);
     doc.addNode(root);
 
+    doc.markNotDirty();
     return doc;
   }
 
   factory Document.fromJson(Map<String, dynamic> json) => _$DocumentFromJson(json);
-
   Map<String, dynamic> toJson() => _$DocumentToJson(this);
 
   void addNode(Node node, {Node parent}) {
@@ -167,13 +188,6 @@ class Document with ChangeNotifier {
     return flattened;
   }
 
-  /// Move a node by offset.
-  void moveNodePosition(Node node, Offset offset) {
-    assert(nodes.contains(node));
-    node.position = node.position + offset;
-    notifyListeners();
-  }
-
   void rebuild() {
     _rebuildNodes();
     _rebuildLinks();
@@ -181,6 +195,7 @@ class Document with ChangeNotifier {
 
   void _nodesChanged() {
     rebuild();
+    markDirty();
     notifyListeners();
   }
 

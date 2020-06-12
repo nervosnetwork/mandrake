@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../utils/offset_json_converter.dart';
+import '../../utils/dirty_tracker.dart';
 import '../node.dart' show NodeDeserializer; // Is circular import a problem?
 
 export 'package:json_annotation/json_annotation.dart';
@@ -15,7 +16,7 @@ part 'node_base.g.dart';
 /// Base class for [Node], which describes an object representing part of
 /// an AST tree, and its geometry information on a canvas.
 @JsonSerializable()
-class Node with ChangeNotifier {
+class Node with ChangeNotifier, DirtyTracker {
   Node({
     String name = '',
     Offset position = Offset.zero,
@@ -46,12 +47,14 @@ class Node with ChangeNotifier {
   String get id => _id;
   set id(String id) {
     _id = id;
+    markDirty();
     notifyListeners();
   }
 
   String get name => _name;
   set name(String name) {
     _name = name;
+    markDirty();
     notifyListeners();
   }
 
@@ -62,6 +65,7 @@ class Node with ChangeNotifier {
   Offset get position => _position;
   set position(Offset position) {
     _position = position;
+    markDirty();
     notifyListeners();
   }
 
@@ -126,6 +130,7 @@ class Node with ChangeNotifier {
   ChildSlot addSlot(String name) {
     final slot = ChildSlot(name: name);
     _slots.add(slot);
+    markDirty();
     notifyListeners();
     return slot;
   }
@@ -137,6 +142,7 @@ class Node with ChangeNotifier {
       removeChild(slot.childId);
       _slots.remove(slot);
 
+      markDirty();
       notifyListeners();
     }
   }
@@ -167,6 +173,7 @@ class Node with ChangeNotifier {
       _fillSlot(child, slotId);
     }
 
+    markDirty();
     notifyListeners();
   }
 
@@ -184,6 +191,7 @@ class Node with ChangeNotifier {
 
     _children.removeWhere((c) => c.id == childId);
 
+    markDirty();
     notifyListeners();
   }
 
@@ -200,6 +208,7 @@ class Node with ChangeNotifier {
     final index = _children.indexWhere((c) => c.id == childId);
     _children[index] = newChild;
 
+    markDirty();
     notifyListeners();
   }
 
