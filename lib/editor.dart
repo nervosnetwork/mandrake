@@ -34,23 +34,18 @@ class _EditorState extends State<Editor> {
   EditorState _editorState;
 
   void _newDocument() {
-    final action = () {
+    _promptToSaveIfNecessary(() {
       setState(() {
         _doc = Document.template();
         _docPath = '';
         _selection = Selection();
         _editorState = EditorState();
       });
-    };
-    if (_doc.isDirty) {
-      _promptToSave(action);
-    } else {
-      action();
-    }
+    });
   }
 
-  void _openDocument() async {
-    final action = () async {
+  void _openDocument() {
+    _promptToSaveIfNecessary(() async {
       String path;
       if (kIsWeb) {
         // TODO: handle web export
@@ -78,12 +73,7 @@ class _EditorState extends State<Editor> {
           _editorState = EditorState();
         });
       }
-    };
-    if (_doc.isDirty) {
-      await _promptToSave(action);
-    } else {
-      await action();
-    }
+    });
   }
 
   Future<bool> _saveDocument() async {
@@ -128,7 +118,11 @@ class _EditorState extends State<Editor> {
     }
   }
 
-  Future<void> _promptToSave(Function dangerAction) async {
+  Future<void> _promptToSaveIfNecessary(Function dangerAction) async {
+    if (!_doc.isDirty) {
+      return dangerAction();
+    }
+
     final result = await showDialog(
       context: context,
       barrierDismissible: false,
