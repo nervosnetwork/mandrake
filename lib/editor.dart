@@ -100,7 +100,7 @@ class _EditorState extends State<Editor> {
   }
 
   void _exportAst() async {
-    String path = '';
+    var path = '';
     if (kIsWeb) {
       // TODO: handle web export
       path = 'ast.bin';
