@@ -190,7 +190,7 @@ class _EditorState extends State<Editor> {
             child: DesignEditor(),
           ),
           Positioned(
-            top: EditorDimensions.toolbarHeight + EditorDimensions.rulerWidth - 1,
+            top: EditorDimensions.toolbarHeight + EditorDimensions.rulerWidth,
             left: EditorDimensions.objectLibraryPanelWidth,
             bottom: 0,
             width: EditorDimensions.rulerWidth,
@@ -198,10 +198,17 @@ class _EditorState extends State<Editor> {
           ),
           Positioned(
             top: EditorDimensions.toolbarHeight,
-            left: EditorDimensions.objectLibraryPanelWidth + EditorDimensions.rulerWidth - 1,
+            left: EditorDimensions.objectLibraryPanelWidth + EditorDimensions.rulerWidth,
             right: EditorDimensions.propertyInspectorPanelWidth,
             height: EditorDimensions.rulerWidth,
             child: Ruler(RulerDirection.horizontal),
+          ),
+          Positioned(
+            top: EditorDimensions.toolbarHeight,
+            left: EditorDimensions.objectLibraryPanelWidth,
+            width: EditorDimensions.rulerWidth,
+            height: EditorDimensions.rulerWidth,
+            child: RulerControl(),
           ),
           Positioned(
             top: EditorDimensions.toolbarHeight,

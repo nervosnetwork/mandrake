@@ -8,6 +8,32 @@ enum RulerDirection {
   vertical,
 }
 
+Color _markerColor = Colors.grey[300];
+
+/// Top left corner of rulers.
+class RulerControl extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          right: BorderSide(
+            width: 1,
+            color: _markerColor,
+          ),
+          bottom: BorderSide(
+            width: 1,
+            color: _markerColor,
+          ),
+        ),
+      ),
+      child: Container(
+        color: Theme.of(context).colorScheme.surface,
+      ),
+    );
+  }
+}
+
 class Ruler extends StatelessWidget {
   Ruler(this.direction);
   final RulerDirection direction;
@@ -22,20 +48,14 @@ class Ruler extends StatelessWidget {
     );
   }
 
-  /// TODO: zoom, offset, number
-
   Widget _drawHorizontal(BuildContext context) {
     final editorState = Provider.of<EditorState>(context);
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          left: BorderSide(
-            width: 1,
-            color: Theme.of(context).dividerColor,
-          ),
           bottom: BorderSide(
             width: 1,
-            color: Theme.of(context).dividerColor,
+            color: _markerColor,
           ),
         ),
       ),
@@ -56,13 +76,9 @@ class Ruler extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(
-            width: 1,
-            color: Theme.of(context).dividerColor,
-          ),
           right: BorderSide(
             width: 1,
-            color: Theme.of(context).dividerColor,
+            color: _markerColor,
           ),
         ),
       ),
@@ -110,7 +126,7 @@ class _RulerPainter extends CustomPainter {
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1
-      ..color = Colors.grey[300];
+      ..color = _markerColor;
 
     final path = Path();
     final step = _smallMarker * _scale;
