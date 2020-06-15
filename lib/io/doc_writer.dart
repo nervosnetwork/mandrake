@@ -1,14 +1,15 @@
 import 'web.dart' if (dart.library.io) 'desktop.dart';
 import 'dart:convert';
 
+import 'foundation.dart';
 import '../models/document.dart';
 
 class DocWriter {
-  DocWriter(this._doc, this._path);
+  DocWriter(this._doc, this._handle);
   final Document _doc;
-  final String _path;
+  final FileHandle _handle;
 
   Future<void> write() async {
-    await writeFileAsString(_path, jsonEncode(_doc));
+    await writeFileAsString(_handle, jsonEncode(_doc));
   }
 }

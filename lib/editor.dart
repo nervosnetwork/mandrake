@@ -1,12 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:file_chooser/file_chooser.dart';
 
 import 'models/document.dart';
 import 'models/selection.dart';
 import 'models/editor_state.dart';
 
+import 'io/file_chooser.dart';
 import 'io/doc_reader.dart';
 import 'io/doc_writer.dart';
 import 'io/ast_writer.dart';
@@ -29,7 +28,7 @@ class Editor extends StatefulWidget {
 
 class _EditorState extends State<Editor> {
   Document _doc;
-  String _docPath;
+  FileHandle _docHandle;
   Selection _selection;
   EditorState _editorState;
 
@@ -37,7 +36,7 @@ class _EditorState extends State<Editor> {
     _promptToSaveIfNecessary(() {
       setState(() {
         _doc = Document.template();
-        _docPath = '';
+        _docHandle = null;
         _selection = Selection();
         _editorState = EditorState();
       });
@@ -46,29 +45,22 @@ class _EditorState extends State<Editor> {
 
   void _openDocument() {
     _promptToSaveIfNecessary(() async {
-      String path;
-      if (kIsWeb) {
-        // TODO: handle web export
-        path = 'todo.json';
-      } else {
-        final result = await showOpenPanel(
-          allowedFileTypes: [
-            FileTypeFilterGroup(fileExtensions: ['json'], label: 'JSON')
-          ],
-          allowsMultipleSelection: false,
-          canSelectDirectories: false,
-        );
-        if (!result.canceled) {
-          path = result.paths.first;
-        }
+      final handle = await showOpenPanel(
+        allowedFileTypes: [
+          FileFilterGroup(extensions: ['json'], label: 'JSON')
+        ],
+      );
+
+      if (handle == null) {
+        return;
       }
 
-      final doc = await DocReader(path).read();
+      final doc = await DocReader(handle).read();
       if (doc != null) {
         setState(() {
           _doc = doc;
           _doc.rebuild();
-          _docPath = path;
+          _docHandle = handle;
           _selection = Selection();
           _editorState = EditorState();
         });
@@ -77,22 +69,20 @@ class _EditorState extends State<Editor> {
   }
 
   Future<bool> _saveDocument() async {
-    if (_docPath.isEmpty) {
-      if (kIsWeb) {
-        // TODO: handle web export
-        _docPath = _doc.fileName;
-      } else {
-        final result = await showSavePanel(
-          suggestedFileName: _doc.fileName,
-        );
-        if (!result.canceled) {
-          _docPath = result.paths.first;
-        }
+    if (_docHandle == null) {
+      final handle = await showSavePanel(
+        suggestedFileName: _doc.fileName,
+        allowedFileTypes: [
+          FileFilterGroup(extensions: ['json'], label: 'JSON')
+        ],
+      );
+      if (handle != null) {
+        _docHandle = handle;
       }
     }
 
-    if (_docPath.isNotEmpty) {
-      await DocWriter(_doc, _docPath).write();
+    if (_docHandle != null) {
+      await DocWriter(_doc, _docHandle).write();
       _doc.markNotDirty();
       return true;
     }
@@ -100,21 +90,12 @@ class _EditorState extends State<Editor> {
   }
 
   void _exportAst() async {
-    var path = '';
-    if (kIsWeb) {
-      // TODO: handle web export
-      path = 'ast.bin';
-    } else {
-      final result = await showSavePanel(
-        suggestedFileName: 'ast.bin',
-      );
-      if (!result.canceled) {
-        path = result.paths.first;
-      }
-    }
+    final handle = await showSavePanel(
+      suggestedFileName: 'ast.bin',
+    );
 
-    if (path.isNotEmpty) {
-      await AstWriter(_doc, path).write();
+    if (handle != null) {
+      await AstWriter(_doc, handle).write();
     }
   }
 
@@ -166,7 +147,7 @@ class _EditorState extends State<Editor> {
   @override
   void initState() {
     _doc = Document.template();
-    _docPath = '';
+    _docHandle = null;
     _selection = Selection();
     _editorState = EditorState();
     super.initState();
