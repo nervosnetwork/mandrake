@@ -32,7 +32,7 @@
     }
     async function readFileAsString(fileHandle) {
       const file = await fileHandle.getFile();
-      return await file.text();
+      return file.text();
     }
     async function saveFileAsString(fileHandle, contents) {
       const writable = await fileHandle.createWritable();

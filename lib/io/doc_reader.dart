@@ -1,6 +1,6 @@
 import 'web.dart' if (dart.library.io) 'desktop.dart';
 import 'dart:convert';
-import 'package:path/path.dart' as path;
+// import 'package:path/path.dart' as path;
 
 import 'foundation.dart';
 import '../models/document.dart';
@@ -14,7 +14,7 @@ class DocReader {
       final content = await readFileAsString(_handle);
       final json = jsonDecode(content);
       final doc = Document.fromJson(json);
-      doc.fileName = path.basename(_handle.handle);
+      // doc.fileName = path.basename(_handle.handle);
       doc.markNotDirty();
       return doc;
     } catch (e) {

@@ -2,8 +2,15 @@
 library testjs;
 
 import 'package:js/js.dart';
+import 'package:js/js_util.dart';
 
 import 'foundation.dart';
+
+@JS()
+class Promise<T> {
+  external Promise(void Function(void Function(T result) resolve, Function reject) executor);
+  external Promise then(void Function(T result) onFulfilled, [Function onRejected]);
+}
 
 @JS()
 class FileSystemFileHandle {}
@@ -12,24 +19,24 @@ class FileSystemFileHandle {}
 class Blob {}
 
 @JS('window.openFilePanel')
-external Future<FileSystemFileHandle> openFilePanel();
+external Promise<FileSystemFileHandle> openFilePanel();
 
 @JS('window.saveFilePanel')
-external Future<FileSystemFileHandle> saveFilePanel();
+external Promise<FileSystemFileHandle> saveFilePanel();
 
 @JS('window.readFileAsString')
-external Future<String> readString(FileSystemFileHandle fileHandle);
+external Promise<String> readString(FileSystemFileHandle fileHandle);
 
 @JS('window.saveFileAsString')
-external Future<void> saveString(FileSystemFileHandle fileHandle, String contents);
+external Promise<void> saveString(FileSystemFileHandle fileHandle, String contents);
 
 @JS('window.saveFileAsBinary')
-external Future<void> saveBinary(FileSystemFileHandle fileHandle, Blob contents);
+external Promise<void> saveBinary(FileSystemFileHandle fileHandle, Blob contents);
 
 Future<FileHandle> openPanel({
   List<FileFilterGroup> allowedFileTypes,
 }) async {
-  final handle = await openFilePanel();
+  final handle = await promiseToFuture(openFilePanel());
   if (handle == null) {
     return null;
   }
@@ -40,7 +47,7 @@ Future<FileHandle> savePanel({
   String suggestedFileName,
   List<FileFilterGroup> allowedFileTypes,
 }) async {
-  final handle = await saveFilePanel();
+  final handle = await promiseToFuture(saveFilePanel());
   if (handle == null) {
     return null;
   }
@@ -55,10 +62,10 @@ Future<void> writeFile(FileHandle handle, List<int> content) {
 
 /// Write file as string
 Future<void> writeFileAsString(FileHandle handle, String content) {
-  return saveString(handle.handle, content);
+  return promiseToFuture(saveString(handle.handle, content));
 }
 
 /// Read file as string
 Future<String> readFileAsString(FileHandle handle) {
-  return readString(handle.handle as FileSystemFileHandle);
+  return promiseToFuture(readString(handle.handle));
 }
