@@ -60,6 +60,7 @@ class _EditorState extends State<Editor> {
         setState(() {
           _doc = doc;
           _doc.rebuild();
+          _doc.markNotDirty();
           _docHandle = handle;
           _selection = Selection();
           _editorState = EditorState();

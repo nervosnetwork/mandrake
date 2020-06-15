@@ -18,7 +18,6 @@ class DocReader {
       if (!kIsWeb) {
         doc.fileName = path.basename(_handle.handle);
       }
-      doc.markNotDirty();
       return doc;
     } catch (e) {
       print('Read and parse document error: $e');
