@@ -1,15 +1,16 @@
 import 'web.dart' if (dart.library.io) 'desktop.dart';
 
+import 'foundation.dart';
 import '../models/document.dart';
 import '../experimental/ast_example.dart';
 
 class AstWriter {
-  AstWriter(this._doc, this._path);
+  AstWriter(this._doc, this._handle);
   final Document _doc;
-  final String _path;
+  final FileHandle _handle;
 
   Future<void> write() async {
-    await writeFile(_path, _doc.toAst());
+    await writeFile(_handle, _doc.toAst());
   }
 }
 
