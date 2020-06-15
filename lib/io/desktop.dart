@@ -34,6 +34,9 @@ Future<FileHandle> savePanel({
 }
 
 List<FileTypeFilterGroup> _convertFileTypes(List<FileFilterGroup> types) {
+  if (types == null) {
+    return null;
+  }
   return types
       .map((t) => FileTypeFilterGroup(fileExtensions: t.extensions, label: t.label))
       .toList();

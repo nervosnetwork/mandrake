@@ -3,6 +3,8 @@ library testjs;
 
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
+import 'dart:typed_data';
+import 'dart:html' show Blob;
 
 import 'foundation.dart';
 
@@ -14,9 +16,6 @@ class Promise<T> {
 
 @JS()
 class FileSystemFileHandle {}
-
-@JS()
-class Blob {}
 
 @JS('window.openFilePanel')
 external Promise<FileSystemFileHandle> openFilePanel();
@@ -56,8 +55,10 @@ Future<FileHandle> savePanel({
 
 /// Write file as bytes
 Future<void> writeFile(FileHandle handle, List<int> content) {
-  return Future.error('Web file save not implemented');
-  // return await saveBinary(handle.handle as FileSystemFileHandle, content);
+  final bytes = ByteData.view((content as Uint8List).buffer);
+  return promiseToFuture(
+    saveBinary(handle.handle, Blob([bytes], 'application/x-binary', 'native')),
+  );
 }
 
 /// Write file as string
