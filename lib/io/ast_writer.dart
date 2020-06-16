@@ -2,7 +2,8 @@ import 'web.dart' if (dart.library.io) 'desktop.dart';
 
 import 'foundation.dart';
 import '../models/document.dart';
-import '../experimental/ast_example.dart';
+import '../models/node.dart';
+import '../protos/ast.pb.dart';
 
 class AstWriter {
   AstWriter(this._doc, this._handle);
@@ -16,9 +17,16 @@ class AstWriter {
 
 extension DocumentAstExportable on Document {
   List<int> toAst() {
-    // TODO: build real ast
-    // final root = Root();
-    // return root.writeToBuffer();
-    return output();
+    return root.toAst();
+  }
+}
+
+extension RootNodeAstExportable on RootNode {
+  List<int> toAst() {
+    final result = Root();
+    // TODO: build the full Root with calls/streams and sub values.
+    final call = Call();
+    result.calls.add(call);
+    return result.writeToBuffer();
   }
 }
