@@ -23,7 +23,7 @@ class AstNode extends Node {
 
   factory AstNode.fromJson(Map<String, dynamic> json) => _$AstNodeFromJson(json);
   @override
-  Map<String, dynamic> toJson() => toTypedJson(_$AstNodeToJson(this));
+  Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$AstNodeToJson);
 
   ValueType _valueType;
   ValueType get valueType => _valueType;

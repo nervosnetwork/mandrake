@@ -13,7 +13,7 @@ class OperationNode extends AstNode {
 
   factory OperationNode.fromJson(Map<String, dynamic> json) => _$OperationNodeFromJson(json);
   @override
-  Map<String, dynamic> toJson() => toTypedJson(_$OperationNodeToJson(this));
+  Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$OperationNodeToJson);
 
   @override
   List<ValueType> get exchangeableValueTypes {

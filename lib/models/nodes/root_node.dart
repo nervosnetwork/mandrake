@@ -12,7 +12,7 @@ class RootNode extends Node {
 
   factory RootNode.fromJson(Map<String, dynamic> json) => _$RootNodeFromJson(json);
   @override
-  Map<String, dynamic> toJson() => toTypedJson(_$RootNodeToJson(this));
+  Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$RootNodeToJson);
 
   final List<ChildSlot> _callSlots = [];
   List<ChildSlot> get callSlots => UnmodifiableListView(_callSlots);

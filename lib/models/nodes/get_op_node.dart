@@ -13,7 +13,7 @@ class GetOpNode extends AstNode {
 
   factory GetOpNode.fromJson(Map<String, dynamic> json) => _$GetOpNodeFromJson(json);
   @override
-  Map<String, dynamic> toJson() => toTypedJson(_$GetOpNodeToJson(this));
+  Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$GetOpNodeToJson);
 
   String type;
 

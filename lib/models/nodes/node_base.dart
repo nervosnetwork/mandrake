@@ -6,10 +6,11 @@ import 'package:json_annotation/json_annotation.dart';
 
 import '../../utils/offset_json_converter.dart';
 import '../../utils/dirty_tracker.dart';
-import '../node.dart' show NodeDeserializer; // Is circular import a problem?
+import '../node.dart' show NodeDeserializer, NodeSerializer;
 
 export 'package:json_annotation/json_annotation.dart';
 export '../../utils/offset_json_converter.dart';
+export '../node.dart' show NodeSerializer;
 
 part 'node_base.g.dart';
 
@@ -31,14 +32,9 @@ class Node with ChangeNotifier, DirtyTracker {
     if (json['node_type'] == 'Node') {
       return _$NodeFromJson(json);
     }
-    return NodeDeserializer.fromJson(json);
+    return NodeDeserializer.fromTypedJson(json);
   }
-  Map<String, dynamic> toJson() => toTypedJson(_$NodeToJson(this));
-
-  Map<String, dynamic> toTypedJson(Map<String, dynamic> json) {
-    json['node_type'] = runtimeType.toString();
-    return json;
-  }
+  Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$NodeToJson);
 
   String _id;
   String _name;

@@ -45,23 +45,63 @@ class NodeCreator {
   }
 }
 
+class _NodeType {
+  static const String rootNode = 'RootNode';
+  static const String prefabNode = 'PrefabNode';
+  static const String operationNode = 'OperationNode';
+  static const String primitiveNode = 'PrimitiveNode';
+  static const String getOpNode = 'GetOpNode';
+  static const String astNode = 'AstNode';
+  static const String node = 'Node';
+
+  static String nodeType(Node node) {
+    switch (node.runtimeType) {
+      case RootNode:
+        return rootNode;
+      case PrefabNode:
+        return prefabNode;
+      case OperationNode:
+        return operationNode;
+      case PrimitiveNode:
+        return primitiveNode;
+      case GetOpNode:
+        return getOpNode;
+      case AstNode:
+        return astNode;
+      default:
+        return _NodeType.node;
+    }
+  }
+}
+
+typedef JsonToNode<T> = T Function(Map<String, dynamic> json);
+typedef NodeToJson<T> = Map<String, dynamic> Function(T node);
+
 class NodeDeserializer {
-  static Node fromJson(Map<String, dynamic> json) {
+  static Node fromTypedJson(Map<String, dynamic> json) {
     switch (json['node_type'] as String) {
-      case 'RootNode':
+      case _NodeType.rootNode:
         return RootNode.fromJson(json);
-      case 'PrefabNode':
+      case _NodeType.prefabNode:
         return PrefabNode.fromJson(json);
-      case 'OperationNode':
+      case _NodeType.operationNode:
         return OperationNode.fromJson(json);
-      case 'PrimitiveNode':
+      case _NodeType.primitiveNode:
         return PrimitiveNode.fromJson(json);
-      case 'GetOpNode':
+      case _NodeType.getOpNode:
         return GetOpNode.fromJson(json);
-      case 'AstNode':
+      case _NodeType.astNode:
         return AstNode.fromJson(json);
     }
-    assert(false, 'Fail to parse node JSON ${json["node_type"]}');
+    assert(false, 'Fail to parse node JSON node_type: ${json["node_type"]}');
     return null;
+  }
+}
+
+class NodeSerializer {
+  static Map<String, dynamic> toTypedJson<T>(T node, NodeToJson<T> toJson) {
+    final json = toJson(node);
+    json['node_type'] = _NodeType.nodeType(node as Node);
+    return json;
   }
 }

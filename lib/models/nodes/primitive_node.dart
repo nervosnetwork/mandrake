@@ -25,7 +25,7 @@ class PrimitiveNode extends AstNode {
 
   factory PrimitiveNode.fromJson(Map<String, dynamic> json) => _$PrimitiveNodeFromJson(json);
   @override
-  Map<String, dynamic> toJson() => toTypedJson(_$PrimitiveNodeToJson(this));
+  Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$PrimitiveNodeToJson);
 
   String _value = '';
   String get value => _value;
