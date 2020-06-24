@@ -1,9 +1,11 @@
 import 'dart:ui' show Offset;
 
 import '../value_type.dart';
+import '../../protos/ast.pb.dart';
 import 'node_base.dart';
 
 export '../value_type.dart';
+export '../../protos/ast.pb.dart';
 export 'node_base.dart';
 
 part 'ast_node.g.dart';
@@ -24,6 +26,13 @@ class AstNode extends Node {
   factory AstNode.fromJson(Map<String, dynamic> json) => _$AstNodeFromJson(json);
   @override
   Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$AstNodeToJson);
+
+  @override
+  List<int> toAst() {
+    // TODO: implement to ast logic. Subtypes may need to override.
+    final v = Value();
+    return v.writeToBuffer();
+  }
 
   ValueType _valueType;
   ValueType get valueType => _valueType;
