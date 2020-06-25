@@ -1,3 +1,5 @@
+import 'package:mandrake/models/node.dart';
+
 import 'web.dart' if (dart.library.io) 'desktop.dart';
 
 import 'foundation.dart';
@@ -14,7 +16,33 @@ class AstWriter {
 }
 
 extension DocumentAstExportable on Document {
+  List<int> toAst() => root.toAst();
+}
+
+extension RootAstExportable on RootNode {
   List<int> toAst() {
-    return root.toAst();
+    final result = Root();
+
+    for (final callSlot in callSlots) {
+      final child = children.firstWhere((c) => c.id == callSlot.childId, orElse: () => null);
+      if (child != null) {
+        final call = Call();
+        call.name = child.name;
+        call.result = (child as AstNode).toAstValue();
+        result.calls.add(call);
+      }
+    }
+
+    for (final streamSlot in streamSlots) {
+      final child = children.firstWhere((c) => c.id == streamSlot.childId, orElse: () => null);
+      if (child != null) {
+        final stream = Stream();
+        stream.name = child.name;
+        stream.filter = (child as AstNode).toAstValue();
+        result.streams.add(stream);
+      }
+    }
+
+    return result.writeToBuffer();
   }
 }

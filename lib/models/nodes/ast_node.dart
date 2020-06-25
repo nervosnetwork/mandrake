@@ -27,11 +27,11 @@ class AstNode extends Node {
   @override
   Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$AstNodeToJson);
 
-  @override
-  List<int> toAst() {
+  /// Subtypes should implement this
+  Value toAstValue() {
     // TODO: implement to ast logic. Subtypes may need to override.
     final v = Value();
-    return v.writeToBuffer();
+    return v;
   }
 
   ValueType _valueType;

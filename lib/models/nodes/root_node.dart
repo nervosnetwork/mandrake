@@ -1,7 +1,6 @@
 import 'dart:collection';
 import 'dart:ui' show Offset, Size, Rect;
 
-import '../../protos/ast.pb.dart';
 import 'node_base.dart';
 
 part 'root_node.g.dart';
@@ -14,31 +13,6 @@ class RootNode extends Node {
   factory RootNode.fromJson(Map<String, dynamic> json) => _$RootNodeFromJson(json);
   @override
   Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$RootNodeToJson);
-
-  @override
-  List<int> toAst() {
-    final result = Root();
-
-    for (final callSlot in callSlots) {
-      final child = children.firstWhere((c) => c.id == callSlot.childId, orElse: () => null);
-      if (child != null) {
-        final call = Call();
-        call.name = child.name;
-        result.calls.add(call);
-      }
-    }
-
-    for (final streamSlot in streamSlots) {
-      final child = children.firstWhere((c) => c.id == streamSlot.childId, orElse: () => null);
-      if (child != null) {
-        final stream = Stream();
-        stream.name = child.name;
-        result.streams.add(stream);
-      }
-    }
-
-    return result.writeToBuffer();
-  }
 
   final List<ChildSlot> _callSlots = [];
   List<ChildSlot> get callSlots => UnmodifiableListView(_callSlots);

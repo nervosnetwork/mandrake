@@ -36,9 +36,6 @@ class Node with ChangeNotifier, DirtyTracker {
   }
   Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$NodeToJson);
 
-  /// Subtypes should implement this
-  List<int> toAst() => throw UnimplementedError;
-
   String _id;
   String _name;
   Offset _position;
