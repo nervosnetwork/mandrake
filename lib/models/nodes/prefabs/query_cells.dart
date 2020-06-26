@@ -20,17 +20,17 @@ AstNode convertQueryCells(PrefabNode node) {
   codeHash.name = 'code hash';
   queryTest.addChild(codeHash, queryTest.addSlot('code hash').id);
 
+  final getCodeHash = GetOpNode(
+    valueType: ValueType.getCodeHash,
+    position: standByMe(codeHash, 2, 0),
+  );
+  codeHash.addChild(getCodeHash, codeHash.slots.last.id);
   final codeHashValue = PrimitiveNode(
     valueType: ValueType.bytes,
-    position: standByMe(codeHash, 2, 0),
+    position: standByMe(codeHash, 2, 1),
   );
   codeHashValue.value = '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8';
   codeHash.addChild(codeHashValue, codeHash.slots.first.id);
-  final getCodeHash = GetOpNode(
-    valueType: ValueType.getCodeHash,
-    position: standByMe(codeHash, 2, 1),
-  );
-  codeHash.addChild(getCodeHash, codeHash.slots.last.id);
 
   final lock = GetOpNode(
     valueType: ValueType.getLock,
@@ -42,6 +42,7 @@ AstNode convertQueryCells(PrefabNode node) {
     position: standByMe(lock, 1, 0),
   );
   arg0.name = 'arg0 as cell';
+  arg0.value = '0';
   lock.addChild(arg0, lock.slots.first.id);
 
   getCodeHash.addChild(lock, getCodeHash.slots.first.id);
@@ -52,18 +53,18 @@ AstNode convertQueryCells(PrefabNode node) {
   );
   hashType.name = 'hash type';
   queryTest.addChild(hashType, queryTest.addSlot('hash type').id);
-  final hashTypeValue = PrimitiveNode(
-    valueType: ValueType.uint64,
-    position: standByMe(hashType, 3, 1),
-  );
-  hashTypeValue.value = '1';
-  hashType.addChild(hashTypeValue, hashType.slots.first.id);
   final getHashType = GetOpNode(
     valueType: ValueType.getHashType,
-    position: standByMe(hashType, 3, 2),
+    position: standByMe(hashType, 3, 1),
   );
   getHashType.addChild(lock, getHashType.slots.first.id);
   hashType.addChild(getHashType, hashType.slots.last.id);
+  final hashTypeValue = PrimitiveNode(
+    valueType: ValueType.uint64,
+    position: standByMe(hashType, 3, 2),
+  );
+  hashTypeValue.value = '1';
+  hashType.addChild(hashTypeValue, hashType.slots.first.id);
 
   final args = OperationNode(
     valueType: ValueType.equal,

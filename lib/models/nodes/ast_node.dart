@@ -27,11 +27,12 @@ class AstNode extends Node {
   @override
   Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$AstNodeToJson);
 
-  /// Subtypes should implement this
+  /// Subtypes should implement this if necessary.
   Value toAstValue() {
-    // TODO: implement to ast logic. Subtypes may need to override.
-    final v = Value();
-    return v;
+    final value = Value();
+    value.t = valueType.rawType;
+    value.children.addAll(children.map((e) => (e as AstNode).toAstValue()));
+    return value;
   }
 
   ValueType _valueType;

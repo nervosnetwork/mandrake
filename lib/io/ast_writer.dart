@@ -11,16 +11,16 @@ class AstWriter {
   final FileHandle _handle;
 
   Future<void> write() async {
-    await writeFile(_handle, _doc.toAst());
+    await writeFile(_handle, _doc.toAstBytes());
   }
 }
 
 extension DocumentAstExportable on Document {
-  List<int> toAst() => root.toAst();
+  List<int> toAstBytes() => root.toAstBytes();
 }
 
 extension RootAstExportable on RootNode {
-  List<int> toAst() {
+  Root toAst() {
     final result = Root();
 
     for (final callSlot in callSlots) {
@@ -43,6 +43,10 @@ extension RootAstExportable on RootNode {
       }
     }
 
-    return result.writeToBuffer();
+    return result;
+  }
+
+  List<int> toAstBytes() {
+    return toAst().writeToBuffer();
   }
 }
