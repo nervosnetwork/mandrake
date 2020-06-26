@@ -20,6 +20,7 @@ AstNode convertGetBalance(PrefabNode node) {
     position: standByMe(func, 2, 0),
   );
   arg0.name = 'arg0';
+  arg0.value = '0';
   func.addChild(arg0, func.addSlot('arg0').id);
 
   final arg1 = PrimitiveNode(
@@ -27,6 +28,7 @@ AstNode convertGetBalance(PrefabNode node) {
     position: standByMe(func, 2, 1),
   );
   arg1.name = 'arg1';
+  arg1.value = '1';
   func.addChild(arg1, func.addSlot('arg1').id);
 
   final current = PrimitiveNode(

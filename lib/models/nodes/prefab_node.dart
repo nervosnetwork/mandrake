@@ -16,6 +16,9 @@ class PrefabNode extends AstNode {
   @override
   Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$PrefabNodeToJson);
 
+  @override
+  Value toAstValue() => flatten().toAstValue();
+
   double get bodyHeight => 100;
 
   @override

@@ -17,8 +17,7 @@ class AstRoot extends AstNode {
   AstRoot(this.name, this.root);
 
   @override
-  List<AstNode> get children =>
-      [AstStreams(root.streams), AstCalls(root.calls)];
+  List<AstNode> get children => [AstStreams(root.streams), AstCalls(root.calls)];
 }
 
 class AstStreams extends AstNode {
@@ -161,8 +160,7 @@ class _NodeViewState extends State<NodeView> {
 
   @override
   void initState() {
-    _edgesCalculation = Future<List<Offset>>.delayed(
-        Duration(milliseconds: 20), () => _edgeEnds);
+    _edgesCalculation = Future<List<Offset>>.delayed(Duration(milliseconds: 20), () => _edgeEnds);
     super.initState();
   }
 
@@ -174,8 +172,7 @@ class _NodeViewState extends State<NodeView> {
       children: [
         FutureBuilder<List<Offset>>(
             future: _edgesCalculation,
-            builder:
-                (BuildContext context, AsyncSnapshot<List<Offset>> snapshot) {
+            builder: (BuildContext context, AsyncSnapshot<List<Offset>> snapshot) {
               if (snapshot.hasData) {
                 return CustomPaint(
                   painter: EdgePainter(snapshot.data),
@@ -186,9 +183,7 @@ class _NodeViewState extends State<NodeView> {
         Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            (node is AstStream || node is AstCall)
-                ? branchShape(node.name)
-                : nodeShape(node.name),
+            (node is AstStream || node is AstCall) ? branchShape(node.name) : nodeShape(node.name),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,15 +207,13 @@ class _NodeViewState extends State<NodeView> {
     var ends = _childKeys.where((e) => e.currentContext != null).map((e) {
       var childContext = e.currentContext;
       var renderedObject = childContext.findRenderObject() as RenderBox;
-      var pos = renderedObject.localToGlobal(Offset.zero,
-          ancestor: context.findRenderObject());
-      return Offset(pos.dx + childContext.size.width / 2,
-          pos.dy + nodeVerticalMargin + insideVerticalOffset);
+      var pos = renderedObject.localToGlobal(Offset.zero, ancestor: context.findRenderObject());
+      return Offset(
+          pos.dx + childContext.size.width / 2, pos.dy + nodeVerticalMargin + insideVerticalOffset);
     }).toList();
     _edgeEnds.clear();
     // Add current node's center point as edges' start.
-    _edgeEnds.add(Offset(
-        context.size.width / 2, nodeVerticalMargin + insideVerticalOffset));
+    _edgeEnds.add(Offset(context.size.width / 2, nodeVerticalMargin + insideVerticalOffset));
     _edgeEnds.addAll(ends);
   }
 }

@@ -1,4 +1,7 @@
 import 'dart:ui' show Offset, Size;
+import 'dart:convert';
+import 'package:fixnum/fixnum.dart';
+import 'package:convert/convert.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:basic_utils/basic_utils.dart';
 
@@ -26,6 +29,25 @@ class PrimitiveNode extends AstNode {
   factory PrimitiveNode.fromJson(Map<String, dynamic> json) => _$PrimitiveNodeFromJson(json);
   @override
   Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$PrimitiveNodeToJson);
+
+  @override
+  Value toAstValue() {
+    final value = Value();
+    value.t = valueType.rawType;
+
+    if (valueType == ValueType.nil) {
+    } else if (valueType == ValueType.bool) {
+      value.b = _value == 'true';
+    } else if (valueType == ValueType.bytes) {
+      value.raw = hex.decode(_value.substring(2));
+    } else if (valueType == ValueType.error) {
+      value.raw = utf8.encode(_value);
+    } else {
+      value.u = Int64.parseInt(_value);
+    }
+
+    return value;
+  }
 
   String _value = '';
   String get value => _value;
