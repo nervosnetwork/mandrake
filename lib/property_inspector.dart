@@ -8,6 +8,7 @@ import 'models/node.dart';
 import 'views/property_inspector/root_node_property_editor.dart';
 import 'views/property_inspector/ast_node_property_editor.dart';
 import 'views/property_inspector/primitive_node_property_editor.dart';
+import 'views/property_inspector/prefab_node_property_editor.dart';
 
 class PropertyInspector extends StatelessWidget {
   @override
@@ -41,6 +42,10 @@ class PropertyInspector extends StatelessWidget {
 
     if (node is PrimitiveNode) {
       return PrimitiveNodePropertyEditor();
+    }
+
+    if (node is PrefabNode) {
+      return PrefabNodePropertyEditor();
     }
 
     if (node is AstNode) {
