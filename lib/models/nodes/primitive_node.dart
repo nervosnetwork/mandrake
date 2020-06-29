@@ -112,8 +112,16 @@ class PrimitiveNode extends AstNode {
     }
 
     if (valueType == ValueType.bytes) {
-      if (normalized.substring(0, 1) != '0x' && !isHexadecimal(normalized.substring(2))) {
-        normalized = '0x';
+      if (normalized.substring(0, 2) == '0x') {
+        if (!isHexadecimal(normalized.substring(2))) {
+          normalized = '0x';
+        }
+      } else {
+        if (isHexadecimal(normalized)) {
+          normalized = '0x' + normalized;
+        } else {
+          normalized = '0x';
+        }
       }
     }
 
