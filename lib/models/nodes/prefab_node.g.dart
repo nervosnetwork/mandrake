@@ -24,9 +24,10 @@ PrefabNode _$PrefabNodeFromJson(Map<String, dynamic> json) {
         ?.map((e) =>
             e == null ? null : ChildSlot.fromJson(e as Map<String, dynamic>))
         ?.toList()
-    ..values = (json['values'] as List)
-        ?.map((e) =>
-            e == null ? null : PrefabValue.fromJson(e as Map<String, dynamic>))
+    ..properties = (json['properties'] as List)
+        ?.map((e) => e == null
+            ? null
+            : PrefabProperty.fromJson(e as Map<String, dynamic>))
         ?.toList();
 }
 
@@ -38,5 +39,5 @@ Map<String, dynamic> _$PrefabNodeToJson(PrefabNode instance) =>
       'children': instance.children,
       'slots': instance.slots,
       'value_type': instance.valueType,
-      'values': instance.values,
+      'properties': instance.properties,
     };

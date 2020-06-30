@@ -23,7 +23,7 @@ class NodeCreator {
 
     if (valueType.isPrefab) {
       final prefabNode = PrefabNode(valueType: valueType, position: pos);
-      prefabNode.values.add(PrefabValue(
+      prefabNode.properties.add(PrefabProperty(
         'Lock hash',
         '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8',
       ));

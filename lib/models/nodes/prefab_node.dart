@@ -1,19 +1,19 @@
 import 'dart:ui' show Offset, Size;
 
 import 'ast_node.dart';
-import 'prefabs/prefab_value.dart';
+import 'prefabs/prefab_property.dart';
 import 'prefabs/query_cells.dart';
 import 'prefabs/map_capacities.dart';
 import 'prefabs/get_balance.dart';
 
-export 'prefabs/prefab_value.dart';
+export 'prefabs/prefab_property.dart';
 
 part 'prefab_node.g.dart';
 
 @JsonSerializable()
 class PrefabNode extends AstNode {
   PrefabNode({ValueType valueType, Offset position})
-      : values = [],
+      : properties = [],
         super(valueType: valueType, position: position);
 
   factory PrefabNode.fromJson(Map<String, dynamic> json) => _$PrefabNodeFromJson(json);
@@ -35,10 +35,10 @@ class PrefabNode extends AstNode {
 
   String get description => valueType.description;
 
-  List<PrefabValue> values;
+  List<PrefabProperty> properties;
 
-  void updateValue(String name, String newValue) {
-    for (var v in values) {
+  void updateProperty(String name, String newValue) {
+    for (var v in properties) {
       if (v.name == name) {
         v.value = newValue;
       }

@@ -64,7 +64,7 @@ class PrefabNodePropertyEditor extends StatelessWidget {
   }
 
   List<Widget> _valuesEditor(BuildContext context, PrefabNode node) {
-    return node.values.map((value) {
+    return node.properties.map((value) {
       final _valueController = TextEditingController();
       _valueController.text = value.value;
       return Column(
@@ -92,7 +92,7 @@ class PrefabNodePropertyEditor extends StatelessWidget {
                           maxLines: 2,
                           onFieldSubmitted: (v) {
                             FocusHelper.unfocus(context);
-                            node.updateValue(value.name, v);
+                            node.updateProperty(value.name, v);
                           },
                           textInputAction: TextInputAction.next,
                         ),
