@@ -2,9 +2,9 @@ name: Mandrake CI
 
 on:
   push:
-    branches: [master]
+    branches: [develop]
   pull_request:
-    branches: [master]
+    branches: [develop]
 
 jobs:
   check:
@@ -48,8 +48,6 @@ jobs:
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
-        REPOSITORY_NAME: ashchan/mandrake-preview
-        ACCESS_TOKEN: ${{ secrets.DEPLOY_ACCESS_TOKEN }}
-        BRANCH: master
-        TARGET_FOLDER: docs
+        BRANCH: gh-pages
         FOLDER: build/web
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
