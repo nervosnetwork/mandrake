@@ -27,4 +27,4 @@ jobs:
       with:
         BRANCH: gh-pages
         FOLDER: build/web
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ACCESS_TOKEN: ${{ secrets.DEPLOY_ACCESS_TOKEN }}
