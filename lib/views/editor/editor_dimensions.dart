@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class EditorDimensions {
   static const double toolbarHeight = 40;
   static const double rulerWidth = 20;
-  static const double objectLibraryPanelWidth = 180;
+  static const double objectLibraryPanelWidth = 200;
   static const double propertyInspectorPanelWidth = 280;
 
   static Rect visibleCanvasArea(BuildContext context) {
