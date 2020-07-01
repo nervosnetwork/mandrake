@@ -26,11 +26,7 @@ class MandrakeApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Scaffold(
-        body: Banner(
-          message: 'INSIDER α',
-          location: BannerLocation.topEnd,
-          child: Editor(),
-        ),
+        body: Editor(),
       ),
     );
   }
