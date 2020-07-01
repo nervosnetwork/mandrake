@@ -122,7 +122,6 @@ class NodeTemplate {
       NT(ValueType.error),
       NT(ValueType.arg),
       NT(ValueType.param),
-      // TODO: to which category arg and param should belong?
     ],
     NodeTemplateGroup.blockchain: [
       NT(ValueType.outPoint),

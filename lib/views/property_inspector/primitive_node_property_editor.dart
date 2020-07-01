@@ -108,8 +108,6 @@ class PrimitiveNodePropertyEditor extends StatelessWidget {
       );
     }
 
-    /// TODO: more edit fields
-
     return Text(node.value);
   }
 }
