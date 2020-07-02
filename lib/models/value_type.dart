@@ -55,6 +55,11 @@ class ValueType {
     'PREFAB_GET_BALANCE',
     'Calculate balance as total capacities.',
   );
+  static const ValueType prefabUdt = ValueType(
+    null,
+    'PREFAB_UTD',
+    'UDT Example',
+  );
 
   static const ValueType nil = ValueType(Value_Type.NIL);
   static const ValueType uint64 = ValueType(Value_Type.UINT64);
@@ -124,6 +129,7 @@ class ValueType {
     prefabQueryCells,
     prefabMapCapacities,
     prefabGetBalance,
+    prefabUdt,
     nil,
     uint64,
     bool,

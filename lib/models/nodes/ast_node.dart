@@ -113,6 +113,7 @@ class NodeTemplate {
       NT(ValueType.prefabQueryCells),
       NT(ValueType.prefabMapCapacities),
       NT(ValueType.prefabGetBalance),
+      NT(ValueType.prefabUdt),
     ],
     NodeTemplateGroup.primitive: [
       NT(ValueType.nil),

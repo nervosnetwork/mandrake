@@ -5,6 +5,7 @@ import 'prefabs/prefab_property.dart';
 import 'prefabs/query_cells.dart';
 import 'prefabs/map_capacities.dart';
 import 'prefabs/get_balance.dart';
+import 'prefabs/udt.dart';
 
 export 'prefabs/prefab_property.dart';
 
@@ -53,6 +54,7 @@ class PrefabNode extends AstNode {
       ValueType.prefabQueryCells: convertQueryCells,
       ValueType.prefabMapCapacities: convertMapCapacities,
       ValueType.prefabGetBalance: convertGetBalance,
+      ValueType.prefabUdt: convertUdt,
     };
 
     final convert = map[valueType];
