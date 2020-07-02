@@ -7,3 +7,8 @@ Offset standByMe(AstNode parent, int childrenCount, int index) {
   final v = (index - childrenCount / 2) * 160 + 80;
   return parent.position + Offset(h, v);
 }
+
+Offset standBelowMe(AstNode node, int index) {
+  final v = (index + 1.0) * 160 + 80;
+  return node.position + Offset(0, v);
+}

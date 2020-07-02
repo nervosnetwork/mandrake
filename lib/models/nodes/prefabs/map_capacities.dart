@@ -5,7 +5,7 @@ import '../../nodes/prefab_node.dart';
 import '../../nodes/get_op_node.dart';
 import '../../nodes/primitive_node.dart';
 
-AstNode convertMapCapacities(PrefabNode node) {
+List<AstNode> convertMapCapacities(PrefabNode node) {
   final mapCapacities = AstNode(valueType: ValueType.map, position: node.position);
   mapCapacities.name = 'capacities';
 
@@ -29,5 +29,5 @@ AstNode convertMapCapacities(PrefabNode node) {
   );
   mapCapacities.addChild(cells, mapCapacities.addSlot('cells').id);
 
-  return mapCapacities;
+  return [mapCapacities];
 }

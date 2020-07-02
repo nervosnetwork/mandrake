@@ -4,7 +4,7 @@ import '../../nodes/ast_node.dart';
 import '../../nodes/prefab_node.dart';
 import '../../nodes/primitive_node.dart';
 
-AstNode convertGetBalance(PrefabNode node) {
+List<AstNode> convertGetBalance(PrefabNode node) {
   final balance = AstNode(valueType: ValueType.reduce, position: node.position);
   balance.name = 'balance';
 
@@ -46,5 +46,5 @@ AstNode convertGetBalance(PrefabNode node) {
   capacities.name = 'capacities';
   balance.addChild(capacities, balance.addSlot('capacities').id);
 
-  return balance;
+  return [balance];
 }

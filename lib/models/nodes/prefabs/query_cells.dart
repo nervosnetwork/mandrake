@@ -6,7 +6,7 @@ import '../../nodes/op_node.dart';
 import '../../nodes/get_op_node.dart';
 import '../../nodes/primitive_node.dart';
 
-AstNode convertQueryCells(PrefabNode node) {
+List<AstNode> convertQueryCells(PrefabNode node) {
   final queryCells = AstNode(valueType: ValueType.queryCells, position: node.position);
   queryCells.name = 'cells';
 
@@ -85,5 +85,5 @@ AstNode convertQueryCells(PrefabNode node) {
   param0.name = 'param0';
   args.addChild(param0, args.slots.last.id);
 
-  return queryCells;
+  return [queryCells];
 }

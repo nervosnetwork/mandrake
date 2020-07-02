@@ -22,7 +22,7 @@ class PrefabNode extends AstNode {
   Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$PrefabNodeToJson);
 
   @override
-  Value toAstValue() => flatten().toAstValue();
+  Value toAstValue() => flatten().first.toAstValue();
 
   double get bodyHeight => 100;
 
@@ -49,7 +49,9 @@ class PrefabNode extends AstNode {
 
   /// Convert to a tree of nodes. Once converted, that tree couldn't be
   /// converted back to the prefab node.
-  AstNode flatten() {
+  /// In most cases flattened object should be a single ast node, but it could be
+  /// multiple nodes, e.g. several nodes as a group of call results.
+  List<AstNode> flatten() {
     final map = {
       ValueType.prefabQueryCells: convertQueryCells,
       ValueType.prefabMapCapacities: convertMapCapacities,
