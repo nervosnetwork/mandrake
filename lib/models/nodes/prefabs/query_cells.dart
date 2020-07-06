@@ -29,7 +29,7 @@ List<AstNode> convertQueryCells(PrefabNode node) {
     valueType: ValueType.bytes,
     position: standByMe(codeHash, 2, 1),
   );
-  codeHashValue.value = '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8';
+  codeHashValue.value = secpTypeHash;
   codeHash.addChild(codeHashValue, codeHash.slots.first.id);
 
   final lock = GetOpNode(
