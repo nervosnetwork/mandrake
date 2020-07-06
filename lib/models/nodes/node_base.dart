@@ -25,8 +25,7 @@ class Node with ChangeNotifier, DirtyTracker {
     this.maximumSlotCount = 5,
   })  : _id = Uuid().v4(),
         _name = name,
-        _position = position,
-        assert(position != null);
+        _position = position ?? Offset.zero;
 
   factory Node.fromJson(Map<String, dynamic> json) {
     if (json['node_type'] == 'Node') {
