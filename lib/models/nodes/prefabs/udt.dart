@@ -21,7 +21,7 @@ AstNode _ready() {
 
   final typeCellsLength = OperationNode(valueType: ValueType.len);
   typeCellsLength.addChild(
-    autoLayout(_typeCells(), standByMe(typeCellsLength, 1, 0)),
+    _typeCells(),
     typeCellsLength.slots.first.id,
   );
 
@@ -75,11 +75,9 @@ AstNode _balance() {
 }
 
 AstNode _transfer() {
-  final result = OperationNode(valueType: ValueType.serializeToJson);
-
   final transaction = AstNode(valueType: ValueType.transaction);
   transaction.addChild(
-    autoLayout(_inputCells(), standByMe(transaction, 3, 0)),
+    _inputCells(),
     transaction.addSlot('inputs').id,
   );
 
@@ -87,13 +85,13 @@ AstNode _transfer() {
   outputs.addChild(_transferCell(), outputs.addSlot('transfer').id);
   outputs.addChild(_changeCell(), outputs.addSlot('change').id);
   transaction.addChild(
-    autoLayout(outputs, standByMe(transaction, 3, 1)),
+    outputs,
     transaction.addSlot('outputs').id,
   );
 
   final cellDeps = AstNode(valueType: ValueType.list);
   cellDeps.addChild(
-    autoLayout(_assembleSecpCellDep(), standByMe(cellDeps, 2, 1)),
+    _assembleSecpCellDep(),
     cellDeps.addSlot('secp cell dep').id,
   );
   final index = AstNode(valueType: ValueType.index);
@@ -106,12 +104,19 @@ AstNode _transfer() {
   );
   cellDeps.addChild(index, cellDeps.addSlot('index').id);
   transaction.addChild(
-    autoLayout(cellDeps, standByMe(transaction, 3, 2)),
+    cellDeps,
     transaction.addSlot('cell deps').id,
   );
 
-// TODO	transaction = adjustFee(transaction)
-/*
+  final result = OperationNode(valueType: ValueType.serializeToJson);
+  result.addChild(_adjustFee(transaction), result.slots.first.id);
+  return result;
+}
+
+AstNode _adjustFee(AstNode tx) {
+  return tx;
+  /*
+  
 func adjustFee(tx *ast.Value) *ast.Value {
 	length := &ast.Value{
 		T: ast.Value_LEN,
@@ -167,9 +172,6 @@ func adjustFee(tx *ast.Value) *ast.Value {
 		},
 	}
 }*/
-  result.addChild(transaction, result.slots.first.id);
-
-  return result;
 }
 
 AstNode _typeCells() {
