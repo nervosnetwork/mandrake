@@ -234,7 +234,7 @@ AstNode _totalCapacities() {
 }
 
 AstNode _transferValue() {
-  return uintValue(Int64(142 * 100000));
+  return uintValue(Int64(142 * 100000000));
 }
 
 AstNode _changeCapacities() {
