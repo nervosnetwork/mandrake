@@ -170,22 +170,29 @@ class Document with ChangeNotifier, DirtyTracker {
   }
 
   AstNode flattenPrefabNode(PrefabNode node) {
-    var flattened = node.flatten();
-    flattened.name = node.name;
+    final flattened = node.flatten();
+    var first = flattened.first;
+    if (flattened.length == 1) {
+      first.name = node.name;
+    }
 
     final parents = parentsOf(node);
     if (parents.isNotEmpty) {
       for (final parent in parents) {
-        parent.replaceChild(node.id, flattened);
+        parent.replaceChild(node.id, first);
       }
     } else {
       final index = topLevelNodes.indexOf(node);
-      topLevelNodes[index] = flattened;
+      topLevelNodes[index] = first;
+    }
+
+    for (final other in flattened.sublist(1)) {
+      addNode(other);
     }
 
     _nodesChanged();
 
-    return flattened;
+    return first;
   }
 
   void rebuild() {
