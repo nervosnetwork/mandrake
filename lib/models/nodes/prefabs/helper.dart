@@ -72,6 +72,13 @@ AstNode add(AstNode lhs, AstNode rhs) {
   return result;
 }
 
+AstNode subtract(AstNode lhs, AstNode rhs) {
+  final result = OperationNode(valueType: ValueType.subtract);
+  result.addChild(lhs, result.slots.first.id);
+  result.addChild(rhs, result.slots.last.id);
+  return result;
+}
+
 AstNode getField(ValueType valueType, AstNode value) {
   final result = GetOpNode(valueType: valueType);
   result.addChild(value, result.slots.first.id);

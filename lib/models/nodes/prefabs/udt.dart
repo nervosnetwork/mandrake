@@ -10,9 +10,9 @@ import '../primitive_node.dart';
 
 List<AstNode> convertUdt(PrefabNode node) {
   return [
-    autoLayout(_ready(), node.position),
-    autoLayout(_balance(), standBelowMe(node, 1)),
-    autoLayout(_transfer(), standBelowMe(node, 3)),
+    autoLayout(_ready()..name = 'ready', node.position),
+    autoLayout(_balance()..name = 'balance', standBelowMe(node, 1)),
+    autoLayout(_transfer()..name = 'transfer', standBelowMe(node, 4)),
   ];
 }
 
@@ -114,64 +114,41 @@ AstNode _transfer() {
 }
 
 AstNode _adjustFee(AstNode tx) {
-  return tx;
-  /*
-  
-func adjustFee(tx *ast.Value) *ast.Value {
-	length := &ast.Value{
-		T: ast.Value_LEN,
-		Children: []*ast.Value{
-			&ast.Value{
-				T:        ast.Value_SERIALIZE_TO_CORE,
-				Children: []*ast.Value{tx},
-			},
-		},
-	}
-	fee := &ast.Value{
-		T: ast.Value_MULTIPLY,
-		Children: []*ast.Value{
-			// Adding extra bytes here to set aside for signatures
-			&ast.Value{
-				T: ast.Value_ADD,
-				Children: []*ast.Value{
-					length,
-					uint_value(100),
-				},
-			},
-			uint_value(1),
-		},
-	}
-	changeCell := tx.GetChildren()[1].GetChildren()[1]
-	adjustedChangeCell := &ast.Value{
-		T: ast.Value_CELL,
-		Children: []*ast.Value{
-			&ast.Value{
-				T: ast.Value_SUBTRACT,
-				Children: []*ast.Value{
-					changeCell.GetChildren()[0],
-					fee,
-				},
-			},
-			changeCell.GetChildren()[1],
-			changeCell.GetChildren()[2],
-			changeCell.GetChildren()[3],
-		},
-	}
-	return &ast.Value{
-		T: ast.Value_TRANSACTION,
-		Children: []*ast.Value{
-			tx.GetChildren()[0],
-			&ast.Value{
-				T: ast.Value_LIST,
-				Children: []*ast.Value{
-					tx.GetChildren()[1].GetChildren()[0],
-					adjustedChangeCell,
-				},
-			},
-			tx.GetChildren()[2],
-		},
-	}
-}*/
+  final serialized = OperationNode(valueType: ValueType.serializeToCore);
+  serialized.addChild(tx, serialized.slots.first.id);
+  final length = OperationNode(valueType: ValueType.len);
+  length.addChild(serialized, length.slots.first.id);
+  final addedLength = add(length, uintValue(Int64(100)));
+  final fee = OperationNode(valueType: ValueType.multiply);
+  fee.addChild(addedLength, fee.slots.first.id);
+  fee.addChild(uintValue(Int64(1)), fee.slots.last.id);
+
+  final changeCell = tx.children[1].children[1];
+  final adjustedChangeCell = OperationNode(valueType: ValueType.cell);
+  adjustedChangeCell.addChild(
+    subtract(changeCell.children[0], fee),
+    adjustedChangeCell.slots.first.id,
+  );
+  adjustedChangeCell.addChild(
+    changeCell.children[1],
+    adjustedChangeCell.addSlot('secp lock').id,
+  );
+  adjustedChangeCell.addChild(
+    changeCell.children[2],
+    adjustedChangeCell.addSlot('udt type').id,
+  );
+  adjustedChangeCell.addChild(
+    changeCell.children[3],
+    adjustedChangeCell.addSlot('tokens').id,
+  );
+
+  final outputs = AstNode(valueType: ValueType.list);
+  outputs.addChild(tx.children[1].children[0], outputs.addSlot('amount').id);
+  outputs.addChild(adjustedChangeCell, outputs.addSlot('change').id);
+  final result = AstNode(valueType: ValueType.transaction);
+  result.addChild(tx.children[0], result.addSlot('inputs').id);
+  result.addChild(tx.children[2], result.addSlot('cell deps').id);
+  return result;
 }
 
 AstNode _typeCells() {
@@ -260,20 +237,14 @@ AstNode _transferValue() {
 }
 
 AstNode _changeCapacities() {
-  final result = OperationNode(valueType: ValueType.subtract);
-  result.addChild(_totalCapacities(), result.slots.first.id);
-  result.addChild(_transferValue(), result.slots.last.id);
-  return result;
+  return subtract(_totalCapacities(), _transferValue());
 }
 
 AstNode _changeTokens() {
   final result = AstNode(valueType: ValueType.slice);
   result.addChild(uintValue(Int64(0)), result.addSlot('0').id);
   result.addChild(uintValue(Int64(16)), result.addSlot('16').id);
-  final subtract = OperationNode(valueType: ValueType.subtract);
-  subtract.addChild(_balance(), subtract.slots.first.id);
-  subtract.addChild(_transferTokens(), subtract.slots.last.id);
-  return result;
+  return subtract(_balance(), _transferTokens());
 }
 
 AstNode _isDefaultSecpCell(Int64 argIndex) {

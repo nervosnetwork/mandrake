@@ -172,7 +172,9 @@ class Document with ChangeNotifier, DirtyTracker {
   AstNode flattenPrefabNode(PrefabNode node) {
     final flattened = node.flatten();
     var first = flattened.first;
-    first.name = node.name;
+    if (flattened.length == 1) {
+      first.name = node.name;
+    }
 
     final parents = parentsOf(node);
     if (parents.isNotEmpty) {
