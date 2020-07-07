@@ -2,6 +2,8 @@
 
 [![Mandrake CI](https://github.com/nervosnetwork/mandrake/workflows/Mandrake%20CI/badge.svg)](https://github.com/nervosnetwork/mandrake/actions?query=workflow%3A%22Mandrake+CI%22)
 
+> Mandrake is still under active development and considered to be a work in progress.
+
 The [Animagus](https://github.com/xxuejie/animagus) GUI.
 
 ## Requirements
