@@ -214,7 +214,6 @@ AstNode _transferTokens() {
 AstNode _totalCapacities() {
   final map = AstNode(valueType: ValueType.map);
   map.addChild(getField(ValueType.getCapacity, arg(Int64(0))), map.addSlot('get capacity').id);
-  map.addChild(arg(Int64(0)), map.addSlot('arg0').id);
   map.addChild(_inputCells(), map.addSlot('cells').id);
 
   final result = AstNode(valueType: ValueType.reduce);
