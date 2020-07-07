@@ -245,7 +245,8 @@ AstNode _changeTokens() {
   final result = AstNode(valueType: ValueType.slice);
   result.addChild(uintValue(Int64(0)), result.addSlot('0').id);
   result.addChild(uintValue(Int64(16)), result.addSlot('16').id);
-  return subtract(_balance(), _transferTokens());
+  result.addChild(subtract(_balance(), _transferTokens()), result.addSlot('change token').id);
+  return result;
 }
 
 AstNode _isDefaultSecpCell(Int64 argIndex) {
