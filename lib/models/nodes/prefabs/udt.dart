@@ -147,6 +147,7 @@ AstNode _adjustFee(AstNode tx) {
   outputs.addChild(adjustedChangeCell, outputs.addSlot('change').id);
   final result = AstNode(valueType: ValueType.transaction);
   result.addChild(tx.children[0], result.addSlot('inputs').id);
+  result.addChild(outputs, result.addSlot('outputs').id);
   result.addChild(tx.children[2], result.addSlot('cell deps').id);
   return result;
 }
