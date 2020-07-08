@@ -10,9 +10,9 @@ import '../primitive_node.dart';
 
 List<AstNode> convertUdt(PrefabNode node) {
   return [
-    autoLayout(_ready()..name = 'ready', node.position),
-    autoLayout(_balance()..name = 'balance', standBelowMe(node, 1)),
-    autoLayout(_transfer()..name = 'transfer', standBelowMe(node, 4)),
+    autoLayout(_ready()..name = 'ready', initialPosition: node.position),
+    autoLayout(_balance()..name = 'balance', initialPosition: standBelowMe(node, 1)),
+    autoLayout(_transfer()..name = 'transfer', initialPosition: standBelowMe(node, 7)),
   ];
 }
 
