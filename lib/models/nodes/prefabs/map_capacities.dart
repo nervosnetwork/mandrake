@@ -9,25 +9,16 @@ List<AstNode> convertMapCapacities(PrefabNode node) {
   final mapCapacities = AstNode(valueType: ValueType.map, position: node.position);
   mapCapacities.name = 'capacities';
 
-  final getCapacity = GetOpNode(
-    valueType: ValueType.getCapacity,
-    position: standByMe(mapCapacities, 2, 0),
-  );
+  final getCapacity = GetOpNode(valueType: ValueType.getCapacity);
   mapCapacities.addChild(getCapacity, mapCapacities.addSlot('get capacity').id);
 
-  final arg0 = PrimitiveNode(
-    valueType: ValueType.arg,
-    position: standByMe(getCapacity, 1, 0),
-  );
+  final arg0 = PrimitiveNode(valueType: ValueType.arg);
   arg0.name = 'arg0';
   arg0.value = '0';
   getCapacity.addChild(arg0, getCapacity.slots.first.id);
 
-  final cells = PrefabNode(
-    valueType: ValueType.prefabQueryCells,
-    position: standByMe(mapCapacities, 2, 1),
-  );
+  final cells = PrefabNode(valueType: ValueType.prefabQueryCells);
   mapCapacities.addChild(cells, mapCapacities.addSlot('cells').id);
 
-  return [mapCapacities];
+  return [autoLayout(mapCapacities, initialPosition: node.position)];
 }
