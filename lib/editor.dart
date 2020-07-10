@@ -210,7 +210,7 @@ class _EditorState extends State<Editor> {
             top: 0,
             left: 0,
             right: 0,
-            height: EditorDimensions.toolbarHeight,
+            height: EditorDimensions.toolbarHeight + EditorDimensions.mainMenuMaxHeight,
             child: Toolbar(
               onNewDocument: _newDocument,
               onOpenDocument: _openDocument,
