@@ -10,6 +10,17 @@
       "type": "dart"
     },
     {
+      "name": "Debug Web",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "-d",
+        "chrome",
+        "--release",
+        "--dart-define=FLUTTER_WEB_USE_SKIA=true"
+      ]
+    },
+    {
       "name": "Profile",
       "request": "launch",
       "type": "dart",
