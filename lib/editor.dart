@@ -90,6 +90,25 @@ class _EditorState extends State<Editor> {
     return false;
   }
 
+  Future<bool> _saveDocumentAs() async {
+    final handle = await showSavePanel(
+      suggestedFileName: _doc.fileName,
+      allowedFileTypes: [
+        FileFilterGroup(extensions: ['json'], label: 'JSON')
+      ],
+    );
+    if (handle != null) {
+      _docHandle = handle;
+    }
+
+    if (_docHandle != null) {
+      await DocWriter(_doc, _docHandle).write();
+      _doc.markNotDirty();
+      return true;
+    }
+    return false;
+  }
+
   void _exportAst() async {
     final handle = await showSavePanel(
       suggestedFileName: 'ast.bin',
@@ -216,6 +235,7 @@ class _EditorState extends State<Editor> {
               onNewDocument: _newDocument,
               onOpenDocument: _openDocument,
               onSaveDocument: _saveDocument,
+              onSaveDocumentAs: _saveDocumentAs,
               onExportAst: _exportAst,
             ),
           ),

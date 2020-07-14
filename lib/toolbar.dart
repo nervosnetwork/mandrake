@@ -8,10 +8,17 @@ import 'views/editor/editor_dimensions.dart';
 import 'main_menu.dart';
 
 class Toolbar extends StatelessWidget {
-  Toolbar({this.onOpenDocument, this.onNewDocument, this.onSaveDocument, this.onExportAst});
+  Toolbar({
+    this.onOpenDocument,
+    this.onNewDocument,
+    this.onSaveDocument,
+    this.onSaveDocumentAs,
+    this.onExportAst,
+  });
   final Function onNewDocument;
   final Function onOpenDocument;
   final Function onSaveDocument;
+  final Function onSaveDocumentAs;
   final Function onExportAst;
 
   @override
@@ -89,6 +96,7 @@ class Toolbar extends StatelessWidget {
             onNewDocument: onNewDocument,
             onOpenDocument: onOpenDocument,
             onSaveDocument: onSaveDocument,
+            onSaveDocumentAs: onSaveDocumentAs,
             onExportAst: onExportAst,
           ),
         ],

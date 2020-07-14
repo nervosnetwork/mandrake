@@ -9,10 +9,17 @@ typedef MenuItemSelected = void Function(String item);
 final subMenuWidth = 200.0;
 
 class MainMenu extends StatefulWidget {
-  MainMenu({this.onOpenDocument, this.onNewDocument, this.onSaveDocument, this.onExportAst});
+  MainMenu({
+    this.onOpenDocument,
+    this.onNewDocument,
+    this.onSaveDocument,
+    this.onSaveDocumentAs,
+    this.onExportAst,
+  });
   final Function onNewDocument;
   final Function onOpenDocument;
   final Function onSaveDocument;
+  final Function onSaveDocumentAs;
   final Function onExportAst;
 
   @override
@@ -72,6 +79,7 @@ class _MainMenuState extends State<MainMenu> {
           _MenuItem('Open...', widget.onOpenDocument),
           _SeparatorMenuItem(),
           _MenuItem('Save', widget.onSaveDocument),
+          _MenuItem('Save As...', widget.onSaveDocumentAs),
           _SeparatorMenuItem(),
           _MenuItem('Export AST...', widget.onExportAst),
         ],
