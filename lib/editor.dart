@@ -210,7 +210,8 @@ class _EditorState extends State<Editor> {
             top: 0,
             left: 0,
             right: 0,
-            height: EditorDimensions.toolbarHeight,
+            // Toolbar actual size to occupy full screen for main menu
+            height: MediaQuery.of(context).size.height,
             child: Toolbar(
               onNewDocument: _newDocument,
               onOpenDocument: _openDocument,

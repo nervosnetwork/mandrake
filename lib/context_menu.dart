@@ -64,6 +64,7 @@ class _ContextMenuState extends State<ContextMenu> {
           ),
         ),
         hoverColor: Colors.blue,
+        splashColor: Colors.transparent,
       ),
     );
   }
