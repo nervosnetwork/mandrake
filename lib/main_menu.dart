@@ -12,12 +12,12 @@ class MainMenu extends StatefulWidget {
 }
 
 class _MainMenuState extends State<MainMenu> {
-  var _currentSubMenuIndex = -1;
-  bool get subMenuIsShowing => _currentSubMenuIndex != -1;
+  var currentSubMenuIndex = -1;
+  bool get subMenuIsShowing => currentSubMenuIndex != -1;
 
   @override
   Widget build(BuildContext context) {
-    final subMenu = _subMenu();
+    final subMenu = currentSubMenu();
 
     return Stack(
       fit: StackFit.expand,
@@ -26,20 +26,20 @@ class _MainMenuState extends State<MainMenu> {
           behavior: subMenuIsShowing ? HitTestBehavior.opaque : HitTestBehavior.deferToChild,
           child: Container(),
           onPointerDown: (event) {
-            _selectSubMenu(-1);
+            selectSubMenu(-1);
           },
         ),
         Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            _menuItem('File', () => _selectSubMenu(0)),
-            _menuItem('View', () => _selectSubMenu(1)),
+            mainMenuItem(_MenuItem('File', () => selectSubMenu(0))),
+            mainMenuItem(_MenuItem('View', () => selectSubMenu(1))),
           ],
         ),
         if (subMenu != null)
           Positioned(
             top: EditorDimensions.toolbarHeight,
-            left: 10 + _currentSubMenuIndex * 80.0,
+            left: 10 + currentSubMenuIndex * 80.0,
             height: subMenu.size.height,
             width: subMenu.size.width,
             child: subMenu,
@@ -48,65 +48,66 @@ class _MainMenuState extends State<MainMenu> {
     );
   }
 
-  void _selectSubMenu(int index) {
+  void selectSubMenu(int index) {
     setState(() {
-      _currentSubMenuIndex = index;
+      currentSubMenuIndex = index;
     });
   }
 
-  Menu _subMenu() {
+  _Menu currentSubMenu() {
     final menus = [
-      Menu(
+      _Menu(
         [
-          'New File',
-          'Open File',
-          'Save File',
-          'Export AST',
+          _MenuItem('New File', () => {}),
+          _MenuItem('Open File', () => {}),
+          _MenuItem('Save File', () => {}),
+          _MenuItem('Export AST', () => {}),
         ],
-        (item) {},
       ),
-      Menu(
+      _Menu(
         [
-          'Actual Size',
-          'Zoom In',
-          'Zoom Out',
+          _MenuItem('Actual Size', () => {}),
+          _MenuItem('Zoom In', () => {}),
+          _MenuItem('Zoom Out', () => {}),
         ],
-        (item) {},
       ),
     ];
-    return subMenuIsShowing ? menus[_currentSubMenuIndex] : null;
+    return subMenuIsShowing ? menus[currentSubMenuIndex] : null;
   }
 
-  Widget _menuItem(String title, Function onPressed) {
+  Widget mainMenuItem(_MenuItem item) {
     return FlatButton(
-      child: Text(title),
-      onPressed: onPressed,
+      child: Text(item.title),
+      onPressed: item.onPressed,
       splashColor: Colors.transparent,
     );
   }
 }
 
-class Menu extends StatelessWidget {
-  Menu(this.items, this.onSelcted);
+class _MenuItem {
+  _MenuItem(this.title, this.onPressed);
 
-  final List<String> items;
-  final MenuItemSelected onSelcted;
+  final String title;
+  final Function onPressed;
+}
 
-  Size get size => Menu.sizeFor(items);
+class _Menu extends StatelessWidget {
+  _Menu(this.items);
 
-  /// Sometimes we need to know the dimension of the menu.
-  static Size sizeFor(List<String> items) {
-    return Size(subMenuWidth, _padding * 2 + items.length * _itemHeight + _borderWidth * 2);
+  final List<_MenuItem> items;
+
+  Size get size {
+    return Size(subMenuWidth, padding * 2 + items.length * itemHeight + borderWidth * 2);
   }
 
-  static const double _itemHeight = 26;
-  static const double _padding = 6;
-  static const double _borderWidth = 1;
+  static const double itemHeight = 26;
+  static const double padding = 6;
+  static const double borderWidth = 1;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      borderRadius: BorderRadius.circular(Menu._padding / 2),
+      borderRadius: BorderRadius.circular(_Menu.padding / 2),
       color: Theme.of(context).dialogBackgroundColor,
       elevation: 8,
       child: Container(
@@ -114,12 +115,12 @@ class Menu extends StatelessWidget {
         height: size.height,
         decoration: BoxDecoration(
           border: Border.all(
-            width: Menu._borderWidth,
+            width: _Menu.borderWidth,
             color: Colors.grey[300],
           ),
-          borderRadius: BorderRadius.circular(Menu._padding / 2),
+          borderRadius: BorderRadius.circular(_Menu.padding / 2),
         ),
-        padding: EdgeInsets.symmetric(vertical: Menu._padding),
+        padding: EdgeInsets.symmetric(vertical: _Menu.padding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: items.map((item) => itemButton(item)).toList(),
@@ -128,15 +129,15 @@ class Menu extends StatelessWidget {
     );
   }
 
-  Widget itemButton(String item) {
+  Widget itemButton(_MenuItem item) {
     return SizedBox(
-      height: Menu._itemHeight,
+      height: _Menu.itemHeight,
       child: FlatButton(
-        onPressed: () => onSelcted(item),
+        onPressed: () => item.onPressed,
         child: SizedBox(
           width: double.infinity,
           child: Text(
-            item,
+            item.title,
             textAlign: TextAlign.left,
           ),
         ),
