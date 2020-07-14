@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mandrake/views/editor/editor_dimensions.dart';
 import 'package:provider/provider.dart';
 
 import 'models/document.dart';
 import 'models/editor_state.dart';
+import 'views/editor/editor_dimensions.dart';
 
 import 'main_menu.dart';
 
@@ -36,6 +36,7 @@ class Toolbar extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               SizedBox(width: EditorDimensions.mainMenuWidth),
+              /*
               _iconButton(
                 icon: Icon(Icons.note_add),
                 onPressed: () => onNewDocument(),
@@ -52,6 +53,7 @@ class Toolbar extends StatelessWidget {
                 icon: Icon(Icons.arrow_forward),
                 onPressed: () => onExportAst(),
               ),
+              */
               _separator(),
               _iconButton(
                 icon: Icon(Icons.zoom_out),
@@ -83,7 +85,12 @@ class Toolbar extends StatelessWidget {
               ),
             ],
           ),
-          MainMenu(),
+          MainMenu(
+            onNewDocument: onNewDocument,
+            onOpenDocument: onOpenDocument,
+            onSaveDocument: onSaveDocument,
+            onExportAst: onExportAst,
+          ),
         ],
       );
     });
