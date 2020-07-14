@@ -47,6 +47,7 @@ class _MainMenuState extends State<MainMenu> {
         Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
+            SizedBox(width: 8),
             mainMenuItem(_MenuItem('File', () => selectSubMenu(0))),
             mainMenuItem(_MenuItem('View', () => selectSubMenu(1))),
           ],
@@ -54,7 +55,7 @@ class _MainMenuState extends State<MainMenu> {
         if (subMenu != null)
           Positioned(
             top: EditorDimensions.toolbarHeight,
-            left: 10 + currentSubMenuIndex * 80.0,
+            left: 8 + currentSubMenuIndex * 80.0,
             height: subMenu.size.height,
             width: subMenu.size.width,
             child: subMenu,
@@ -103,10 +104,17 @@ class _MainMenuState extends State<MainMenu> {
   }
 
   Widget mainMenuItem(_MenuItem item) {
-    return FlatButton(
-      child: Text(item.title),
-      onPressed: item.onPressed,
-      splashColor: Colors.transparent,
+    return MouseRegion(
+      onHover: (event) {
+        if (subMenuIsShowing) {
+          item.onPressed();
+        }
+      },
+      child: FlatButton(
+        child: Text(item.title),
+        onPressed: item.onPressed,
+        splashColor: Colors.transparent,
+      ),
     );
   }
 }
