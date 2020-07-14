@@ -15,12 +15,14 @@ class MainMenu extends StatefulWidget {
     this.onSaveDocument,
     this.onSaveDocumentAs,
     this.onExportAst,
+    this.onLocateRootNode,
   });
   final Function onNewDocument;
   final Function onOpenDocument;
   final Function onSaveDocument;
   final Function onSaveDocumentAs;
   final Function onExportAst;
+  final Function onLocateRootNode;
 
   @override
   _MainMenuState createState() => _MainMenuState();
@@ -90,6 +92,9 @@ class _MainMenuState extends State<MainMenu> {
           _MenuItem('Actual Size', () => {editorState.zoomTo(1)}),
           _MenuItem('Zoom In', editorState.zoomInAction),
           _MenuItem('Zoom Out', editorState.zoomOutAction),
+          _SeparatorMenuItem(),
+          _MenuItem('Move To Canvas Origin', editorState.resetCanvasOffset),
+          _MenuItem('Locate Root Node', widget.onLocateRootNode),
         ],
         dismissSubMenu,
       ),

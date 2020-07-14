@@ -41,11 +41,7 @@ class EditorState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void zoomIn() {
-    zoomTo(zoomScale + 0.2);
-  }
+  void zoomIn() => zoomTo(zoomScale + 0.2);
 
-  void zoomOut() {
-    zoomTo(zoomScale - 0.2);
-  }
+  void zoomOut() => zoomTo(zoomScale - 0.2);
 }

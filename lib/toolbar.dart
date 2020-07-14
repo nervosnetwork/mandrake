@@ -98,6 +98,7 @@ class Toolbar extends StatelessWidget {
             onSaveDocument: onSaveDocument,
             onSaveDocumentAs: onSaveDocumentAs,
             onExportAst: onExportAst,
+            onLocateRootNode: () => _jumpToRoot(document, editorState),
           ),
         ],
       );
