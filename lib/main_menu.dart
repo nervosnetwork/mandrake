@@ -94,7 +94,7 @@ class _MainMenuState extends State<MainMenu> {
           _MenuItem('Zoom In', editorState.zoomInAction),
           _MenuItem('Zoom Out', editorState.zoomOutAction),
           _SeparatorMenuItem(),
-          _MenuItem('Move To Canvas Origin', editorState.resetCanvasOffset),
+          _MenuItem('Move to Canvas Origin', editorState.resetCanvasOffset),
           _MenuItem('Locate Root Node', widget.onLocateRootNode),
         ],
         dismissSubMenu,
