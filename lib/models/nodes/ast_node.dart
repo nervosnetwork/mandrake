@@ -31,7 +31,8 @@ class AstNode extends Node {
   Value toAstValue() {
     final value = Value();
     value.t = valueType.rawType;
-    value.children.addAll(children.map((e) => (e as AstNode).toAstValue()));
+    final childrenAst = children.map((e) => (e as AstNode).toAstValue()).toList();
+    value.children.addAll(childrenAst);
     return value;
   }
 
