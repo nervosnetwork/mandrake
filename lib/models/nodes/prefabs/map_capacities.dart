@@ -17,7 +17,7 @@ List<AstNode> convertMapCapacities(PrefabNode node) {
   arg0.name = 'arg0';
   getCapacity.addChild(arg0, getCapacity.slots.first.id);
 
-  final cells = PrefabNode(valueType: ValueType.prefabQueryCells);
+  final cells = PrefabNode(valueType: ValueType.prefabSecp256k1QueryCells);
   mapCapacities.addChild(cells, mapCapacities.addSlot('cells').id);
 
   return [autoLayout(mapCapacities, initialPosition: node.position)];

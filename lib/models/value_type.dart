@@ -40,25 +40,38 @@ class ValueType {
     }).join(' ');
   }
 
-  static const ValueType prefabQueryCells = ValueType(
+  static const ValueType prefabSecp256k1GetBalance = ValueType(
     null,
-    'PREFAB_QUERY_CELLS',
-    'Get all cells (default secp256k1_blake160).',
-  );
-  static const ValueType prefabMapCapacities = ValueType(
-    null,
-    'PREFAB_MAP_CAPACITIES',
-    'Get cell capacities.',
-  );
-  static const ValueType prefabGetBalance = ValueType(
-    null,
-    'PREFAB_GET_BALANCE',
+    'SECP_GET_BALANCE',
     'Calculate balance as total capacities.',
   );
+  static const ValueType prefabSecp256k1MapCapacities = ValueType(
+    null,
+    'SECP_MAP_CAPACITIES',
+    'Get cell capacities.',
+  );
+  static const ValueType prefabSecp256k1QueryCells = ValueType(
+    null,
+    'SECP_QUERY_CELLS',
+    'Get all cells (default secp256k1_blake160).',
+  );
+
   static const ValueType prefabUdt = ValueType(
     null,
-    'PREFAB_UTD',
+    'UTD',
     'UDT Example',
+  );
+
+  static const ValueType prefabUdtGetBalance = ValueType(
+    null,
+    'UTD_GET_BALANCE',
+    'Calculate UDT balance as total capacities.',
+  );
+
+  static const ValueType prefabUdtTransfer = ValueType(
+    null,
+    'UTD_TRANSFER',
+    'UDT Transfer',
   );
 
   static const ValueType nil = ValueType(Value_Type.NIL);
@@ -126,10 +139,12 @@ class ValueType {
   static const ValueType tailRecursion = ValueType(Value_Type.TAIL_RECURSION);
 
   static List<ValueType> values = [
-    prefabQueryCells,
-    prefabMapCapacities,
-    prefabGetBalance,
+    prefabSecp256k1GetBalance,
+    prefabSecp256k1MapCapacities,
+    prefabSecp256k1QueryCells,
     prefabUdt,
+    prefabUdtGetBalance,
+    prefabUdtTransfer,
     nil,
     uint64,
     bool,

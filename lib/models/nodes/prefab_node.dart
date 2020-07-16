@@ -53,10 +53,12 @@ class PrefabNode extends AstNode {
   /// multiple nodes, e.g. several nodes as a group of call results.
   List<AstNode> flatten() {
     final map = {
-      ValueType.prefabQueryCells: convertQueryCells,
-      ValueType.prefabMapCapacities: convertMapCapacities,
-      ValueType.prefabGetBalance: convertGetBalance,
+      ValueType.prefabSecp256k1GetBalance: convertGetBalance,
+      ValueType.prefabSecp256k1MapCapacities: convertMapCapacities,
+      ValueType.prefabSecp256k1QueryCells: convertQueryCells,
       ValueType.prefabUdt: convertUdt,
+      ValueType.prefabUdtGetBalance: convertUdtGetBalance,
+      ValueType.prefabUdtTransfer: convertUdtTransfer,
     };
 
     final convert = map[valueType];

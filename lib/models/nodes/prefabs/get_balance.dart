@@ -27,7 +27,7 @@ List<AstNode> convertGetBalance(PrefabNode node) {
   current.value = '0';
   balance.addChild(current, balance.addSlot('current').id);
 
-  final capacities = PrefabNode(valueType: ValueType.prefabMapCapacities);
+  final capacities = PrefabNode(valueType: ValueType.prefabSecp256k1MapCapacities);
   capacities.name = 'capacities';
   balance.addChild(capacities, balance.addSlot('capacities').id);
 

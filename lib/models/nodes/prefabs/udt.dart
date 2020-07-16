@@ -8,11 +8,32 @@ import '../op_node.dart';
 import '../prefab_node.dart';
 import '../primitive_node.dart';
 
+List<AstNode> convertUdtGetBalance(PrefabNode node) {
+  return [
+    autoLayout(_balance()..name = 'balance', initialPosition: node.position),
+  ];
+}
+
+List<AstNode> convertUdtTransfer(PrefabNode node) {
+  return [
+    autoLayout(_transfer()..name = 'transfer', initialPosition: node.position),
+  ];
+}
+
 List<AstNode> convertUdt(PrefabNode node) {
   return [
-    autoLayout(_ready()..name = 'ready', initialPosition: node.position),
-    autoLayout(_balance()..name = 'balance', initialPosition: standBelowMe(node, 1)),
-    autoLayout(_transfer()..name = 'transfer', initialPosition: standBelowMe(node, 7)),
+    autoLayout(
+      _ready()..name = 'ready',
+      initialPosition: node.position,
+    ),
+    autoLayout(
+      PrefabNode(valueType: ValueType.prefabUdtGetBalance)..name = 'balance',
+      initialPosition: standBelowMe(node, 1),
+    ),
+    autoLayout(
+      PrefabNode(valueType: ValueType.prefabUdtTransfer)..name = 'transfer',
+      initialPosition: standBelowMe(node, 3),
+    ),
   ];
 }
 

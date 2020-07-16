@@ -111,10 +111,12 @@ class NodeTemplate {
       NT(ValueType.tailRecursion),
     ],
     NodeTemplateGroup.prefab: [
-      NT(ValueType.prefabQueryCells),
-      NT(ValueType.prefabMapCapacities),
-      NT(ValueType.prefabGetBalance),
+      NT(ValueType.prefabSecp256k1GetBalance),
+      NT(ValueType.prefabSecp256k1MapCapacities),
+      NT(ValueType.prefabSecp256k1QueryCells),
       NT(ValueType.prefabUdt),
+      NT(ValueType.prefabUdtGetBalance),
+      NT(ValueType.prefabUdtTransfer),
     ],
     NodeTemplateGroup.primitive: [
       NT(ValueType.nil),
