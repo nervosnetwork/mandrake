@@ -1,9 +1,9 @@
-import 'helper.dart';
-
+import '../../../utils/node_position.dart';
 import '../../nodes/ast_node.dart';
 import '../../nodes/prefab_node.dart';
 import '../../nodes/primitive_node.dart';
 
+/// Secp256k1 get balance
 List<AstNode> convertGetBalance(PrefabNode node) {
   final balance = AstNode(valueType: ValueType.reduce);
   balance.name = 'balance';

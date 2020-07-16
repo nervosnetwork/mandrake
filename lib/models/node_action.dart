@@ -10,6 +10,7 @@ enum NodeAction {
   delete,
   deleteWithDescendants,
   flatten,
+  autoLayout,
 }
 
 class NodeActionItem {
@@ -66,6 +67,10 @@ class NodeActionBuilder {
           label: 'Delete node and descendants',
           danger: true,
         ),
+      NodeActionItem(
+        value: NodeAction.autoLayout,
+        label: 'Auto layout',
+      ),
     ];
   }
 
@@ -116,6 +121,9 @@ class NodeActionExecutor {
       case NodeAction.deleteWithDescendants:
         document.deleteNodeAndDescendants(node);
         selection.select(null);
+        break;
+      case NodeAction.autoLayout:
+        (node as AstNode).autoLayout();
         break;
     }
   }

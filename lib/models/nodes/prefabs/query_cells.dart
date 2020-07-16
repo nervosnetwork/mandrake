@@ -2,11 +2,10 @@ import 'package:fixnum/fixnum.dart';
 
 import 'helper.dart';
 
-import '../../nodes/ast_node.dart';
-import '../../nodes/prefab_node.dart';
-import '../../nodes/get_op_node.dart';
-import '../../nodes/primitive_node.dart';
+import '../../../utils/node_position.dart';
+import '../../node.dart';
 
+/// Secp256k1 query cells
 List<AstNode> convertQueryCells(PrefabNode node) {
   final queryCells = AstNode(valueType: ValueType.queryCells);
   queryCells.name = 'cells';

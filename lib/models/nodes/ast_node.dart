@@ -1,11 +1,12 @@
 import 'dart:ui' show Offset;
 
-import '../value_type.dart';
+import '../../utils/node_position.dart' as position;
 import '../../protos/ast.pb.dart';
+import '../value_type.dart';
 import 'node_base.dart';
 
-export '../value_type.dart';
 export '../../protos/ast.pb.dart';
+export '../value_type.dart';
 export 'node_base.dart';
 
 part 'ast_node.g.dart';
@@ -54,6 +55,8 @@ class AstNode extends Node {
     updateValueAfterTypeChange();
     notifyListeners();
   }
+
+  void autoLayout() => position.autoLayout(this);
 
   /// Value Types this node can be changed to.
   List<ValueType> get exchangeableValueTypes {

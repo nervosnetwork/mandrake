@@ -3,10 +3,7 @@ import 'package:fixnum/fixnum.dart';
 import 'helper.dart';
 
 import '../../node.dart';
-import '../ast_node.dart';
-import '../op_node.dart';
-import '../prefab_node.dart';
-import '../primitive_node.dart';
+import '../../../utils/node_position.dart';
 
 List<AstNode> convertUdtGetBalance(PrefabNode node) {
   return [
