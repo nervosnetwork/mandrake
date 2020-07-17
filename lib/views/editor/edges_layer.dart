@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/document.dart';
+import '../../models/selection.dart';
+import '../../models/node.dart';
 import '../../models/editor_state.dart';
 import '../../models/link.dart';
 import '../../utils/edge_path.dart';
@@ -12,9 +14,14 @@ import '../../utils/edge_path.dart';
 class EdgesLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer2<Document, EditorState>(builder: (context, document, editorState, child) {
+    return Consumer3<Document, Selection, EditorState>(
+        builder: (context, document, selection, editorState, child) {
       return CustomPaint(
-        painter: _EdgesPainter(document.links, editorState.canvasOffset),
+        painter: _EdgesPainter(
+          document.links,
+          selection.selectedNode(document.nodes),
+          editorState.canvasOffset,
+        ),
         child: Container(),
       );
     });
@@ -22,9 +29,10 @@ class EdgesLayer extends StatelessWidget {
 }
 
 class _EdgesPainter extends CustomPainter {
-  _EdgesPainter(this.links, this.offset);
+  _EdgesPainter(this.links, this.selectedNode, this.offset);
 
   List<Link> links;
+  Node selectedNode;
   Offset offset;
 
   @override
@@ -34,11 +42,16 @@ class _EdgesPainter extends CustomPainter {
     var paint = Paint()
       ..isAntiAlias = true
       ..strokeWidth = 2
-      ..style = PaintingStyle.stroke
-      ..color = Colors.green;
+      ..style = PaintingStyle.stroke;
 
     // Draw a test edge between every two nodes.
     for (final link in links) {
+      if (link.child == selectedNode) {
+        paint.color = Colors.red[400];
+      } else {
+        paint.color = Colors.green;
+      }
+
       final start = link.parent.childConnectorPosition(link.child) + offset;
       final end = link.child.position + Offset(0, 15) + offset;
       final edge = EdgePath(start, end);
