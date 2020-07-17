@@ -38,8 +38,6 @@ class OperationNode extends AstNode {
     }
   }
 
-  /// TODO: override canConnect to limit child types
-
   void _addSlots() {
     final expectedSlots = _slotNameMap[valueType];
     if (expectedSlots != null) {
