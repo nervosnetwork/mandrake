@@ -122,7 +122,6 @@ class BasicInfoProperty extends StatelessWidget {
   }
 }
 
-// TODO: editing call name.
 class SlotProperty extends StatelessWidget {
   SlotProperty(this.slot);
 
@@ -132,57 +131,66 @@ class SlotProperty extends StatelessWidget {
   Widget build(BuildContext context) {
     final document = Provider.of<Document>(context, listen: false);
     final node = Provider.of<Node>(context);
+    final nameController = TextEditingController();
+    nameController.text = slot.name;
 
-    void _deleteSlot(ChildSlot slot) {
+    void deleteSlot() {
       if (slot.childId != null) {
         document.disconnectNode(parent: node, childId: slot.childId);
       }
       node.removeSlot(slot.id);
     }
 
-    void _deleteChild(ChildSlot slot) {
+    void deleteChild() {
       document.disconnectNode(parent: node, childId: slot.childId);
     }
 
+    void renameSlot(String name) {
+      node.renameSlot(slot.id, name);
+    }
+
     return Container(
-      height: 22,
+      height: 36,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
+          SizedBox(width: 4),
           GestureDetector(
             onTap: () {
               if (node.canRemoveSlot) {
-                _deleteSlot(slot);
+                deleteSlot();
               }
             },
             child: Icon(
               node.canRemoveSlot ? Icons.highlight_off : null,
               color: Colors.grey,
-              size: 15,
+              size: 18,
             ),
           ),
-          SizedBox(width: 4),
+          SizedBox(width: 10),
           GestureDetector(
             onTap: () {
               if (slot.isConnected) {
-                _deleteChild(slot);
+                deleteChild();
               }
             },
             child: Icon(
               slot.isConnected ? Icons.link_off : null,
               color: Colors.grey,
-              size: 15,
+              size: 18,
             ),
           ),
-          SizedBox(width: 4),
-          Container(
-            child: Text(
-              slot.name,
-              maxLines: 1,
-              textAlign: TextAlign.right,
+          SizedBox(width: 10),
+          Expanded(
+            child: TextFormField(
+              controller: nameController,
+              style: Theme.of(context).textTheme.bodyText2,
+              decoration: PropertyEditorTextFieldDecoration(),
+              onFieldSubmitted: (v) {
+                renameSlot(v);
+              },
             ),
           ),
-          Spacer(),
         ],
       ),
     );

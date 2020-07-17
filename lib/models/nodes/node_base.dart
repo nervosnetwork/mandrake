@@ -152,6 +152,9 @@ class Node with ChangeNotifier, DirtyTracker {
     final slot = slots.firstWhere((s) => s.id == slotId, orElse: () => null);
     assert(slot != null);
     slot.name = name;
+
+    markDirty();
+    notifyListeners();
   }
 
   /// Add a child. If slotId is provided fill the child to that slot.
