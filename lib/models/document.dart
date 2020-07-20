@@ -220,7 +220,11 @@ class Document with ChangeNotifier, DirtyTracker {
   void _rebuildLinks() {
     _links.clear();
     for (final root in topLevelNodes) {
-      _links.addAll(Link.linksOf(root));
+      for (final link in Link.linksOf(root)) {
+        if (!_links.contains(link)) {
+          _links.add(link);
+        }
+      }
     }
   }
 }
