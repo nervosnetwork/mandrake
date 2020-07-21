@@ -11,11 +11,13 @@ class Toolbar extends StatelessWidget {
   Toolbar({
     this.onOpenDocument,
     this.onNewDocument,
+    this.onNewDocumentFromTemplate,
     this.onSaveDocument,
     this.onSaveDocumentAs,
     this.onExportAst,
   });
   final Function onNewDocument;
+  final Function onNewDocumentFromTemplate;
   final Function onOpenDocument;
   final Function onSaveDocument;
   final Function onSaveDocumentAs;
@@ -94,6 +96,7 @@ class Toolbar extends StatelessWidget {
           ),
           MainMenu(
             onNewDocument: onNewDocument,
+            onNewDocumentFromTemplate: onNewDocumentFromTemplate,
             onOpenDocument: onOpenDocument,
             onSaveDocument: onSaveDocument,
             onSaveDocumentAs: onSaveDocumentAs,

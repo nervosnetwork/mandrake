@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'models/document.dart';
+import 'models/document_template.dart';
 import 'models/selection.dart';
 import 'models/editor_state.dart';
 
@@ -35,7 +36,19 @@ class _EditorState extends State<Editor> {
   void _newDocument() {
     _promptToSaveIfNecessary(() {
       setState(() {
-        _doc = Document.template();
+        _doc = DocumentTemplate(DocumentTemplateType.blank).create();
+        _docHandle = null;
+        _selection = Selection();
+        _editorState = EditorState();
+      });
+    });
+  }
+
+  void _newDocumentFromTemplate() {
+    _promptToSaveIfNecessary(() {
+      setState(() {
+        // TODO: show templates dialog
+        _doc = DocumentTemplate(DocumentTemplateType.balance).create();
         _docHandle = null;
         _selection = Selection();
         _editorState = EditorState();
@@ -166,7 +179,7 @@ class _EditorState extends State<Editor> {
 
   @override
   void initState() {
-    _doc = Document.template();
+    _doc = DocumentTemplate(DocumentTemplateType.blank).create();
     _docHandle = null;
     _selection = Selection();
     _editorState = EditorState();
@@ -233,6 +246,7 @@ class _EditorState extends State<Editor> {
             height: MediaQuery.of(context).size.height,
             child: Toolbar(
               onNewDocument: _newDocument,
+              onNewDocumentFromTemplate: _newDocumentFromTemplate,
               onOpenDocument: _openDocument,
               onSaveDocument: _saveDocument,
               onSaveDocumentAs: _saveDocumentAs,

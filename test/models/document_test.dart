@@ -1,12 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mandrake/models/document.dart';
+import 'package:mandrake/models/document_template.dart';
 import 'package:mandrake/models/node.dart';
 
 void main() {
   Document createDocument() => Document(topLevelNodes: []);
 
   test('a document from template contains a root node by default', () {
-    final doc = Document.template();
+    final doc = DocumentTemplate(DocumentTemplateType.blank).create();
     expect(doc.nodes[0], isA<RootNode>());
   });
 
