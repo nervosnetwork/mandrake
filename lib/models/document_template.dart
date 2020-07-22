@@ -43,8 +43,8 @@ class DocumentTemplate {
   String get description => _type.description;
 
   static List<DocumentTemplate> templates = [
-    DocumentTemplate(DocumentTemplateType.udt),
     DocumentTemplate(DocumentTemplateType.balance),
+    DocumentTemplate(DocumentTemplateType.udt),
   ];
 
   Document create() {
@@ -78,9 +78,33 @@ class DocumentTemplate {
   Document _createUdtDoc() {
     final doc = Document(topLevelNodes: []);
     doc.fileName = 'simple_udt';
-    // TODO
+
     final root = RootNode();
+    root.name = 'simple udt';
+
+    final udt = PrefabNode(
+      valueType: ValueType.prefabUdt,
+      position: root.position + Offset(root.size.width + 100, -50),
+    );
+    udt.name = 'simple udt';
+    root.addChild(udt, root.addCallSlot('ready').id);
+
     doc.addNode(root);
+    doc.flattenPrefabNode(udt);
+
+    final balance = doc.topLevelNodes.where((n) => n.name == 'balance').first;
+    final transfer = doc.topLevelNodes.where((n) => n.name == 'transfer').first;
+
+    doc.connectNode(
+      parent: root,
+      child: balance,
+      slotId: root.addCallSlot('balance').id,
+    );
+    doc.connectNode(
+      parent: root,
+      child: transfer,
+      slotId: root.addCallSlot('transfer').id,
+    );
 
     doc.markNotDirty();
     return doc;
@@ -89,10 +113,18 @@ class DocumentTemplate {
   Document _createBlanceDoc() {
     final doc = Document(topLevelNodes: []);
     doc.fileName = 'balance';
-    // TODO
-    final root = RootNode();
-    doc.addNode(root);
 
+    final root = RootNode();
+    root.name = 'balance';
+
+    final balance = PrefabNode(
+      valueType: ValueType.prefabSecp256k1GetBalance,
+      position: root.position + Offset(root.size.width + 100, -50),
+    );
+    balance.name = 'balance';
+    root.addChild(balance, root.addCallSlot('balance').id);
+
+    doc.addNode(root);
     doc.markNotDirty();
     return doc;
   }

@@ -111,7 +111,7 @@ class Toolbar extends StatelessWidget {
   void _jumpToRoot(Document document, EditorState editorState) {
     final root = document.root;
     editorState.resetCanvasOffset();
-    final pos = root.position + Offset(-80, -200);
+    final pos = root.position + Offset(-80, -250);
     editorState.moveCanvas(-pos);
   }
 
