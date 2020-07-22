@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:ui' show Offset;
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -66,21 +65,6 @@ class Document with ChangeNotifier, DirtyTracker {
   }
 
   Document({this.topLevelNodes});
-
-  factory Document.template() {
-    final doc = Document(topLevelNodes: []);
-    final root = RootNode();
-    final callResult = NodeCreator.create(
-      NodeTemplate(ValueType.uint64),
-      root.position + Offset(root.size.width + 100, -50),
-    );
-    callResult.name = 'Call Result';
-    root.addChild(callResult, root.addCallSlot('call result').id);
-    doc.addNode(root);
-
-    doc.markNotDirty();
-    return doc;
-  }
 
   factory Document.fromJson(Map<String, dynamic> json) => _$DocumentFromJson(json);
   Map<String, dynamic> toJson() => _$DocumentToJson(this);

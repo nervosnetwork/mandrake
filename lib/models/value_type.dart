@@ -33,7 +33,7 @@ class ValueType {
   String get uiName {
     final separated = toString().split('_');
     return separated.map((w) {
-      if (['JSON', 'DAO'].contains(w)) {
+      if (['JSON', 'DAO', 'UDT'].contains(w)) {
         return w;
       }
       return w[0] + w.substring(1).toLowerCase();
@@ -58,19 +58,19 @@ class ValueType {
 
   static const ValueType prefabUdt = ValueType(
     null,
-    'UTD',
+    'UDT',
     'UDT Example',
   );
 
   static const ValueType prefabUdtGetBalance = ValueType(
     null,
-    'UTD_GET_BALANCE',
+    'UDT_GET_BALANCE',
     'Calculate UDT balance as total capacities.',
   );
 
   static const ValueType prefabUdtTransfer = ValueType(
     null,
-    'UTD_TRANSFER',
+    'UDT_TRANSFER',
     'UDT Transfer',
   );
 

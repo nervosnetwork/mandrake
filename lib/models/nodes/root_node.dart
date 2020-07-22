@@ -8,7 +8,7 @@ part 'root_node.g.dart';
 /// AST Root.
 @JsonSerializable()
 class RootNode extends Node {
-  RootNode() : super(name: 'Root Node', position: Offset(80, 200));
+  RootNode() : super(name: 'Root Node', position: Offset(80, 250));
 
   factory RootNode.fromJson(Map<String, dynamic> json) => _$RootNodeFromJson(json);
   @override
