@@ -42,6 +42,11 @@ class DocumentTemplate {
   String get name => _type.name;
   String get description => _type.description;
 
+  static List<DocumentTemplate> templates = [
+    DocumentTemplate(DocumentTemplateType.udt),
+    DocumentTemplate(DocumentTemplateType.balance),
+  ];
+
   Document create() {
     switch (_type) {
       case DocumentTemplateType.blank:

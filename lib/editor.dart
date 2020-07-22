@@ -46,14 +46,65 @@ class _EditorState extends State<Editor> {
 
   void _newDocumentFromTemplate() {
     _promptToSaveIfNecessary(() {
+      _showTemplateDialog(() {});
+    });
+  }
+
+  Future<void> _showTemplateDialog(Function dangerAction) async {
+    final result = await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        var selectedTemplate = DocumentTemplate.templates.first;
+        return AlertDialog(
+          title: Text('Choose a template'),
+          content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              width: 800,
+              height: 400,
+              child: Column(
+                children: DocumentTemplate.templates.map((template) {
+                  return RadioListTile<DocumentTemplate>(
+                    title: Text(template.name),
+                    subtitle: Text(template.description),
+                    value: template,
+                    groupValue: selectedTemplate,
+                    onChanged: (DocumentTemplate value) {
+                      setState(() {
+                        selectedTemplate = value;
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            );
+          }),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.pop(context, null);
+              },
+            ),
+            FlatButton(
+              child: Text('Create'),
+              onPressed: () {
+                Navigator.pop(context, selectedTemplate);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
       setState(() {
-        // TODO: show templates dialog
-        _doc = DocumentTemplate(DocumentTemplateType.balance).create();
+        _doc = result.create();
         _docHandle = null;
         _selection = Selection();
         _editorState = EditorState();
       });
-    });
+    }
   }
 
   void _openDocument() {
