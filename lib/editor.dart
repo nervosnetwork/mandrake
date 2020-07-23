@@ -5,6 +5,7 @@ import 'models/document.dart';
 import 'models/document_template.dart';
 import 'models/selection.dart';
 import 'models/editor_state.dart';
+import 'models/recent_files.dart';
 
 import 'io/file_chooser.dart';
 import 'io/doc_reader.dart';
@@ -126,6 +127,7 @@ class _EditorState extends State<Editor> {
           _doc.rebuild();
           _doc.markNotDirty();
           _docHandle = handle;
+          _trackRecentFile(handle);
           _selection = Selection();
           _editorState = EditorState();
         });
@@ -143,6 +145,7 @@ class _EditorState extends State<Editor> {
       );
       if (handle != null) {
         _docHandle = handle;
+        _trackRecentFile(handle);
       }
     }
 
@@ -163,6 +166,7 @@ class _EditorState extends State<Editor> {
     );
     if (handle != null) {
       _docHandle = handle;
+      _trackRecentFile(handle);
     }
 
     if (_docHandle != null) {
@@ -181,6 +185,11 @@ class _EditorState extends State<Editor> {
     if (handle != null) {
       await AstWriter(_doc, handle).write();
     }
+  }
+
+  void _trackRecentFile(FileHandle fileHandle) async {
+    await RecentFiles.push(fileHandle.handle as String);
+    // TODO: convert web handle to string, or save that out of shared preferences.
   }
 
   Future<void> _promptToSaveIfNecessary(Function dangerAction) async {
