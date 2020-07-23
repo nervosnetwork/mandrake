@@ -13,6 +13,7 @@ class RecentFiles with ChangeNotifier {
   }
 
   static final String _storageKey = 'recent-files';
+  static final int _limit = 5;
 
   UnmodifiableListView<FileHandle> files() {
     final storage = _storage();
@@ -23,6 +24,9 @@ class RecentFiles with ChangeNotifier {
     final current = _storage();
     current.removeWhere((f) => f == file.handle);
     current.insert(0, file.handle as String);
+    if (current.length > _limit) {
+      current.removeRange(_limit, current.length);
+    }
     await _prefs?.setStringList(_storageKey, current);
   }
 
