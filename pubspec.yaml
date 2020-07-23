@@ -20,6 +20,7 @@ dependencies:
   provider: ^4.0.5
   shared_preferences: ^0.5.8
   string_validator: ^0.1.4
+  truncate: ^2.1.2
   uuid: ^2.0.4
 
   file_chooser:
