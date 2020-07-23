@@ -9,9 +9,10 @@ import 'main_menu.dart';
 
 class Toolbar extends StatelessWidget {
   Toolbar({
-    this.onOpenDocument,
     this.onNewDocument,
     this.onNewDocumentFromTemplate,
+    this.onOpenDocument,
+    this.onOpenDocumentHandle,
     this.onSaveDocument,
     this.onSaveDocumentAs,
     this.onExportAst,
@@ -19,6 +20,7 @@ class Toolbar extends StatelessWidget {
   final Function onNewDocument;
   final Function onNewDocumentFromTemplate;
   final Function onOpenDocument;
+  final Function onOpenDocumentHandle;
   final Function onSaveDocument;
   final Function onSaveDocumentAs;
   final Function onExportAst;
@@ -98,6 +100,7 @@ class Toolbar extends StatelessWidget {
             onNewDocument: onNewDocument,
             onNewDocumentFromTemplate: onNewDocumentFromTemplate,
             onOpenDocument: onOpenDocument,
+            onOpenDocumentHandle: onOpenDocumentHandle,
             onSaveDocument: onSaveDocument,
             onSaveDocumentAs: onSaveDocumentAs,
             onExportAst: onExportAst,

@@ -5,6 +5,7 @@ import 'models/document.dart';
 import 'models/document_template.dart';
 import 'models/selection.dart';
 import 'models/editor_state.dart';
+import 'models/recent_files.dart';
 
 import 'io/file_chooser.dart';
 import 'io/doc_reader.dart';
@@ -32,6 +33,7 @@ class _EditorState extends State<Editor> {
   FileHandle _docHandle;
   Selection _selection;
   EditorState _editorState;
+  RecentFiles _recentFiles;
 
   void _newDocument() {
     _promptToSaveIfNecessary(() {
@@ -126,6 +128,24 @@ class _EditorState extends State<Editor> {
           _doc.rebuild();
           _doc.markNotDirty();
           _docHandle = handle;
+          _trackRecentFile(handle);
+          _selection = Selection();
+          _editorState = EditorState();
+        });
+      }
+    });
+  }
+
+  void _openDocumentHandle(FileHandle handle) {
+    _promptToSaveIfNecessary(() async {
+      final doc = await DocReader(handle).read();
+      if (doc != null) {
+        setState(() {
+          _doc = doc;
+          _doc.rebuild();
+          _doc.markNotDirty();
+          _docHandle = handle;
+          _trackRecentFile(handle);
           _selection = Selection();
           _editorState = EditorState();
         });
@@ -143,6 +163,7 @@ class _EditorState extends State<Editor> {
       );
       if (handle != null) {
         _docHandle = handle;
+        _trackRecentFile(handle);
       }
     }
 
@@ -163,6 +184,7 @@ class _EditorState extends State<Editor> {
     );
     if (handle != null) {
       _docHandle = handle;
+      _trackRecentFile(handle);
     }
 
     if (_docHandle != null) {
@@ -181,6 +203,10 @@ class _EditorState extends State<Editor> {
     if (handle != null) {
       await AstWriter(_doc, handle).write();
     }
+  }
+
+  void _trackRecentFile(FileHandle fileHandle) async {
+    await _recentFiles.push(fileHandle);
   }
 
   Future<void> _promptToSaveIfNecessary(Function dangerAction) async {
@@ -234,6 +260,9 @@ class _EditorState extends State<Editor> {
     _docHandle = null;
     _selection = Selection();
     _editorState = EditorState();
+    _recentFiles = RecentFiles();
+    _recentFiles.init();
+
     super.initState();
   }
 
@@ -244,6 +273,7 @@ class _EditorState extends State<Editor> {
         ChangeNotifierProvider<Document>.value(value: _doc),
         ChangeNotifierProvider<Selection>.value(value: _selection),
         ChangeNotifierProvider<EditorState>.value(value: _editorState),
+        ChangeNotifierProvider<RecentFiles>.value(value: _recentFiles),
       ],
       child: Stack(
         children: [
@@ -299,6 +329,7 @@ class _EditorState extends State<Editor> {
               onNewDocument: _newDocument,
               onNewDocumentFromTemplate: _newDocumentFromTemplate,
               onOpenDocument: _openDocument,
+              onOpenDocumentHandle: _openDocumentHandle,
               onSaveDocument: _saveDocument,
               onSaveDocumentAs: _saveDocumentAs,
               onExportAst: _exportAst,

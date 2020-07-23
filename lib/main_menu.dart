@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:truncate/truncate.dart';
 
 import 'models/editor_state.dart';
+import 'models/recent_files.dart';
 import 'views/editor/editor_dimensions.dart';
 
 typedef MenuItemSelected = void Function(String item);
 
-final subMenuWidth = 200.0;
+final subMenuWidth = 400.0;
 
 class MainMenu extends StatefulWidget {
   MainMenu({
-    this.onOpenDocument,
     this.onNewDocument,
     this.onNewDocumentFromTemplate,
+    this.onOpenDocument,
+    this.onOpenDocumentHandle,
     this.onSaveDocument,
     this.onSaveDocumentAs,
     this.onExportAst,
@@ -21,6 +24,7 @@ class MainMenu extends StatefulWidget {
   final Function onNewDocument;
   final Function onNewDocumentFromTemplate;
   final Function onOpenDocument;
+  final Function onOpenDocumentHandle;
   final Function onSaveDocument;
   final Function onSaveDocumentAs;
   final Function onExportAst;
@@ -76,6 +80,15 @@ class _MainMenuState extends State<MainMenu> {
 
   _Menu currentSubMenu(BuildContext context) {
     final editorState = Provider.of<EditorState>(context);
+    final recentFiles = Provider.of<RecentFiles>(context);
+    final recentFilesItems = recentFiles.files().map((file) {
+      return _MenuItem(
+        truncate(file.handle, 50, position: TruncatePosition.middle),
+        () {
+          widget.onOpenDocumentHandle(file);
+        },
+      );
+    }).toList();
 
     final menus = [
       _Menu(
@@ -86,6 +99,9 @@ class _MainMenuState extends State<MainMenu> {
           _SeparatorMenuItem(),
           _MenuItem('Save', widget.onSaveDocument),
           _MenuItem('Save As...', widget.onSaveDocumentAs),
+          _SeparatorMenuItem(),
+          _MenuItem('Recent Files', null),
+          ...recentFilesItems,
           _SeparatorMenuItem(),
           _MenuItem('Export AST...', widget.onExportAst),
         ],
@@ -202,6 +218,8 @@ class _Menu extends StatelessWidget {
             child: Text(
               item.title,
               textAlign: TextAlign.left,
+              overflow: TextOverflow.clip,
+              maxLines: 1,
             ),
           ),
           hoverColor: Colors.blue,
