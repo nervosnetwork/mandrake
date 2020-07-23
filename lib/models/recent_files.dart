@@ -1,16 +1,19 @@
 import 'dart:collection';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../io/foundation.dart';
+
+/// TODO: convert web handle to string, or save that out of shared preferences.
 class RecentFiles {
-  static Future<UnmodifiableListView<String>> files() async {
+  static Future<UnmodifiableListView<FileHandle>> files() async {
     final storage = await _storage();
-    return UnmodifiableListView(storage);
+    return UnmodifiableListView(storage.map((e) => FileHandle(e)).toList());
   }
 
-  static void push(String file) async {
+  static void push(FileHandle file) async {
     final current = await _storage();
-    current.removeWhere((f) => f == file);
-    current.insert(0, file);
+    current.removeWhere((f) => f == file.handle);
+    current.insert(0, file.handle as String);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_storageKey, current);
   }

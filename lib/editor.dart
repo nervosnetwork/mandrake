@@ -188,8 +188,7 @@ class _EditorState extends State<Editor> {
   }
 
   void _trackRecentFile(FileHandle fileHandle) async {
-    await RecentFiles.push(fileHandle.handle as String);
-    // TODO: convert web handle to string, or save that out of shared preferences.
+    await RecentFiles.push(fileHandle);
   }
 
   Future<void> _promptToSaveIfNecessary(Function dangerAction) async {
