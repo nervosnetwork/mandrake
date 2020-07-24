@@ -35,24 +35,6 @@ class _CanvasGridPainter extends CustomPainter {
       ..strokeWidth = 1
       ..color = _gridColor;
 
-    /* /// Grid mode
-    for (var i = _gridSize; i < size.width; i += _gridSize) {
-      canvas.drawLine(
-        Offset(i.toDouble(), 0),
-        Offset(i.toDouble(), size.height),
-        paint,
-      );
-    }
-
-    for (var i = _gridSize; i < size.height; i += _gridSize) {
-      canvas.drawLine(
-        Offset(0, i.toDouble()),
-        Offset(size.width, i.toDouble()),
-        paint,
-      );
-    }*/
-    /// Points mode
-
     final points = <Offset>[];
     var start = _canvasOffset % _gridSize;
     for (var i = start.dx; i < size.width; i += _gridSize) {
