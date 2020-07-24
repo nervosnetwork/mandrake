@@ -65,5 +65,5 @@ class _CanvasGridPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_CanvasGridPainter oldPainter) => false;
+  bool shouldRepaint(_CanvasGridPainter oldPainter) => _canvasOffset != oldPainter._canvasOffset;
 }
