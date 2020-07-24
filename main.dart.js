@@ -49543,7 +49543,7 @@ q=C.f.dN(r.a,20)
 p=C.f.dN(r.b,20)
 for(r=b.a,o=b.b;q<r;q+=20)for(n=p;n<o;n+=20)s.push(new P.j(q,n))
 a.V0(C.rQ,s,m)},
-ek:function(a){return!1}}
+ek:function(a){return!this.c.n(0,a.c)}}
 Q.A7.prototype={
 E:function(a){return U.a67(new Q.ME(this),t.Y,t.x,t.E)},
 SZ:function(a,b,c){var s,r,q,p=b.a,o=-p.a
