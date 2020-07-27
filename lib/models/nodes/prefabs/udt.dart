@@ -7,20 +7,20 @@ import '../../../utils/node_position.dart';
 
 List<AstNode> convertUdtGetBalance(PrefabNode node) {
   return [
-    autoLayout(_balance()..name = 'balance', initialPosition: node.position),
+    autoLayout(_balance(node.properties)..name = 'balance', initialPosition: node.position),
   ];
 }
 
 List<AstNode> convertUdtTransfer(PrefabNode node) {
   return [
-    autoLayout(_transfer()..name = 'transfer', initialPosition: node.position),
+    autoLayout(_transfer(node.properties)..name = 'transfer', initialPosition: node.position),
   ];
 }
 
 List<AstNode> convertUdt(PrefabNode node) {
   return [
     autoLayout(
-      _ready()..name = 'ready',
+      _ready(node.properties)..name = 'ready',
       initialPosition: node.position,
     ),
     autoLayout(
@@ -28,18 +28,19 @@ List<AstNode> convertUdt(PrefabNode node) {
       initialPosition: standBelowMe(node, 1),
     ),
     autoLayout(
-      PrefabNode(valueType: ValueType.prefabUdtTransfer)..name = 'transfer',
+      applyDefaultPrefabProperties(PrefabNode(valueType: ValueType.prefabUdtTransfer))
+        ..name = 'transfer',
       initialPosition: standBelowMe(node, 3),
     ),
   ];
 }
 
-AstNode _ready() {
+AstNode _ready(List<PrefabProperty> props) {
   final ready = AstNode(valueType: ValueType.equal);
 
   final typeCellsLength = OperationNode(valueType: ValueType.len);
   typeCellsLength.addChild(
-    _typeCells(),
+    _typeCells(props),
     typeCellsLength.slots.first.id,
   );
 
@@ -52,7 +53,7 @@ AstNode _ready() {
   return ready;
 }
 
-AstNode _balance() {
+AstNode _balance(List<PrefabProperty> props) {
   final add = AstNode(valueType: ValueType.add);
   add.addChild(arg(Int64(0)), add.addSlot('arg0').id);
   add.addChild(arg(Int64(1)), add.addSlot('arg1').id);
@@ -72,7 +73,7 @@ AstNode _balance() {
   slice.addChild(uintValue(Int64(0)), slice.addSlot('0').id);
   slice.addChild(uintValue(Int64(16)), slice.addSlot('16').id);
   slice.addChild(arg(Int64(0)), slice.addSlot('arg0').id);
-  final tokens = mapFuns(_inputCells(), [
+  final tokens = mapFuns(_inputCells(props), [
     getField(ValueType.getData, arg(Int64(0))),
     slice,
   ]);
@@ -92,16 +93,16 @@ AstNode _balance() {
   return result;
 }
 
-AstNode _transfer() {
+AstNode _transfer(List<PrefabProperty> props) {
   final transaction = AstNode(valueType: ValueType.transaction);
   transaction.addChild(
-    _inputCells(),
+    _inputCells(props),
     transaction.addSlot('inputs').id,
   );
 
   final outputs = AstNode(valueType: ValueType.list);
-  outputs.addChild(_transferCell(), outputs.addSlot('transfer').id);
-  outputs.addChild(_changeCell(), outputs.addSlot('change').id);
+  outputs.addChild(_transferCell(props), outputs.addSlot('transfer').id);
+  outputs.addChild(_changeCell(props), outputs.addSlot('change').id);
   transaction.addChild(
     outputs,
     transaction.addSlot('outputs').id,
@@ -109,7 +110,7 @@ AstNode _transfer() {
 
   final cellDeps = AstNode(valueType: ValueType.list);
   cellDeps.addChild(
-    _assembleSecpCellDep(),
+    _assembleSecpCellDep(props),
     cellDeps.addSlot('secp cell dep').id,
   );
   final index = AstNode(valueType: ValueType.index);
@@ -117,7 +118,7 @@ AstNode _transfer() {
   indexValue.value = '0';
   index.addChild(indexValue, index.addSlot('0').id);
   index.addChild(
-    _typeCells(),
+    _typeCells(props),
     index.addSlot('type cells').id,
   );
   cellDeps.addChild(index, cellDeps.addSlot('index').id);
@@ -170,7 +171,7 @@ AstNode _adjustFee(AstNode tx) {
   return result;
 }
 
-AstNode _typeCells() {
+AstNode _typeCells(List<PrefabProperty> props) {
   final queryCells = AstNode(valueType: ValueType.queryCells);
   queryCells.name = 'type cells';
 
@@ -183,7 +184,7 @@ AstNode _typeCells() {
   getDataHash.addChild(arg(Int64(0)), getDataHash.slots.first.id);
 
   final codeHash = PrimitiveNode(valueType: ValueType.bytes);
-  codeHash.value = udtCodeHash;
+  codeHash.value = findPropValue(props, 'UDT code hash') ?? defaultUdtCodeHash;
 
   dataHashTest.addChild(getDataHash, dataHashTest.slots.first.id);
   dataHashTest.addChild(codeHash, dataHashTest.slots.last.id);
@@ -191,30 +192,37 @@ AstNode _typeCells() {
   return queryCells;
 }
 
-AstNode _inputCells() {
+AstNode _inputCells(List<PrefabProperty> props) {
   final queryCells = AstNode(valueType: ValueType.queryCells);
   final and = OperationNode(valueType: ValueType.and);
-  and.addChild(_isDefaultSecpCell(Int64(0)), and.slots.first.id);
-  and.addChild(_isSimpleUdtCell(Int64(0), Int64(0)), and.slots.last.id);
+  and.addChild(_isDefaultSecpCell(Int64(0), props), and.slots.first.id);
+  and.addChild(
+    _isSimpleUdtCell(
+      Int64(0),
+      Int64(0),
+      findPropValue(props, 'UDT code hash') ?? defaultUdtCodeHash,
+    ),
+    and.slots.last.id,
+  );
   queryCells.addChild(and, queryCells.addSlot('cells').id);
   return queryCells;
 }
 
-AstNode _transferCell() {
+AstNode _transferCell(List<PrefabProperty> props) {
   final result = AstNode(valueType: ValueType.cell);
   result.addChild(_transferValue(), result.addSlot('value').id);
-  result.addChild(_assembleSecpLock(Int64(2)), result.addSlot('secp lock').id);
-  result.addChild(_assembleUdtType(Int64(0)), result.addSlot('udt type').id);
+  result.addChild(_assembleSecpLock(Int64(2), props), result.addSlot('secp lock').id);
+  result.addChild(_assembleUdtType(Int64(0), props), result.addSlot('udt type').id);
   result.addChild(_transferTokens(), result.addSlot('tokens').id);
   return result;
 }
 
-AstNode _changeCell() {
+AstNode _changeCell(List<PrefabProperty> props) {
   final result = AstNode(valueType: ValueType.cell);
-  result.addChild(_changeCapacities(), result.addSlot('value').id);
-  result.addChild(_assembleSecpLock(Int64(1)), result.addSlot('secp lock').id);
-  result.addChild(_assembleUdtType(Int64(0)), result.addSlot('udt type').id);
-  result.addChild(_changeTokens(), result.addSlot('tokens').id);
+  result.addChild(_changeCapacities(props), result.addSlot('value').id);
+  result.addChild(_assembleSecpLock(Int64(1), props), result.addSlot('secp lock').id);
+  result.addChild(_assembleUdtType(Int64(0), props), result.addSlot('udt type').id);
+  result.addChild(_changeTokens(props), result.addSlot('tokens').id);
   return result;
 }
 
@@ -229,10 +237,10 @@ AstNode _transferTokens() {
   return result;
 }
 
-AstNode _totalCapacities() {
+AstNode _totalCapacities(List<PrefabProperty> props) {
   final map = AstNode(valueType: ValueType.map);
   map.addChild(getField(ValueType.getCapacity, arg(Int64(0))), map.addSlot('get capacity').id);
-  map.addChild(_inputCells(), map.addSlot('cells').id);
+  map.addChild(_inputCells(props), map.addSlot('cells').id);
 
   final result = AstNode(valueType: ValueType.reduce);
   result.addChild(
@@ -254,24 +262,24 @@ AstNode _transferValue() {
   return uintValue(Int64(142 * 100000000));
 }
 
-AstNode _changeCapacities() {
-  return subtract(_totalCapacities(), _transferValue());
+AstNode _changeCapacities(List<PrefabProperty> prop) {
+  return subtract(_totalCapacities(prop), _transferValue());
 }
 
-AstNode _changeTokens() {
+AstNode _changeTokens(List<PrefabProperty> props) {
   final result = AstNode(valueType: ValueType.slice);
   result.addChild(uintValue(Int64(0)), result.addSlot('0').id);
   result.addChild(uintValue(Int64(16)), result.addSlot('16').id);
-  result.addChild(subtract(_balance(), _transferTokens()), result.addSlot('change token').id);
+  result.addChild(subtract(_balance(props), _transferTokens()), result.addSlot('change token').id);
   return result;
 }
 
-AstNode _isDefaultSecpCell(Int64 argIndex) {
+AstNode _isDefaultSecpCell(Int64 argIndex, List<PrefabProperty> props) {
   final lock = getField(ValueType.getLock, arg(argIndex));
 
   final codeHash = equal(
     getField(ValueType.getCodeHash, lock),
-    bytesValue(secpTypeHash),
+    bytesValue(findPropValue(props, 'Secp256k1 lock hash') ?? secpTypeHash),
   );
   final hashType = equal(
     getField(ValueType.getHashType, lock),
@@ -289,7 +297,7 @@ AstNode _isDefaultSecpCell(Int64 argIndex) {
   return result;
 }
 
-AstNode _isSimpleUdtCell(Int64 argIndex, Int64 paramIndex) {
+AstNode _isSimpleUdtCell(Int64 argIndex, Int64 paramIndex, String udtCodeHash) {
   final getType = getField(ValueType.getType, arg(argIndex));
 
   final codeHash = equal(
@@ -312,27 +320,33 @@ AstNode _isSimpleUdtCell(Int64 argIndex, Int64 paramIndex) {
   return result;
 }
 
-AstNode _assembleSecpLock(Int64 paramIndex) {
+AstNode _assembleSecpLock(Int64 paramIndex, List<PrefabProperty> props) {
   final result = AstNode(valueType: ValueType.script);
-  result.addChild(bytesValue(secpTypeHash), result.addSlot('sepc type hash').id);
+  result.addChild(
+    bytesValue(findPropValue(props, 'Secp256k1 lock hash') ?? secpTypeHash),
+    result.addSlot('sepc type hash').id,
+  );
   result.addChild(uintValue(Int64(1)), result.addSlot('1').id);
   result.addChild(param(paramIndex), result.addSlot('param').id);
   return result;
 }
 
-AstNode _assembleUdtType(Int64 paramIndex) {
+AstNode _assembleUdtType(Int64 paramIndex, List<PrefabProperty> props) {
   final result = AstNode(valueType: ValueType.script);
-  result.addChild(bytesValue(udtCodeHash), result.addSlot('udt code hash').id);
+  result.addChild(
+    bytesValue(findPropValue(props, 'UDT code hash') ?? defaultUdtCodeHash),
+    result.addSlot('udt code hash').id,
+  );
   result.addChild(uintValue(Int64(0)), result.addSlot('0').id);
   result.addChild(param(paramIndex), result.addSlot('param').id);
   return result;
 }
 
-AstNode _assembleSecpCellDep() {
+AstNode _assembleSecpCellDep(List<PrefabProperty> props) {
   final result = AstNode(valueType: ValueType.cellDep);
 
   final outPoint = AstNode(valueType: ValueType.outPoint);
-  final secpCellBytes = bytesValue(secpCellDepDevnet);
+  final secpCellBytes = bytesValue(findPropValue(props, 'Secp256k1 cell dep') ?? secpCellDepDevnet);
   outPoint.addChild(secpCellBytes, outPoint.addSlot('secp cell dep').id);
   final outPointIndex = uintValue(Int64(0));
   outPoint.addChild(outPointIndex, outPoint.addSlot('0').id);
