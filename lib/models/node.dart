@@ -1,11 +1,11 @@
 import 'dart:ui' show Offset;
 
-import 'package:mandrake/models/nodes/op_node.dart';
-
 import 'nodes/node_base.dart';
 import 'nodes/root_node.dart';
 import 'nodes/ast_node.dart';
+import 'nodes/op_node.dart';
 import 'nodes/prefab_node.dart';
+import 'nodes/prefabs/helper.dart';
 import 'nodes/primitive_node.dart';
 import 'nodes/get_op_node.dart';
 
@@ -23,10 +23,7 @@ class NodeCreator {
 
     if (valueType.isPrefab) {
       final prefabNode = PrefabNode(valueType: valueType, position: pos);
-      prefabNode.properties.add(PrefabProperty(
-        'Lock hash',
-        '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8',
-      ));
+      applyDefaultPrefabProperties(prefabNode);
       return prefabNode;
     }
 

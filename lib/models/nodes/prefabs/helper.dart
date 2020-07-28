@@ -4,7 +4,41 @@ import '../../node.dart';
 
 String secpCellDepDevnet = '0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b708';
 String secpTypeHash = '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8';
-String udtCodeHash = '0x57dd0067814dab356e05c6def0d094bb79776711e68ffdfad2df6a7f877f7db6';
+String defaultUdtCodeHash = '0x57dd0067814dab356e05c6def0d094bb79776711e68ffdfad2df6a7f877f7db6';
+
+String findPropValue(List<PrefabProperty> props, String name) {
+  final prop = props.firstWhere(
+    (e) => e.name == name,
+    orElse: () => null,
+  );
+  return prop?.value;
+}
+
+PrefabNode applyDefaultPrefabProperties(PrefabNode node) {
+  node.properties.add(PrefabProperty(
+    'Secp256k1 lock hash',
+    secpTypeHash,
+  ));
+
+  if ([
+    ValueType.prefabUdt,
+    ValueType.prefabUdtGetBalance,
+    ValueType.prefabUdtTransfer,
+  ].contains(node.valueType)) {
+    node.properties.add(PrefabProperty(
+      'UDT code hash',
+      defaultUdtCodeHash,
+    ));
+  }
+
+  if (node.valueType == ValueType.prefabUdtTransfer) {
+    node.properties.add(
+      PrefabProperty('Secp256k1 cell dep', secpCellDepDevnet),
+    );
+  }
+
+  return node;
+}
 
 AstNode bytesValue(String bytes) {
   final value = PrimitiveNode(valueType: ValueType.bytes);

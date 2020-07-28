@@ -2,9 +2,7 @@ import 'dart:ui' show Offset, Size;
 
 import 'ast_node.dart';
 import 'prefabs/prefab_property.dart';
-import 'prefabs/query_cells.dart';
-import 'prefabs/map_capacities.dart';
-import 'prefabs/get_balance.dart';
+import 'prefabs/balance.dart';
 import 'prefabs/udt.dart';
 
 export 'prefabs/prefab_property.dart';
@@ -47,6 +45,18 @@ class PrefabNode extends AstNode {
     notifyListeners();
   }
 
+  // Sub PrefabNode type could override this if they decide some properties
+  // should be merged with a custom strategy.
+  void mergeProperties(List<PrefabProperty> props) {
+    for (final prop in props) {
+      final index = properties.indexWhere((p) => p.name == prop.name);
+      if (index != -1) {
+        properties.removeAt(index);
+      }
+      properties.add(prop);
+    }
+  }
+
   /// Convert to a tree of nodes. Once converted, that tree couldn't be
   /// converted back to the prefab node.
   /// In most cases flattened object should be a single ast node, but it could be
@@ -63,7 +73,16 @@ class PrefabNode extends AstNode {
 
     final convert = map[valueType];
     if (convert != null) {
-      return convert(this);
+      final results = convert(this);
+      for (final node in results) {
+        if (node is PrefabNode) {
+          node.mergeProperties(properties);
+        }
+        for (final prefab in node.children.whereType<PrefabNode>()) {
+          prefab.mergeProperties(properties);
+        }
+      }
+      return results;
     }
 
     throw UnimplementedError();

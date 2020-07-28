@@ -54,7 +54,7 @@ class DocumentTemplate {
       case DocumentTemplateType.udt:
         return _createUdtDoc();
       case DocumentTemplateType.balance:
-        return _createBlanceDoc();
+        return _createBalanceDoc();
     }
 
     return null;
@@ -82,9 +82,9 @@ class DocumentTemplate {
     final root = RootNode();
     root.name = 'simple udt';
 
-    final udt = PrefabNode(
-      valueType: ValueType.prefabUdt,
-      position: root.position + Offset(root.size.width + 100, -50),
+    final udt = NodeCreator.create(
+      NT(ValueType.prefabUdt),
+      root.position + Offset(root.size.width + 100, -50),
     );
     udt.name = 'simple udt';
     root.addChild(udt, root.addCallSlot('ready').id);
@@ -110,7 +110,7 @@ class DocumentTemplate {
     return doc;
   }
 
-  Document _createBlanceDoc() {
+  Document _createBalanceDoc() {
     final doc = Document(topLevelNodes: []);
     doc.fileName = 'balance';
 
