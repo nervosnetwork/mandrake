@@ -2,9 +2,7 @@ import 'dart:ui' show Offset, Size;
 
 import 'ast_node.dart';
 import 'prefabs/prefab_property.dart';
-import 'prefabs/query_cells.dart';
-import 'prefabs/map_capacities.dart';
-import 'prefabs/get_balance.dart';
+import 'prefabs/balance.dart';
 import 'prefabs/udt.dart';
 
 export 'prefabs/prefab_property.dart';
