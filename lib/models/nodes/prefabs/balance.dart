@@ -65,7 +65,7 @@ List<AstNode> convertQueryCells(PrefabNode node) {
 
   final getCodeHash = GetOpNode(valueType: ValueType.getCodeHash);
   final codeHashValue = PrimitiveNode(valueType: ValueType.bytes);
-  codeHashValue.value = secpTypeHash;
+  codeHashValue.value = findPropValue(node.properties, 'Secp256k1 lock hash') ?? secpTypeHash;
   final codeHash = equal(getCodeHash, codeHashValue);
   codeHash.name = 'code hash';
   queryTest.addChild(codeHash, queryTest.addSlot('code hash').id);
