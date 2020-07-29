@@ -72,7 +72,7 @@ class PrefabNodePropertyEditor extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(5, 5, 5, 10),
+            padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +101,6 @@ class PrefabNodePropertyEditor extends StatelessWidget {
                   ),
                 ]),
           ),
-          Divider(height: 2),
         ],
       );
     }).toList();
