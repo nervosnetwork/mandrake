@@ -204,9 +204,10 @@ class _PointerLayerState extends State<PointerLayer> {
         // selection.select(target);
       }
       selection.hover(null);
-      _startConnectorOffset = _endConnectorOffset = null;
-      _isDraggingConnector = false;
-      setState(() {});
+      setState(() {
+        _startConnectorOffset = _endConnectorOffset = null;
+        _isDraggingConnector = false;
+      });
     }
   }
 
