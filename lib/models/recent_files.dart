@@ -29,8 +29,8 @@ class RecentFiles with ChangeNotifier {
 
   void push(FileHandle file) async {
     if (kIsWeb) {
-      _webStorage.removeWhere((f) => f == file.handle);
-      _webStorage.insert(0, file.handle);
+      _webStorage.removeWhere((f) => f.handle == file.handle);
+      _webStorage.insert(0, file);
       if (_webStorage.length > _limit) {
         _webStorage.removeRange(_limit, _webStorage.length);
       }

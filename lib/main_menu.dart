@@ -82,8 +82,12 @@ class _MainMenuState extends State<MainMenu> {
     final editorState = Provider.of<EditorState>(context);
     final recentFiles = Provider.of<RecentFiles>(context);
     final recentFilesItems = recentFiles.files().map((file) {
+      var name = file.handle;
+      if (name is! String) {
+        name = name.name;
+      }
       return _MenuItem(
-        truncate(file.handle, 50, position: TruncatePosition.middle),
+        truncate(name, 50, position: TruncatePosition.middle),
         () {
           widget.onOpenDocumentHandle(file);
         },
