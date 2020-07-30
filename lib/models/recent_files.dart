@@ -1,12 +1,13 @@
 import 'dart:collection';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../io/foundation.dart';
 
-/// TODO: convert web handle to string, or save that out of shared preferences.
 class RecentFiles with ChangeNotifier {
   SharedPreferences _prefs;
+  final List<FileHandle> _webStorage = [];
 
   void init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -16,21 +17,35 @@ class RecentFiles with ChangeNotifier {
   static final int _limit = 5;
 
   UnmodifiableListView<FileHandle> files() {
-    final storage = _storage();
-    return UnmodifiableListView(storage.map((e) => FileHandle(e)).toList());
+    List<FileHandle> handles;
+    if (kIsWeb) {
+      handles = _webStorage;
+    } else {
+      final storage = _desktopStorage();
+      handles = storage.map((e) => FileHandle(e)).toList();
+    }
+    return UnmodifiableListView(handles);
   }
 
   void push(FileHandle file) async {
-    final current = _storage();
-    current.removeWhere((f) => f == file.handle);
-    current.insert(0, file.handle as String);
-    if (current.length > _limit) {
-      current.removeRange(_limit, current.length);
+    if (kIsWeb) {
+      _webStorage.removeWhere((f) => f == file.handle);
+      _webStorage.insert(0, file.handle);
+      if (_webStorage.length > _limit) {
+        _webStorage.removeRange(_limit, _webStorage.length);
+      }
+    } else {
+      final current = _desktopStorage();
+      current.removeWhere((f) => f == file.handle);
+      current.insert(0, file.handle as String);
+      if (current.length > _limit) {
+        current.removeRange(_limit, current.length);
+      }
+      await _prefs?.setStringList(_storageKey, current);
     }
-    await _prefs?.setStringList(_storageKey, current);
   }
 
-  List<String> _storage() {
+  List<String> _desktopStorage() {
     return _prefs?.getStringList(_storageKey) ?? [];
   }
 }
