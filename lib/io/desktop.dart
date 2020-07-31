@@ -14,7 +14,7 @@ Future<FileHandle> openPanel({
   if (result.canceled) {
     return null;
   } else {
-    return FileHandle(result.paths.first);
+    return FileHandle(result.paths.first, name: result.paths.first);
   }
 }
 
@@ -29,7 +29,7 @@ Future<FileHandle> savePanel({
   if (result.canceled) {
     return null;
   } else {
-    return FileHandle(result.paths.first);
+    return FileHandle(result.paths.first, name: result.paths.first);
   }
 }
 

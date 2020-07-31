@@ -6,7 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../io/foundation.dart';
 
 class RecentFiles with ChangeNotifier {
+  /// For desktop FileHandles(String path) are persisted.
   SharedPreferences _prefs;
+
+  /// For web with Native File System API, FileHandles are only saved for current session.
   final List<FileHandle> _webStorage = [];
 
   void init() async {
@@ -22,7 +25,7 @@ class RecentFiles with ChangeNotifier {
       handles = _webStorage;
     } else {
       final storage = _desktopStorage();
-      handles = storage.map((e) => FileHandle(e)).toList();
+      handles = storage.map((e) => FileHandle(e, name: e)).toList();
     }
     return UnmodifiableListView(handles);
   }
