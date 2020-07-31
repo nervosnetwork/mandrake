@@ -6,9 +6,10 @@ class FileFilterGroup {
 }
 
 class FileHandle {
-  const FileHandle(this.handle);
+  const FileHandle(this.handle, {this.name});
 
   /// For desktop, the handle will be the file path as string.
   /// For web, it will be a `FileSystemFileHandle`.
   final dynamic handle;
+  final String name;
 }

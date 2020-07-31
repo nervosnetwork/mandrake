@@ -32,6 +32,9 @@ external Promise<void> saveString(FileSystemFileHandle fileHandle, String conten
 @JS('window.saveFileAsBinary')
 external Promise<void> saveBinary(FileSystemFileHandle fileHandle, Blob contents);
 
+@JS('window.getFileName')
+external String getFileName(FileSystemFileHandle fileHandle);
+
 Future<FileHandle> openPanel({
   List<FileFilterGroup> allowedFileTypes,
 }) async {
@@ -39,7 +42,7 @@ Future<FileHandle> openPanel({
   if (handle == null) {
     return null;
   }
-  return FileHandle(handle);
+  return FileHandle(handle, name: getFileName(handle));
 }
 
 Future<FileHandle> savePanel({
@@ -50,7 +53,7 @@ Future<FileHandle> savePanel({
   if (handle == null) {
     return null;
   }
-  return FileHandle(handle);
+  return FileHandle(handle, name: getFileName(handle));
 }
 
 /// Write file as bytes
