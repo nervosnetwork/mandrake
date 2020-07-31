@@ -48464,8 +48464,7 @@ S.a_0.prototype={
 $0:function(){this.a.d=this.b},
 $S:0}
 S.ZY.prototype={
-$1:function(a){var s=a.a
-return new S.cy(O.aiB(typeof s!="string"?a.b:s,50,C.tO),new S.ZX(this.a,a))}}
+$1:function(a){return new S.cy(O.aiB(a.b,50,C.tO),new S.ZX(this.a,a))}}
 S.ZX.prototype={
 $0:function(){this.a.a.Xr(this.b)},
 $S:0}
