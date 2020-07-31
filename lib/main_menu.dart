@@ -84,7 +84,7 @@ class _MainMenuState extends State<MainMenu> {
     final recentFilesItems = recentFiles.files().map((file) {
       var name = file.handle;
       if (name is! String) {
-        name = name.name;
+        name = name.toString();
       }
       return _MenuItem(
         truncate(name, 50, position: TruncatePosition.middle),
