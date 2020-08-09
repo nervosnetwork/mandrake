@@ -13,7 +13,7 @@ extension on DocumentTemplateType {
   String get name {
     switch (this) {
       case DocumentTemplateType.blank:
-        return 'untitled';
+        return 'Blank';
       case DocumentTemplateType.udt:
         return 'Simple UDT';
       case DocumentTemplateType.balance:
@@ -43,6 +43,7 @@ class DocumentTemplate {
   String get description => _type.description;
 
   static List<DocumentTemplate> templates = [
+    DocumentTemplate(DocumentTemplateType.blank),
     DocumentTemplate(DocumentTemplateType.balance),
     DocumentTemplate(DocumentTemplateType.udt),
   ];
