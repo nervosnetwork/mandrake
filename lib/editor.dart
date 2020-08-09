@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -256,7 +257,7 @@ class _EditorState extends State<Editor> {
 
   @override
   void initState() {
-    _doc = DocumentTemplate(DocumentTemplateType.blank).create();
+    _doc = Document();
     _docHandle = null;
     _selection = Selection();
     _editorState = EditorState();
@@ -264,6 +265,8 @@ class _EditorState extends State<Editor> {
     _recentFiles.init();
 
     super.initState();
+
+    Timer.run(() => _showTemplateDialog(null));
   }
 
   @override
