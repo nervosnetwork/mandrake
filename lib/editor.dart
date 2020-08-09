@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -48,11 +49,11 @@ class _EditorState extends State<Editor> {
 
   void _newDocumentFromTemplate() {
     _promptToSaveIfNecessary(() {
-      _showTemplateDialog(() {});
+      _showTemplateDialog();
     });
   }
 
-  Future<void> _showTemplateDialog(Function dangerAction) async {
+  Future<void> _showTemplateDialog({Function dangerAction, bool cancellable = true}) async {
     final result = await showDialog(
       context: context,
       barrierDismissible: false,
@@ -84,9 +85,11 @@ class _EditorState extends State<Editor> {
           actions: <Widget>[
             FlatButton(
               child: Text('Cancel'),
-              onPressed: () {
-                Navigator.pop(context, null);
-              },
+              onPressed: cancellable
+                  ? () {
+                      Navigator.pop(context, null);
+                    }
+                  : null,
             ),
             FlatButton(
               child: Text('Create'),
@@ -256,7 +259,7 @@ class _EditorState extends State<Editor> {
 
   @override
   void initState() {
-    _doc = DocumentTemplate(DocumentTemplateType.blank).create();
+    _doc = Document();
     _docHandle = null;
     _selection = Selection();
     _editorState = EditorState();
@@ -264,6 +267,8 @@ class _EditorState extends State<Editor> {
     _recentFiles.init();
 
     super.initState();
+
+    Timer.run(() => _showTemplateDialog(cancellable: false));
   }
 
   @override
