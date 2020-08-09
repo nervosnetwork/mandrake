@@ -49,11 +49,11 @@ class _EditorState extends State<Editor> {
 
   void _newDocumentFromTemplate() {
     _promptToSaveIfNecessary(() {
-      _showTemplateDialog(() {});
+      _showTemplateDialog();
     });
   }
 
-  Future<void> _showTemplateDialog(Function dangerAction) async {
+  Future<void> _showTemplateDialog({Function dangerAction, bool cancellable = true}) async {
     final result = await showDialog(
       context: context,
       barrierDismissible: false,
@@ -85,9 +85,11 @@ class _EditorState extends State<Editor> {
           actions: <Widget>[
             FlatButton(
               child: Text('Cancel'),
-              onPressed: () {
-                Navigator.pop(context, null);
-              },
+              onPressed: cancellable
+                  ? () {
+                      Navigator.pop(context, null);
+                    }
+                  : null,
             ),
             FlatButton(
               child: Text('Create'),
@@ -266,7 +268,7 @@ class _EditorState extends State<Editor> {
 
     super.initState();
 
-    Timer.run(() => _showTemplateDialog(null));
+    Timer.run(() => _showTemplateDialog(cancellable: false));
   }
 
   @override
