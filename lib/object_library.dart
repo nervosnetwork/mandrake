@@ -46,7 +46,7 @@ class _ObjectLibraryState extends State<ObjectLibrary> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     SizedBox(width: 40, child: Center(child: Icon(g.icon, size: 20))),
-                    Text(g.title, style: Theme.of(context).textTheme.subtitle2),
+                    Expanded(child: Text(g.title, style: Theme.of(context).textTheme.subtitle2)),
                   ],
                 );
               },
