@@ -16,6 +16,17 @@
       "args": [
         "-d",
         "chrome",
+        "--web-port",
+        "7777"
+      ]
+    },
+    {
+      "name": "Debug Web Skia",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "-d",
+        "chrome",
         "--release",
         "--dart-define=FLUTTER_WEB_USE_SKIA=true"
       ]
