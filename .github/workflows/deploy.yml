@@ -21,6 +21,10 @@ jobs:
       run: flutter pub get
     - name: Run tests
       run: flutter test
+    - name: Override env config
+      run: dart tool/env.dart
+      env:
+        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
     - name: Build web
       run: flutter build web --release --dart-define=FLUTTER_WEB_USE_SKIA=true
     - name: Deploy
