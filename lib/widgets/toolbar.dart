@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'models/document.dart';
-import 'models/editor_state.dart';
-import 'views/editor/editor_dimensions.dart';
+import '../models/document.dart';
+import '../models/editor_state.dart';
+import '../views/editor/editor_dimensions.dart';
 
 import 'main_menu.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'editor.dart';
+import 'widgets/editor.dart';
 
 void main() => runApp(MandrakeApp());
 

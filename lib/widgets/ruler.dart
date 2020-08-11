@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'models/editor_state.dart';
+import '../models/editor_state.dart';
 
 enum RulerDirection {
   horizontal,

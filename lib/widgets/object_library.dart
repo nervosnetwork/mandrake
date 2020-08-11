@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'models/node.dart';
+import '../models/node.dart';
 
 class ObjectLibrary extends StatefulWidget {
   @override

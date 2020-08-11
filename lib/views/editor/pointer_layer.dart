@@ -12,7 +12,7 @@ import '../../utils/edge_path.dart';
 import '../../utils/focus_helper.dart';
 
 import 'editor_dimensions.dart';
-import '../../context_menu.dart';
+import '../../widgets/context_menu.dart';
 
 /// Handles mouse events for moving canvas or nodes around, connecting
 /// nodes as parent/child and accepts object library drag target.

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'models/node_action.dart';
+import '../models/node_action.dart';
 
 typedef NodeActionItemSelected = void Function(NodeActionItem item);
 

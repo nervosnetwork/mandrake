@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'models/document.dart';
-import 'models/selection.dart';
-import 'models/node.dart';
+import '../models/document.dart';
+import '../models/selection.dart';
+import '../models/node.dart';
 
-import 'views/property_inspector/root_node_property_editor.dart';
-import 'views/property_inspector/ast_node_property_editor.dart';
-import 'views/property_inspector/primitive_node_property_editor.dart';
-import 'views/property_inspector/prefab_node_property_editor.dart';
+import '../views/property_inspector/root_node_property_editor.dart';
+import '../views/property_inspector/ast_node_property_editor.dart';
+import '../views/property_inspector/primitive_node_property_editor.dart';
+import '../views/property_inspector/prefab_node_property_editor.dart';
 
 class PropertyInspector extends StatelessWidget {
   @override

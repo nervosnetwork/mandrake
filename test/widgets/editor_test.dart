@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:mandrake/editor.dart';
-import 'package:mandrake/object_library.dart';
-import 'package:mandrake/property_inspector.dart';
-import 'package:mandrake/toolbar.dart';
-import 'package:mandrake/ruler.dart';
+import 'package:mandrake/widgets/editor.dart';
+import 'package:mandrake/widgets/object_library.dart';
+import 'package:mandrake/widgets/property_inspector.dart';
+import 'package:mandrake/widgets/toolbar.dart';
+import 'package:mandrake/widgets/ruler.dart';
 
 void main() {
   final app = MaterialApp(

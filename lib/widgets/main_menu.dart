@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:truncate/truncate.dart';
 
-import 'models/editor_state.dart';
-import 'models/recent_files.dart';
-import 'views/editor/editor_dimensions.dart';
+import '../models/editor_state.dart';
+import '../models/recent_files.dart';
+import '../views/editor/editor_dimensions.dart';
 
 typedef MenuItemSelected = void Function(String item);
 

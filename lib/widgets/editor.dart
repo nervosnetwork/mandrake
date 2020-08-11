@@ -2,27 +2,27 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'models/document.dart';
-import 'models/document_template.dart';
-import 'models/selection.dart';
-import 'models/editor_state.dart';
-import 'models/recent_files.dart';
+import '../models/document.dart';
+import '../models/document_template.dart';
+import '../models/selection.dart';
+import '../models/editor_state.dart';
+import '../models/recent_files.dart';
 
-import 'io/file_chooser.dart';
-import 'io/doc_reader.dart';
-import 'io/doc_writer.dart';
-import 'io/ast_writer.dart';
+import '../io/file_chooser.dart';
+import '../io/doc_reader.dart';
+import '../io/doc_writer.dart';
+import '../io/ast_writer.dart';
 
 import 'toolbar.dart';
 import 'object_library.dart';
 import 'property_inspector.dart';
 import 'ruler.dart';
 
-import 'views/editor/editor_dimensions.dart';
-import 'views/editor/canvas_layer.dart';
-import 'views/editor/edges_layer.dart';
-import 'views/editor/nodes_layer.dart';
-import 'views/editor/pointer_layer.dart';
+import '../views/editor/editor_dimensions.dart';
+import '../views/editor/canvas_layer.dart';
+import '../views/editor/edges_layer.dart';
+import '../views/editor/nodes_layer.dart';
+import '../views/editor/pointer_layer.dart';
 
 class Editor extends StatefulWidget {
   @override
