@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/document.dart';
 import '../models/editor_state.dart';
 import '../views/editor/editor_dimensions.dart';
-import 'utils/google_auth_manager.dart';
+import '../utils/google_auth_manager.dart';
 
 import 'main_menu.dart';
 
