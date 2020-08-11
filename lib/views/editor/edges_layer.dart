@@ -7,7 +7,7 @@ import '../../models/selection.dart';
 import '../../models/node.dart';
 import '../../models/editor_state.dart';
 import '../../models/link.dart';
-import '../../utils/edge_path.dart';
+import 'edge_path.dart';
 
 /// Draw edges (between parent and child nodes).
 /// Currently connecting (by dragging connector point from one node to another)

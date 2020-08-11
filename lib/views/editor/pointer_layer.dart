@@ -8,7 +8,7 @@ import '../../models/node.dart';
 import '../../models/node_action.dart';
 import '../../models/editor_state.dart';
 
-import '../../utils/edge_path.dart';
+import 'edge_path.dart';
 import '../../utils/focus_helper.dart';
 
 import 'editor_dimensions.dart';

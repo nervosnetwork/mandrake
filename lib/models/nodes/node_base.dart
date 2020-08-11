@@ -4,12 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../utils/offset_json_converter.dart';
-import '../../utils/dirty_tracker.dart';
+import '../offset_json_converter.dart';
+import '../dirty_tracker.dart';
 import '../node.dart' show NodeDeserializer, NodeSerializer;
 
 export 'package:json_annotation/json_annotation.dart';
-export '../../utils/offset_json_converter.dart';
+export '../offset_json_converter.dart';
 export '../node.dart' show NodeSerializer;
 
 part 'node_base.g.dart';

@@ -4,7 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'node.dart';
 import 'link.dart';
-import '../utils/dirty_tracker.dart';
+import 'dirty_tracker.dart';
 
 part 'document.g.dart';
 
