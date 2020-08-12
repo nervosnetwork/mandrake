@@ -1,11 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/document.dart';
 import '../models/editor_state.dart';
 import '../views/editor/editor_dimensions.dart';
-import '../utils/google_auth_manager.dart';
 
 import 'main_menu.dart';
 
@@ -49,24 +47,6 @@ class Toolbar extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               SizedBox(width: EditorDimensions.mainMenuWidth),
-              /*
-              _iconButton(
-                icon: Icon(Icons.note_add),
-                onPressed: () => onNewDocument(),
-              ),
-              _iconButton(
-                icon: Icon(Icons.file_upload),
-                onPressed: () => onOpenDocument(),
-              ),
-              _iconButton(
-                icon: Icon(Icons.save),
-                onPressed: () => onSaveDocument(),
-              ),
-              _iconButton(
-                icon: Icon(Icons.arrow_forward),
-                onPressed: () => onExportAst(),
-              ),
-              */
               _separator(),
               _iconButton(
                 icon: Icon(Icons.zoom_out),
@@ -96,15 +76,6 @@ class Toolbar extends StatelessWidget {
                 icon: Icon(Icons.developer_board),
                 onPressed: () => _jumpToRoot(document, editorState),
               ),
-              if (kIsWeb)
-                _iconButton(
-                  icon: Icon(Icons.account_circle),
-                  onPressed: () async {
-                    // TODO: this is for temporary debug only
-                    final account = await GoogleAuthManager.signIn();
-                    print(account.displayName);
-                  },
-                ),
             ],
           ),
           MainMenu(
