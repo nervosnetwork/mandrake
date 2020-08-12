@@ -100,7 +100,9 @@ class Toolbar extends StatelessWidget {
                 _iconButton(
                   icon: Icon(Icons.account_circle),
                   onPressed: () async {
-                    await GoogleAuthManager.signIn();
+                    // TODO: this is for temporary debug only
+                    final account = await GoogleAuthManager.signIn();
+                    print(account.displayName);
                   },
                 ),
             ],
