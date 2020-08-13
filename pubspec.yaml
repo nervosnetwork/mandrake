@@ -21,6 +21,7 @@ dependencies:
   shared_preferences: ^0.5.8
   string_validator: ^0.1.4
   truncate: ^2.1.2
+  url_launcher: ^5.5.0
   uuid: ^2.0.4
 
   file_chooser:

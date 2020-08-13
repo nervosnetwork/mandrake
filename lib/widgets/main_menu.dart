@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:truncate/truncate.dart';
 
+import '../io/io.dart';
 import '../models/editor_state.dart';
 import '../models/recent_files.dart';
 import '../views/editor/editor_dimensions.dart';
@@ -95,13 +96,20 @@ class _MainMenuState extends State<MainMenu> {
         [
           _MenuItem('New File', widget.onNewDocument),
           _MenuItem('New File from Template...', widget.onNewDocumentFromTemplate),
-          _MenuItem('Open...', widget.onOpenDocument),
-          _SeparatorMenuItem(),
-          _MenuItem('Save', widget.onSaveDocument),
-          _MenuItem('Save As...', widget.onSaveDocumentAs),
-          _SeparatorMenuItem(),
-          _MenuItem('Recent Files', null),
-          ...recentFilesItems,
+          if (isFileSystemAvailable()) ...[
+            _MenuItem('Open...', widget.onOpenDocument),
+            _SeparatorMenuItem(),
+            _MenuItem('Save', widget.onSaveDocument),
+            _MenuItem('Save As...', widget.onSaveDocumentAs),
+            _SeparatorMenuItem(),
+            _MenuItem('Recent Files', null),
+            ...recentFilesItems,
+          ],
+          if (!isFileSystemAvailable()) ...[
+            _MenuItem('Enable Native File System API...', () {
+              showNativeFileSystemGuide(context);
+            })
+          ],
           _SeparatorMenuItem(),
           _MenuItem('Export AST...', widget.onExportAst),
         ],
