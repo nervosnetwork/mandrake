@@ -17,6 +17,9 @@ class Promise<T> {
 @JS()
 class FileSystemFileHandle {}
 
+@JS('window.isFileSystemAvailable')
+external bool isFileSystemAvailable();
+
 @JS('window.openFilePanel')
 external Promise<FileSystemFileHandle> openFilePanel();
 

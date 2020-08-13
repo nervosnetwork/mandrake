@@ -22,6 +22,9 @@
     document.addEventListener('contextmenu', event => event.preventDefault());
   </script>
   <script>
+    function isFileSystemAvailable() {
+      return typeof chooseFileSystemEntries == 'function';
+    }
     async function openFilePanel() {
       return chooseFileSystemEntries();
     }

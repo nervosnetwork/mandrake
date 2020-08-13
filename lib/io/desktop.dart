@@ -3,6 +3,8 @@ import 'package:file_chooser/file_chooser.dart';
 
 import 'foundation.dart';
 
+bool isFileSystemAvailable() => true;
+
 Future<FileHandle> openPanel({
   List<FileFilterGroup> allowedFileTypes,
 }) async {
