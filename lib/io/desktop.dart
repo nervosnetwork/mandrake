@@ -65,3 +65,6 @@ Future<String> readFileAsString(FileHandle handle) {
     return null;
   }
 }
+
+void writeStringToLocalStorage(String key, String content) => throw UnimplementedError();
+String readStringFromLocalStorage(String key) => throw UnimplementedError();
