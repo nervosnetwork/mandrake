@@ -4,7 +4,7 @@ library testjs;
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
 import 'dart:typed_data';
-import 'dart:html' show Blob;
+import 'dart:html' show Blob, window;
 
 import 'foundation.dart';
 
@@ -75,4 +75,12 @@ Future<void> writeFileAsString(FileHandle handle, String content) {
 /// Read file as string
 Future<String> readFileAsString(FileHandle handle) {
   return promiseToFuture(readString(handle.handle));
+}
+
+void writeStringToLocalStorage(String key, String content) {
+  window.localStorage[key] = content;
+}
+
+String readStringFromLocalStorage(String key) {
+  return window.localStorage[key];
 }

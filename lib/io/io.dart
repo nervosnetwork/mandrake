@@ -4,14 +4,16 @@ import 'web.dart' if (dart.library.io) 'desktop.dart' as fs;
 
 bool isFileSystemAvailable() => fs.isFileSystemAvailable();
 
-// const _configUrl = 'chrome://flags/#native-file-system-api';
-const _descriptionUrl = 'https://web.dev/native-file-system/';
+void writeToLocalStorage(String key, String content) => fs.writeStringToLocalStorage(key, content);
+String readFromLocalStorage(String key) => fs.readStringFromLocalStorage(key);
 
 void _launchUrl(String url) async {
   await launch(url);
 }
 
 void showNativeFileSystemGuide(BuildContext context) async {
+  const descriptionUrl = 'https://web.dev/native-file-system/';
+
   await showDialog(
     context: context,
     barrierDismissible: false,
@@ -35,7 +37,7 @@ void showNativeFileSystemGuide(BuildContext context) async {
                 RaisedButton(
                   child: Text('Click here to learn more about Native File System API'),
                   onPressed: () {
-                    _launchUrl(_descriptionUrl);
+                    _launchUrl(descriptionUrl);
                   },
                 ),
               ],
