@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'document.dart';
 import 'selection.dart';
 import 'node.dart';
+import 'undo_manager.dart';
 
 enum NodeAction {
   disconnectFromParent,
@@ -105,25 +106,61 @@ class NodeActionExecutor {
   void execute(NodeAction action) {
     switch (action) {
       case NodeAction.flatten:
-        final flattened = document.flattenPrefabNode(node);
-        selection.select(flattened);
+        UndoManager.shared.add(Change(
+          node,
+          () {
+            final flattened = document.flattenPrefabNode(node);
+            selection.select(flattened);
+          },
+          (node) {
+            // TODO: undo flatten
+          },
+        ));
         break;
       case NodeAction.disconnectFromParent:
-        document.disconnectNodeFromParent(node);
+        final parents = document.parentsOf(node);
+        final slotIds = {for (var parent in parents) parent.id: parent.slotIdForChild(node)};
+        UndoManager.shared.add(Change(
+          parents,
+          () {
+            document.disconnectNodeFromParent(node);
+          },
+          (parents) {
+            for (final parent in parents) {
+              document.connectNode(parent: parent, child: node, slotId: slotIds[parent.id]);
+            }
+          },
+        ));
         break;
       case NodeAction.disconnectAllChildren:
-        document.disconnectAllChildren(node);
+        final childIds = node.children.map((c) => c.id).toList();
+        final slotIds = {for (var n in node.children) n.id: node.slotIdForChild(n)};
+        UndoManager.shared.add(Change(
+          childIds,
+          () {
+            document.disconnectAllChildren(node);
+          },
+          (childIds) {
+            for (final childId in childIds) {
+              final child = document.nodes.firstWhere((n) => n.id == childId, orElse: () => null);
+              document.connectNode(parent: node, child: child, slotId: slotIds[child.id]);
+            }
+          },
+        ));
         break;
       case NodeAction.delete:
         document.deleteNode(node);
         selection.select(null);
+        // TODO: undo delete node
         break;
       case NodeAction.deleteWithDescendants:
         document.deleteNodeAndDescendants(node);
         selection.select(null);
+        // TODO: undo delete node and descendants
         break;
       case NodeAction.autoLayout:
         (node as AstNode).autoLayout();
+        // TODO: undo auto layout
         break;
     }
   }

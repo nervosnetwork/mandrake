@@ -135,6 +135,8 @@ class Document with ChangeNotifier, DirtyTracker {
     }
   }
 
+  Node findNode(String nodeId) => nodes.firstWhere((c) => c.id == nodeId, orElse: () => null);
+
   void deleteNode(Node node) {
     disconnectNodeFromParent(node);
     disconnectAllChildren(node);

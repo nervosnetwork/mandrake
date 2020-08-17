@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/document.dart';
 import '../../models/node.dart';
+import '../../models/undo_manager.dart';
 
 class PropertyEditorSection extends StatelessWidget {
   PropertyEditorSection({@required this.title, @required this.children, Key key}) : super(key: key);
@@ -135,14 +136,39 @@ class SlotProperty extends StatelessWidget {
     nameController.text = slot.name;
 
     void deleteSlot() {
-      if (slot.childId != null) {
-        document.disconnectNode(parent: node, childId: slot.childId);
-      }
-      node.removeSlot(slot.id);
+      final slotName = slot.name;
+      final childId = slot.childId;
+      // TODO: root node streams/calls restore
+      // TODO: slot original position restore (otherwise slot is always appended when undo)
+      UndoManager.shared.add(Change(
+        [slotName, childId],
+        () {
+          if (slot.childId != null) {
+            document.disconnectNode(parent: node, childId: slot.childId);
+          }
+          node.removeSlot(slot.id);
+        },
+        (slotNameAndChildId) {
+          final slot = node.addSlot(slotNameAndChildId[0]);
+          final childId = slotNameAndChildId[1];
+          if (childId != null) {
+            final child = document.findNode(childId);
+            document.connectNode(parent: node, child: child, slotId: slot.id);
+          }
+        },
+      ));
     }
 
-    void deleteChild() {
-      document.disconnectNode(parent: node, childId: slot.childId);
+    void disconnectChild() {
+      UndoManager.shared.add(Change(
+        [node.findChild(slot.childId), slot.id],
+        () {
+          document.disconnectNode(parent: node, childId: slot.childId);
+        },
+        (childAndSlotId) {
+          document.connectNode(parent: node, child: childAndSlotId[0], slotId: childAndSlotId[1]);
+        },
+      ));
     }
 
     void renameSlot(String name) {
@@ -171,7 +197,7 @@ class SlotProperty extends StatelessWidget {
           GestureDetector(
             onTap: () {
               if (slot.isConnected) {
-                deleteChild();
+                disconnectChild();
               }
             },
             child: Icon(

@@ -142,6 +142,11 @@ class Node with ChangeNotifier, DirtyTracker {
     }
   }
 
+  String slotIdForChild(Node child) {
+    final slot = slots.firstWhere((s) => s.childId == child.id);
+    return slot?.id;
+  }
+
   void _fillSlot(Node child, String slotId) {
     final slot = slots.firstWhere((s) => s.id == slotId && !s.isConnected, orElse: () => null);
     assert(slot != null);
@@ -192,6 +197,8 @@ class Node with ChangeNotifier, DirtyTracker {
     markDirty();
     notifyListeners();
   }
+
+  Node findChild(String childId) => children.firstWhere((c) => c.id == childId, orElse: () => null);
 
   void replaceChild(String childId, Node newChild) {
     if (childId == null) {
