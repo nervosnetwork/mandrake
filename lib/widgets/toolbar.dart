@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/document.dart';
 import '../models/editor_state.dart';
+import '../models/undo_manager.dart';
 import '../views/editor/editor_dimensions.dart';
 
 import 'main_menu.dart';
@@ -47,24 +48,15 @@ class Toolbar extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               SizedBox(width: EditorDimensions.mainMenuWidth),
-              /*
+              _separator(),
               _iconButton(
-                icon: Icon(Icons.note_add),
-                onPressed: () => onNewDocument(),
+                icon: Icon(Icons.undo),
+                onPressed: UndoManager.shared.canUndo ? () => UndoManager.shared.undo() : null,
               ),
               _iconButton(
-                icon: Icon(Icons.file_upload),
-                onPressed: () => onOpenDocument(),
+                icon: Icon(Icons.redo),
+                onPressed: UndoManager.shared.canRedo ? () => UndoManager.shared.redo() : null,
               ),
-              _iconButton(
-                icon: Icon(Icons.save),
-                onPressed: () => onSaveDocument(),
-              ),
-              _iconButton(
-                icon: Icon(Icons.arrow_forward),
-                onPressed: () => onExportAst(),
-              ),
-              */
               _separator(),
               _iconButton(
                 icon: Icon(Icons.zoom_out),

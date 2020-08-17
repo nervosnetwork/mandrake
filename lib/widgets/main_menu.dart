@@ -5,6 +5,7 @@ import 'package:truncate/truncate.dart';
 import '../io/io.dart';
 import '../models/editor_state.dart';
 import '../models/recent_files.dart';
+import '../models/undo_manager.dart';
 import '../views/editor/editor_dimensions.dart';
 
 typedef MenuItemSelected = void Function(String item);
@@ -56,7 +57,8 @@ class _MainMenuState extends State<MainMenu> {
           children: [
             SizedBox(width: 8),
             mainMenuItem(_MenuItem('File', () => selectSubMenu(0))),
-            mainMenuItem(_MenuItem('View', () => selectSubMenu(1))),
+            mainMenuItem(_MenuItem('Edit', () => selectSubMenu(1))),
+            mainMenuItem(_MenuItem('View', () => selectSubMenu(2))),
           ],
         ),
         if (subMenu != null)
@@ -112,6 +114,13 @@ class _MainMenuState extends State<MainMenu> {
           ],
           _SeparatorMenuItem(),
           _MenuItem('Export AST...', widget.onExportAst),
+        ],
+        dismissSubMenu,
+      ),
+      _Menu(
+        [
+          _MenuItem('Undo', UndoManager.shared.canUndo ? () => UndoManager.shared.undo() : null),
+          _MenuItem('redo', UndoManager.shared.canRedo ? () => UndoManager.shared.redo() : null),
         ],
         dismissSubMenu,
       ),

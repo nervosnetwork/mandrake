@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class EditorDimensions {
   static const double toolbarHeight = 40;
-  static const double mainMenuWidth = 190;
+  static const double mainMenuWidth = 260;
   static const double rulerWidth = 20;
   static const double objectLibraryPanelWidth = 200;
   static const double propertyInspectorPanelWidth = 280;
