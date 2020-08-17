@@ -7,6 +7,7 @@ import '../../models/selection.dart';
 import '../../models/node.dart';
 import '../../models/node_action.dart';
 import '../../models/editor_state.dart';
+import '../../models/undo_manager.dart';
 
 import 'edge_path.dart';
 import '../../utils/focus_helper.dart';
@@ -47,12 +48,7 @@ class _PointerLayerState extends State<PointerLayer> {
             onAcceptWithDetails: (details) {
               final renderBox = context.findRenderObject() as RenderBox;
               final pos = _translateLocalPosition(renderBox.globalToLocal(details.offset));
-              final node = NodeCreator.create(details.data, pos);
-              if (!document.nodes.contains((node))) {
-                // NodeCreator is free to add the node to document if it wants to.
-                document.addNode(node);
-              }
-              selection.select(node);
+              _createNode(details.data, pos);
             },
             builder: (context, candidateData, rejectedData) => Container(),
           ),
@@ -82,6 +78,25 @@ class _PointerLayerState extends State<PointerLayer> {
       onPointerUp: _onPointerUp,
       onPointerSignal: _onPointerSignal,
     );
+  }
+
+  void _createNode(NodeTemplate template, Offset pos) {
+    Node node;
+    UndoManager.shared.add(Change(
+      selection.selectedNode(document.nodes),
+      () {
+        node = NodeCreator.create(template, pos);
+        if (!document.nodes.contains((node))) {
+          // NodeCreator is free to add the node to document if it wants to.
+          document.addNode(node);
+        }
+        selection.select(node);
+      },
+      (previousSelectedNode) {
+        document.deleteNode(node);
+        selection.select(previousSelectedNode);
+      },
+    ));
   }
 
   void _onPointerMove(PointerMoveEvent event) {
