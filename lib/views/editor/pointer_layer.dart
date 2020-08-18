@@ -81,22 +81,7 @@ class _PointerLayerState extends State<PointerLayer> {
   }
 
   void _createNode(NodeTemplate template, Offset pos) {
-    Node node;
-    addCommandToUndoList(Command(
-      selection.selectedNode(document.nodes),
-      () {
-        node = NodeCreator.create(template, pos);
-        if (!document.nodes.contains((node))) {
-          // NodeCreator is free to add the node to document if it wants to.
-          document.addNode(node);
-        }
-        selection.select(node);
-      },
-      (previousSelectedNode) {
-        document.deleteNode(node);
-        selection.select(previousSelectedNode);
-      },
-    ));
+    addCommandToUndoList(Command.createNode(document, selection, template, pos));
   }
 
   void _onPointerMove(PointerMoveEvent event) {
@@ -215,16 +200,7 @@ class _PointerLayerState extends State<PointerLayer> {
       final slot = source.hitTest(_startConnectorOffset - source.position);
       final target = _hitTest(localPosition);
       if (document.canConnect(parent: source, child: target)) {
-        addCommandToUndoList(Command(
-          target,
-          () {
-            document.connectNode(parent: source, child: target, slotId: slot?.id);
-          },
-          (_) {
-            document.disconnectNodeFromParent(target);
-          },
-        ));
-        // selection.select(target);
+        addCommandToUndoList(Command.connect(document, source, target, slot));
       }
       selection.hover(null);
       setState(() {

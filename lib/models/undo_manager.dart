@@ -1,7 +1,7 @@
 import 'package:undo/undo.dart';
-import 'commands/command.dart';
+import 'command.dart';
 
-export 'commands/command.dart';
+export 'command.dart';
 
 class UndoManager extends ChangeStack {
   static final UndoManager _shared = UndoManager();

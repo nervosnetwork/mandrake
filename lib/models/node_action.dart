@@ -106,61 +106,22 @@ class NodeActionExecutor {
   void execute(NodeAction action) {
     switch (action) {
       case NodeAction.flatten:
-        addCommandToUndoList(Command(
-          node,
-          () {
-            final flattened = document.flattenPrefabNode(node);
-            selection.select(flattened);
-          },
-          (node) {
-            // TODO: undo flatten
-          },
-        ));
+        addCommandToUndoList(Command.flatten(document, selection, node));
         break;
       case NodeAction.disconnectFromParent:
-        final parents = document.parentsOf(node);
-        final slotIds = {for (var parent in parents) parent.id: parent.slotIdForChild(node)};
-        addCommandToUndoList(Command(
-          parents,
-          () {
-            document.disconnectNodeFromParent(node);
-          },
-          (parents) {
-            for (final parent in parents) {
-              document.connectNode(parent: parent, child: node, slotId: slotIds[parent.id]);
-            }
-          },
-        ));
+        addCommandToUndoList(Command.disconnectParent(document, node));
         break;
       case NodeAction.disconnectAllChildren:
-        final childIds = node.children.map((c) => c.id).toList();
-        final slotIds = {for (var n in node.children) n.id: node.slotIdForChild(n)};
-        addCommandToUndoList(Command(
-          childIds,
-          () {
-            document.disconnectAllChildren(node);
-          },
-          (childIds) {
-            for (final childId in childIds) {
-              final child = document.nodes.firstWhere((n) => n.id == childId, orElse: () => null);
-              document.connectNode(parent: node, child: child, slotId: slotIds[child.id]);
-            }
-          },
-        ));
+        addCommandToUndoList(Command.disconnectChildren(document, node));
         break;
       case NodeAction.delete:
-        document.deleteNode(node);
-        selection.select(null);
-        // TODO: undo delete node
+        addCommandToUndoList(Command.deleteNode(document, selection, node));
         break;
       case NodeAction.deleteWithDescendants:
-        document.deleteNodeAndDescendants(node);
-        selection.select(null);
-        // TODO: undo delete node and descendants
+        addCommandToUndoList(Command.deleteNodeAndDescendants(document, selection, node));
         break;
       case NodeAction.autoLayout:
-        (node as AstNode).autoLayout();
-        // TODO: undo auto layout
+        addCommandToUndoList(Command.autoLayout(node));
         break;
     }
   }

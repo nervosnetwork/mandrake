@@ -136,51 +136,15 @@ class SlotProperty extends StatelessWidget {
     nameController.text = slot.name;
 
     void deleteSlot() {
-      final slotName = slot.name;
-      final childId = slot.childId;
-      // TODO: root node streams/calls restore
-      // TODO: slot original position restore (otherwise slot is always appended when undo)
-      addCommandToUndoList(Command(
-        [slotName, childId],
-        () {
-          if (slot.childId != null) {
-            document.disconnectNode(parent: node, childId: slot.childId);
-          }
-          node.removeSlot(slot.id);
-        },
-        (slotNameAndChildId) {
-          final slot = node.addSlot(slotNameAndChildId[0]);
-          final childId = slotNameAndChildId[1];
-          if (childId != null) {
-            final child = document.findNode(childId);
-            document.connectNode(parent: node, child: child, slotId: slot.id);
-          }
-        },
-      ));
+      addCommandToUndoList(Command.deleteSlot(document, node, slot));
     }
 
     void disconnectChild() {
-      addCommandToUndoList(Command(
-        [node.findChild(slot.childId), slot.id],
-        () {
-          document.disconnectNode(parent: node, childId: slot.childId);
-        },
-        (childAndSlotId) {
-          document.connectNode(parent: node, child: childAndSlotId[0], slotId: childAndSlotId[1]);
-        },
-      ));
+      addCommandToUndoList(Command.disconnectChildren(document, node));
     }
 
     void renameSlot(String name) {
-      addCommandToUndoList(Command(
-        slot.name,
-        () {
-          node.renameSlot(slot.id, name);
-        },
-        (oldName) {
-          node.renameSlot(slot.id, oldName);
-        },
-      ));
+      addCommandToUndoList(Command.renameSlot(node, slot, name));
     }
 
     return Container(
