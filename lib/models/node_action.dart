@@ -121,7 +121,7 @@ class NodeActionExecutor {
         Command.deleteNodeAndDescendants(document, selection, node).run();
         break;
       case NodeAction.autoLayout:
-        Command.autoLayout(node).run();
+        Command.autoLayout(document, node).run();
         break;
     }
   }

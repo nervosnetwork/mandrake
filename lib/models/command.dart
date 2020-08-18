@@ -198,18 +198,20 @@ class Command<T> extends Change {
     );
   }
 
-  factory Command.autoLayout(AstNode node) {
+  factory Command.autoLayout(Document doc, AstNode node) {
     final positions = {for (var n in node.nodes) n.id: n.position};
     return Command(
       positions,
       () {
         node.autoLayout();
+        doc.forceRedraw();
       },
       (oldPositions) {
         final positions = oldPositions as Map<String, Offset>;
         for (final n in node.nodes) {
           n.position = positions[n.id];
         }
+        doc.forceRedraw();
       },
     );
   }

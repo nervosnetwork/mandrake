@@ -181,6 +181,10 @@ class Document with ChangeNotifier, DirtyTracker {
     return first;
   }
 
+  void forceRedraw() {
+    notifyListeners();
+  }
+
   void rebuild() {
     _rebuildNodes();
     _rebuildLinks();
