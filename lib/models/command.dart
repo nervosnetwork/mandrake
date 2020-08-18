@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' show Offset;
+import 'package:mandrake/models/undo_manager.dart';
 import 'package:undo/undo.dart';
 
 import 'document.dart';
@@ -11,6 +12,9 @@ class Command<T> extends Change {
     Function() execute,
     Function(T oldValue) undo,
   ) : super(oldValue, execute, undo);
+
+  /// Execute, adding to undo list
+  void run() => addCommandToUndoList(this);
 
   factory Command.createNode(
     Document doc,

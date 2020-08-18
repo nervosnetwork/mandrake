@@ -106,22 +106,22 @@ class NodeActionExecutor {
   void execute(NodeAction action) {
     switch (action) {
       case NodeAction.flatten:
-        addCommandToUndoList(Command.flatten(document, selection, node));
+        Command.flatten(document, selection, node).run();
         break;
       case NodeAction.disconnectFromParent:
-        addCommandToUndoList(Command.disconnectParent(document, node));
+        Command.disconnectParent(document, node).run();
         break;
       case NodeAction.disconnectAllChildren:
-        addCommandToUndoList(Command.disconnectChildren(document, node));
+        Command.disconnectChildren(document, node).run();
         break;
       case NodeAction.delete:
-        addCommandToUndoList(Command.deleteNode(document, selection, node));
+        Command.deleteNode(document, selection, node).run();
         break;
       case NodeAction.deleteWithDescendants:
-        addCommandToUndoList(Command.deleteNodeAndDescendants(document, selection, node));
+        Command.deleteNodeAndDescendants(document, selection, node).run();
         break;
       case NodeAction.autoLayout:
-        addCommandToUndoList(Command.autoLayout(node));
+        Command.autoLayout(node).run();
         break;
     }
   }

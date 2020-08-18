@@ -81,7 +81,7 @@ class _PointerLayerState extends State<PointerLayer> {
   }
 
   void _createNode(NodeTemplate template, Offset pos) {
-    addCommandToUndoList(Command.createNode(document, selection, template, pos));
+    Command.createNode(document, selection, template, pos).run();
   }
 
   void _onPointerMove(PointerMoveEvent event) {
@@ -200,7 +200,7 @@ class _PointerLayerState extends State<PointerLayer> {
       final slot = source.hitTest(_startConnectorOffset - source.position);
       final target = _hitTest(localPosition);
       if (document.canConnect(parent: source, child: target)) {
-        addCommandToUndoList(Command.connect(document, source, target, slot));
+        Command.connect(document, source, target, slot).run();
       }
       selection.hover(null);
       setState(() {

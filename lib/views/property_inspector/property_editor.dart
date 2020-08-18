@@ -136,15 +136,15 @@ class SlotProperty extends StatelessWidget {
     nameController.text = slot.name;
 
     void deleteSlot() {
-      addCommandToUndoList(Command.deleteSlot(document, node, slot));
+      Command.deleteSlot(document, node, slot).run();
     }
 
     void disconnectChild() {
-      addCommandToUndoList(Command.disconnectChildren(document, node));
+      Command.disconnectChildren(document, node).run();
     }
 
     void renameSlot(String name) {
-      addCommandToUndoList(Command.renameSlot(node, slot, name));
+      Command.renameSlot(node, slot, name).run();
     }
 
     return Container(
