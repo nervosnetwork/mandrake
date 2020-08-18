@@ -6,6 +6,7 @@ import 'document.dart';
 import 'selection.dart';
 import 'node.dart';
 
+/// Encapsulate action/change that supports undo/redo
 class Command<T> extends Change {
   Command(
     oldValue,
@@ -62,6 +63,18 @@ class Command<T> extends Change {
       },
       (node) {
         // TODO: undo delete and descendants
+      },
+    );
+  }
+
+  factory Command.movePosition(Node node, Offset newPos, [Offset oldPos]) {
+    return Command(
+      oldPos ?? node.position,
+      () {
+        node.position = newPos;
+      },
+      (oldPosition) {
+        node.position = oldPos;
       },
     );
   }

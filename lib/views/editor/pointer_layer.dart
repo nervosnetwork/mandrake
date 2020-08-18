@@ -23,12 +23,13 @@ class PointerLayer extends StatefulWidget {
 }
 
 class _PointerLayerState extends State<PointerLayer> {
-  bool _isDragging = false;
-  bool _isDraggingCanvas = false;
-  bool _isDraggingConnector = false;
-  bool _isShowingContextMenu = false;
-  Offset _contentMenuOffset;
-  Offset _startConnectorOffset, _endConnectorOffset;
+  bool isDragging = false;
+  bool isDraggingCanvas = false;
+  bool isDraggingConnector = false;
+  bool isShowingContextMenu = false;
+  Offset contentMenuOffset;
+  Offset startConnectorOffset, endConnectorOffset;
+  Offset startDraggingNodeOffset;
 
   Document get document => Provider.of<Document>(context, listen: false);
   Selection get selection => Provider.of<Selection>(context, listen: false);
@@ -48,86 +49,90 @@ class _PointerLayerState extends State<PointerLayer> {
             onAcceptWithDetails: (details) {
               final renderBox = context.findRenderObject() as RenderBox;
               final pos = _translateLocalPosition(renderBox.globalToLocal(details.offset));
-              _createNode(details.data, pos);
+              createNode(details.data, pos);
             },
             builder: (context, candidateData, rejectedData) => Container(),
           ),
-          if (_isDraggingConnector)
+          if (isDraggingConnector)
             Transform(
               transform: Matrix4.translationValues(0, 0, 0)..scale(editorState.zoomScale),
               child: _ConnectingNodesView(
-                _startConnectorOffset,
-                _endConnectorOffset,
+                startConnectorOffset,
+                endConnectorOffset,
               ),
             ),
-          if (_isShowingContextMenu)
+          if (isShowingContextMenu)
             Transform(
-              transform: Matrix4.translationValues(_contentMenuOffset.dx, _contentMenuOffset.dy, 0),
+              transform: Matrix4.translationValues(contentMenuOffset.dx, contentMenuOffset.dy, 0),
               child: ContextMenu(
                 NodeActionBuilder(
                   document,
                   selection.selectedNode(document.nodes),
                 ).build(),
-                _handleActionItem,
+                handleActionItem,
               ),
             ),
         ],
       ),
-      onPointerMove: _onPointerMove,
-      onPointerDown: _onPointerDown,
-      onPointerUp: _onPointerUp,
-      onPointerSignal: _onPointerSignal,
+      onPointerMove: onPointerMove,
+      onPointerDown: onPointerDown,
+      onPointerUp: onPointerUp,
+      onPointerSignal: onPointerSignal,
     );
   }
 
-  void _createNode(NodeTemplate template, Offset pos) {
+  void createNode(NodeTemplate template, Offset pos) {
     Command.createNode(document, selection, template, pos).run();
   }
 
-  void _onPointerMove(PointerMoveEvent event) {
+  void onPointerMove(PointerMoveEvent event) {
     final localPosition = _translateLocalPosition(event.localPosition);
-    if (!_isDragging) {
-      _isDragging = true;
-      final node = _hitTest(localPosition);
+    if (!isDragging) {
+      isDragging = true;
+      final node = hitTest(localPosition);
       selection.select(node);
       if (node == null) {
-        _isDraggingCanvas = true;
+        isDraggingCanvas = true;
       } else {
-        _isDraggingCanvas = false;
+        isDraggingCanvas = false;
         final slot = node.hitTest(localPosition - node.position);
         if (slot != null) {
-          _isDraggingConnector = true;
-          _startConnectorOffset = node.slotConnectorPosition(slot);
-          _endConnectorOffset = localPosition;
+          isDraggingConnector = true;
+          startConnectorOffset = node.slotConnectorPosition(slot);
+          endConnectorOffset = localPosition;
+        } else {
+          // Start dragging node
+          startDraggingNodeOffset = node.position;
         }
       }
 
       FocusHelper.unfocus(context);
     }
 
-    if (_isDraggingCanvas) {
-      /// Canvas is drawing outside thus shulld be affected by the zoom scale.
+    if (isDraggingCanvas) {
+      /// Canvas is drawing outside thus should be affected by the zoom scale.
       editorState.moveCanvas(event.delta / editorState.zoomScale);
-    } else if (_isDraggingConnector) {
+    } else if (isDraggingConnector) {
       final source = selection.selectedNode(document.nodes);
-      final target = _hitTest(localPosition);
+      final target = hitTest(localPosition);
       if (document.canConnect(parent: source, child: target)) {
         selection.hover(target);
       } else {
         selection.hover(null);
       }
       setState(() {
-        _endConnectorOffset += event.delta / editorState.zoomScale;
+        endConnectorOffset += event.delta / editorState.zoomScale;
       });
     } else {
+      /// Dragging a node
       final node = selection.selectedNode(document.nodes);
       node.position = node.position + event.delta / editorState.zoomScale;
     }
   }
 
-  void _onPointerDown(PointerDownEvent event) {
+  void onPointerDown(PointerDownEvent event) {
     final localPosition = _translateLocalPosition(event.localPosition);
-    final node = _hitTest(localPosition);
+    final node = hitTest(localPosition);
     if (node != null) {
       selection.select(node);
     }
@@ -162,24 +167,24 @@ class _PointerLayerState extends State<PointerLayer> {
         menuPosition = renderBox.localToGlobal(menuOffset);
       }
       if (size == Size.zero || menuOffset.dx < 0 || menuOffset.dy < 0) {
-        if (_isShowingContextMenu) {
+        if (isShowingContextMenu) {
           setState(() {
-            _isShowingContextMenu = false;
+            isShowingContextMenu = false;
           });
         }
         return;
       }
 
       setState(() {
-        _isShowingContextMenu = true;
-        _contentMenuOffset = menuOffset;
+        isShowingContextMenu = true;
+        contentMenuOffset = menuOffset;
       });
     } else {
-      if (_isShowingContextMenu) {
-        if (!menuSize().contains(event.localPosition - _contentMenuOffset)) {
+      if (isShowingContextMenu) {
+        if (!menuSize().contains(event.localPosition - contentMenuOffset)) {
           // Not clicking menu items.
           setState(() {
-            _isShowingContextMenu = false;
+            isShowingContextMenu = false;
           });
         }
       } else {
@@ -190,33 +195,43 @@ class _PointerLayerState extends State<PointerLayer> {
     }
   }
 
-  void _onPointerUp(PointerUpEvent event) {
+  void onPointerUp(PointerUpEvent event) {
     final localPosition = _translateLocalPosition(event.localPosition);
-    _isDragging = false;
-    _isDraggingCanvas = false;
+    isDragging = false;
+    isDraggingCanvas = false;
 
-    if (_isDraggingConnector) {
-      final source = selection.selectedNode(document.nodes);
-      final slot = source.hitTest(_startConnectorOffset - source.position);
-      final target = _hitTest(localPosition);
+    final source = selection.selectedNode(document.nodes);
+    if (source == null) {
+      return;
+    }
+
+    if (isDraggingConnector) {
+      final slot = source.hitTest(startConnectorOffset - source.position);
+      final target = hitTest(localPosition);
       if (document.canConnect(parent: source, child: target)) {
         Command.connect(document, source, target, slot).run();
       }
       selection.hover(null);
       setState(() {
-        _startConnectorOffset = _endConnectorOffset = null;
-        _isDraggingConnector = false;
+        startConnectorOffset = endConnectorOffset = null;
+        isDraggingConnector = false;
       });
+    } else {
+      Command.movePosition(
+        source,
+        source.position + event.delta / editorState.zoomScale,
+        startDraggingNodeOffset, // Undo would revert all small positions changes during the drag
+      ).run();
     }
   }
 
-  void _onPointerSignal(PointerSignalEvent event) {
+  void onPointerSignal(PointerSignalEvent event) {
     if (event is PointerScrollEvent) {
       editorState.moveCanvas(-event.scrollDelta / editorState.zoomScale);
     }
   }
 
-  Node _hitTest(Offset point) {
+  Node hitTest(Offset point) {
     for (final node in document.nodes.reversed) {
       if (node.size.contains(point - node.position)) {
         return node;
@@ -225,9 +240,9 @@ class _PointerLayerState extends State<PointerLayer> {
     return null;
   }
 
-  void _handleActionItem(NodeActionItem item) {
+  void handleActionItem(NodeActionItem item) {
     setState(() {
-      _isShowingContextMenu = false;
+      isShowingContextMenu = false;
     });
     final executor = NodeActionExecutor(document, selection);
     executor.execute(item.value);

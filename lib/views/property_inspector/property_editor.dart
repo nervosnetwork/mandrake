@@ -112,7 +112,10 @@ class BasicInfoProperty extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: PropertyEditorTextFieldDecoration().copyWith(suffixText: 'y'),
                 onFieldSubmitted: (v) {
-                  node.position = node.position + Offset(0, double.parse(v) - node.position.dy);
+                  Command.movePosition(
+                    node,
+                    node.position + Offset(0, double.parse(v) - node.position.dy),
+                  ).run();
                 },
               ),
             ),
