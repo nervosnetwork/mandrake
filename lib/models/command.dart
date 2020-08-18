@@ -42,14 +42,31 @@ class Command<T> extends Change {
   }
 
   factory Command.deleteNode(Document doc, Selection selection, Node node) {
+    final parentSlotIds = {for (var n in doc.parentsOf(node)) n.id: n.slotIdForChild(node)};
+    final childSlotIds = {for (var n in node.children) n.id: node.slotIdForChild(n)};
+
     return Command(
-      node,
+      [parentSlotIds, childSlotIds],
       () {
         doc.deleteNode(node);
         selection.select(null);
       },
-      (node) {
-        // TODO: undo delete
+      (slotIds) {
+        doc.addNode(node);
+
+        final parents = (slotIds as List<Map<String, String>>)[0];
+        for (final parentId in parents.keys) {
+          final parent = doc.findNode(parentId);
+          doc.connectNode(parent: parent, child: node, slotId: parents[parentId]);
+        }
+
+        final children = (slotIds as List<Map<String, String>>)[1];
+        for (final childId in children.keys) {
+          final child = doc.findNode(childId);
+          doc.connectNode(parent: node, child: child, slotId: children[childId]);
+        }
+
+        selection.select(node);
       },
     );
   }
@@ -95,30 +112,38 @@ class Command<T> extends Change {
     final parents = doc.parentsOf(node);
     final slotIds = {for (var parent in parents) parent.id: parent.slotIdForChild(node)};
     return Command(
-      parents,
+      slotIds,
       () {
         doc.disconnectNodeFromParent(node);
       },
       (parents) {
-        for (final parent in parents) {
-          doc.connectNode(parent: parent, child: node, slotId: slotIds[parent.id]);
+        for (final parentId in (parents as Map<String, String>).keys) {
+          final parent = doc.findNode(parentId);
+          doc.connectNode(
+            parent: parent,
+            child: node,
+            slotId: (parents as Map<String, String>)[parentId],
+          );
         }
       },
     );
   }
 
   factory Command.disconnectChildren(Document doc, Node node) {
-    final childIds = node.children.map((c) => c.id).toList();
     final slotIds = {for (var n in node.children) n.id: node.slotIdForChild(n)};
     return Command(
-      childIds,
+      slotIds,
       () {
         doc.disconnectAllChildren(node);
       },
       (childIds) {
-        for (final childId in childIds) {
-          final child = doc.nodes.firstWhere((n) => n.id == childId, orElse: () => null);
-          doc.connectNode(parent: node, child: child, slotId: slotIds[child.id]);
+        for (final childId in (childIds as Map<String, String>).keys) {
+          final child = doc.findNode(childId);
+          doc.connectNode(
+            parent: node,
+            child: child,
+            slotId: (childIds as Map<String, String>)[childId],
+          );
         }
       },
     );

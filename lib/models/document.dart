@@ -69,12 +69,32 @@ class Document with ChangeNotifier, DirtyTracker {
   factory Document.fromJson(Map<String, dynamic> json) => _$DocumentFromJson(json);
   Map<String, dynamic> toJson() => _$DocumentToJson(this);
 
+  Node findNode(String nodeId) => nodes.firstWhere((c) => c.id == nodeId, orElse: () => null);
+
   void addNode(Node node, {Node parent}) {
     if (parent != null) {
       assert(_allNodes.contains(parent));
       parent.addChild(node);
     } else {
       topLevelNodes.add(node);
+    }
+
+    _nodesChanged();
+  }
+
+  void deleteNode(Node node) {
+    disconnectNodeFromParent(node);
+    disconnectAllChildren(node);
+
+    topLevelNodes.removeWhere((n) => n == node);
+
+    _nodesChanged();
+  }
+
+  void deleteNodeAndDescendants(Node node) {
+    disconnectNodeFromParent(node);
+    for (final n in node.nodes) {
+      topLevelNodes.removeWhere((e) => e == n);
     }
 
     _nodesChanged();
@@ -133,26 +153,6 @@ class Document with ChangeNotifier, DirtyTracker {
     for (final childId in childIds) {
       disconnectNode(parent: node, childId: childId);
     }
-  }
-
-  Node findNode(String nodeId) => nodes.firstWhere((c) => c.id == nodeId, orElse: () => null);
-
-  void deleteNode(Node node) {
-    disconnectNodeFromParent(node);
-    disconnectAllChildren(node);
-
-    topLevelNodes.removeWhere((n) => n == node);
-
-    _nodesChanged();
-  }
-
-  void deleteNodeAndDescendants(Node node) {
-    disconnectNodeFromParent(node);
-    for (final n in node.nodes) {
-      topLevelNodes.removeWhere((e) => e == n);
-    }
-
-    _nodesChanged();
   }
 
   AstNode flattenPrefabNode(PrefabNode node) {
