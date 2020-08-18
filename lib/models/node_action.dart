@@ -106,7 +106,7 @@ class NodeActionExecutor {
   void execute(NodeAction action) {
     switch (action) {
       case NodeAction.flatten:
-        UndoManager.shared.add(Change(
+        addCommandToUndoList(Command(
           node,
           () {
             final flattened = document.flattenPrefabNode(node);
@@ -120,7 +120,7 @@ class NodeActionExecutor {
       case NodeAction.disconnectFromParent:
         final parents = document.parentsOf(node);
         final slotIds = {for (var parent in parents) parent.id: parent.slotIdForChild(node)};
-        UndoManager.shared.add(Change(
+        addCommandToUndoList(Command(
           parents,
           () {
             document.disconnectNodeFromParent(node);
@@ -135,7 +135,7 @@ class NodeActionExecutor {
       case NodeAction.disconnectAllChildren:
         final childIds = node.children.map((c) => c.id).toList();
         final slotIds = {for (var n in node.children) n.id: node.slotIdForChild(n)};
-        UndoManager.shared.add(Change(
+        addCommandToUndoList(Command(
           childIds,
           () {
             document.disconnectAllChildren(node);

@@ -82,7 +82,7 @@ class _PointerLayerState extends State<PointerLayer> {
 
   void _createNode(NodeTemplate template, Offset pos) {
     Node node;
-    UndoManager.shared.add(Change(
+    addCommandToUndoList(Command(
       selection.selectedNode(document.nodes),
       () {
         node = NodeCreator.create(template, pos);
@@ -215,7 +215,7 @@ class _PointerLayerState extends State<PointerLayer> {
       final slot = source.hitTest(_startConnectorOffset - source.position);
       final target = _hitTest(localPosition);
       if (document.canConnect(parent: source, child: target)) {
-        UndoManager.shared.add(Change(
+        addCommandToUndoList(Command(
           target,
           () {
             document.connectNode(parent: source, child: target, slotId: slot?.id);

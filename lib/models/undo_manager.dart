@@ -1,8 +1,10 @@
 import 'package:undo/undo.dart';
-export 'package:undo/undo.dart' show Change;
+import 'commands/command.dart';
+
+export 'commands/command.dart';
 
 class UndoManager extends ChangeStack {
-  static final UndoManager shared = UndoManager();
+  static final UndoManager _shared = UndoManager();
 
   UndoManager() : super() {
     /// The `undo` library we use assumes that there should be at least one history item
@@ -15,3 +17,9 @@ class UndoManager extends ChangeStack {
     ));
   }
 }
+
+void addCommandToUndoList(Command command) => UndoManager._shared.add(command);
+bool get canUndo => UndoManager._shared.canUndo;
+bool get canRedo => UndoManager._shared.canRedo;
+void undo() => UndoManager._shared.undo();
+void redo() => UndoManager._shared.redo();

@@ -140,7 +140,7 @@ class SlotProperty extends StatelessWidget {
       final childId = slot.childId;
       // TODO: root node streams/calls restore
       // TODO: slot original position restore (otherwise slot is always appended when undo)
-      UndoManager.shared.add(Change(
+      addCommandToUndoList(Command(
         [slotName, childId],
         () {
           if (slot.childId != null) {
@@ -160,7 +160,7 @@ class SlotProperty extends StatelessWidget {
     }
 
     void disconnectChild() {
-      UndoManager.shared.add(Change(
+      addCommandToUndoList(Command(
         [node.findChild(slot.childId), slot.id],
         () {
           document.disconnectNode(parent: node, childId: slot.childId);
@@ -172,7 +172,15 @@ class SlotProperty extends StatelessWidget {
     }
 
     void renameSlot(String name) {
-      node.renameSlot(slot.id, name);
+      addCommandToUndoList(Command(
+        slot.name,
+        () {
+          node.renameSlot(slot.id, name);
+        },
+        (oldName) {
+          node.renameSlot(slot.id, oldName);
+        },
+      ));
     }
 
     return Container(

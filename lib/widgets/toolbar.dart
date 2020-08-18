@@ -51,11 +51,11 @@ class Toolbar extends StatelessWidget {
               _separator(),
               _iconButton(
                 icon: Icon(Icons.undo),
-                onPressed: UndoManager.shared.canUndo ? () => UndoManager.shared.undo() : null,
+                onPressed: canUndo ? () => undo() : null,
               ),
               _iconButton(
                 icon: Icon(Icons.redo),
-                onPressed: UndoManager.shared.canRedo ? () => UndoManager.shared.redo() : null,
+                onPressed: canRedo ? () => redo() : null,
               ),
               _separator(),
               _iconButton(
