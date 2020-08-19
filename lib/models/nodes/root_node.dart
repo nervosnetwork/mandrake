@@ -1,6 +1,8 @@
 import 'dart:collection';
 import 'dart:ui' show Offset, Size, Rect;
 
+import 'package:string_validator/string_validator.dart';
+
 import 'node_base.dart';
 
 part 'root_node.g.dart';
@@ -71,6 +73,18 @@ class RootNode extends Node {
     _streamSlots.removeWhere((s) => s.id == slotId);
 
     super.removeSlot(slotId);
+  }
+
+  void attachCallSlot(ChildSlot slot) {
+    _callSlots.add(slot);
+    attachSlot(slot);
+  }
+
+  bool isCallSlot(ChildSlot slot) => _callSlots.contains(slot);
+
+  void attachStreamSlot(ChildSlot slot) {
+    _streamSlots.add(slot);
+    attachSlot(slot);
   }
 
   @override

@@ -239,7 +239,10 @@ class Command<T> extends Change {
 
   factory Command.deleteSlot(Document doc, Node node, ChildSlot slot) {
     final childId = slot.childId;
-    // TODO: root node streams/calls restore
+    var isCallSlot = false;
+    if (node is RootNode) {
+      isCallSlot = node.isCallSlot(slot);
+    }
     // TODO: slot original position restore (otherwise slot is always appended when undo)
     return Command(
       childId,
@@ -250,7 +253,15 @@ class Command<T> extends Change {
         node.removeSlot(slot.id);
       },
       (childId) {
-        node.attachSlot(slot);
+        if (node is RootNode) {
+          if (isCallSlot) {
+            node.attachCallSlot(slot);
+          } else {
+            node.attachStreamSlot(slot);
+          }
+        } else {
+          node.attachSlot(slot);
+        }
         if (childId != null) {
           final child = doc.findNode(childId as String);
           doc.connectNode(parent: node, child: child, slotId: slot.id);
