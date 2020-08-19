@@ -1,9 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:undo/undo.dart';
+
 import 'command.dart';
 
-export 'command.dart';
-
-class UndoManager extends ChangeStack {
+class UndoManager extends ChangeStack with ChangeNotifier {
   static final UndoManager _shared = UndoManager();
 
   UndoManager() : super() {
@@ -16,9 +16,30 @@ class UndoManager extends ChangeStack {
       (_) {},
     ));
   }
+
+  factory UndoManager.shared() => _shared;
+
+  @override
+  void add<T>(Change<T> change) {
+    super.add(change);
+    notifyListeners();
+  }
+
+  @override
+  void undo() {
+    super.undo();
+    notifyListeners();
+  }
+
+  @override
+  void redo() {
+    super.redo();
+    notifyListeners();
+  }
 }
 
 void addCommandToUndoList(Command command) => UndoManager._shared.add(command);
+
 bool get canUndo => UndoManager._shared.canUndo;
 bool get canRedo => UndoManager._shared.canRedo;
 void undo() => UndoManager._shared.undo();

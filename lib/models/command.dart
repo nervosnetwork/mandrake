@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart' show Offset;
-import 'package:mandrake/models/undo_manager.dart';
 import 'package:undo/undo.dart';
 
 import 'document.dart';
 import 'selection.dart';
 import 'node.dart';
+import 'undo_manager.dart';
 
 /// Encapsulate action/change that supports undo/redo
 class Command<T> extends Change {

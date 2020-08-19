@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/document.dart';
 import '../../models/node.dart';
-import '../../models/undo_manager.dart';
+import '../../models/command.dart';
 
 class PropertyEditorSection extends StatelessWidget {
   PropertyEditorSection({@required this.title, @required this.children, Key key}) : super(key: key);

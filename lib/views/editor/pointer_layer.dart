@@ -7,7 +7,7 @@ import '../../models/selection.dart';
 import '../../models/node.dart';
 import '../../models/node_action.dart';
 import '../../models/editor_state.dart';
-import '../../models/undo_manager.dart';
+import '../../models/command.dart';
 
 import 'edge_path.dart';
 import '../../utils/focus_helper.dart';

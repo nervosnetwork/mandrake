@@ -28,79 +28,84 @@ class Toolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<Document, EditorState>(builder: (context, document, editorState, child) {
-      return Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).canvasColor,
-              border: Border(
-                bottom: BorderSide(
-                  width: 1,
-                  color: Theme.of(context).dividerColor,
-                ),
-              ),
-            ),
-            width: double.infinity,
-            height: EditorDimensions.toolbarHeight,
-          ),
-          Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
+    return ChangeNotifierProvider.value(
+      value: UndoManager.shared(),
+      child: Consumer2<Document, EditorState>(
+        builder: (context, document, editorState, child) {
+          return Stack(
             children: [
-              SizedBox(width: EditorDimensions.mainMenuWidth),
-              _separator(),
-              _iconButton(
-                icon: Icon(Icons.undo),
-                onPressed: canUndo ? () => undo() : null,
-              ),
-              _iconButton(
-                icon: Icon(Icons.redo),
-                onPressed: canRedo ? () => redo() : null,
-              ),
-              _separator(),
-              _iconButton(
-                icon: Icon(Icons.zoom_out),
-                onPressed: editorState.zoomOutAction,
-              ),
-              SizedBox(
-                width: 30,
-                child: Text(
-                  '${(editorState.zoomScale * 100).round()}%',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 11,
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).canvasColor,
+                  border: Border(
+                    bottom: BorderSide(
+                      width: 1,
+                      color: Theme.of(context).dividerColor,
+                    ),
                   ),
                 ),
+                width: double.infinity,
+                height: EditorDimensions.toolbarHeight,
               ),
-              _iconButton(
-                icon: Icon(Icons.zoom_in),
-                onPressed: editorState.zoomInAction,
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  SizedBox(width: EditorDimensions.mainMenuWidth),
+                  _separator(),
+                  _iconButton(
+                    icon: Icon(Icons.undo),
+                    onPressed: canUndo ? () => undo() : null,
+                  ),
+                  _iconButton(
+                    icon: Icon(Icons.redo),
+                    onPressed: canRedo ? () => redo() : null,
+                  ),
+                  _separator(),
+                  _iconButton(
+                    icon: Icon(Icons.zoom_out),
+                    onPressed: editorState.zoomOutAction,
+                  ),
+                  SizedBox(
+                    width: 30,
+                    child: Text(
+                      '${(editorState.zoomScale * 100).round()}%',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                  _iconButton(
+                    icon: Icon(Icons.zoom_in),
+                    onPressed: editorState.zoomInAction,
+                  ),
+                  _separator(),
+                  _iconButton(
+                    icon: Icon(Icons.filter_center_focus),
+                    onPressed: () => editorState.resetCanvasOffset(),
+                  ),
+                  _iconButton(
+                    icon: Icon(Icons.developer_board),
+                    onPressed: () => _jumpToRoot(document, editorState),
+                  ),
+                ],
               ),
-              _separator(),
-              _iconButton(
-                icon: Icon(Icons.filter_center_focus),
-                onPressed: () => editorState.resetCanvasOffset(),
-              ),
-              _iconButton(
-                icon: Icon(Icons.developer_board),
-                onPressed: () => _jumpToRoot(document, editorState),
+              MainMenu(
+                onNewDocument: onNewDocument,
+                onNewDocumentFromTemplate: onNewDocumentFromTemplate,
+                onOpenDocument: onOpenDocument,
+                onOpenDocumentHandle: onOpenDocumentHandle,
+                onSaveDocument: onSaveDocument,
+                onSaveDocumentAs: onSaveDocumentAs,
+                onExportAst: onExportAst,
+                onLocateRootNode: () => _jumpToRoot(document, editorState),
               ),
             ],
-          ),
-          MainMenu(
-            onNewDocument: onNewDocument,
-            onNewDocumentFromTemplate: onNewDocumentFromTemplate,
-            onOpenDocument: onOpenDocument,
-            onOpenDocumentHandle: onOpenDocumentHandle,
-            onSaveDocument: onSaveDocument,
-            onSaveDocumentAs: onSaveDocumentAs,
-            onExportAst: onExportAst,
-            onLocateRootNode: () => _jumpToRoot(document, editorState),
-          ),
-        ],
-      );
-    });
+          );
+        },
+      ),
+    );
   }
 
   void _jumpToRoot(Document document, EditorState editorState) {

@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'document.dart';
 import 'selection.dart';
 import 'node.dart';
-import 'undo_manager.dart';
+import 'command.dart';
 
 enum NodeAction {
   disconnectFromParent,
