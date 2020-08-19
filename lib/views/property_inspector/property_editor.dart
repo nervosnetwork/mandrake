@@ -154,7 +154,7 @@ class SlotProperty extends StatelessWidget {
     }
 
     void disconnectChild() {
-      Command.disconnectChildren(document, node).run();
+      Command.disconnect(document, node, slot).run();
     }
 
     void renameSlot(String name) {

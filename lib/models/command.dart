@@ -171,6 +171,19 @@ class Command<T> extends Change {
     );
   }
 
+  factory Command.disconnect(Document doc, Node parent, ChildSlot slot) {
+    return Command(
+      slot.childId,
+      () {
+        doc.disconnectNode(parent: parent, childId: slot.childId);
+      },
+      (childId) {
+        final child = doc.findNode(childId as String);
+        doc.connectNode(parent: parent, child: child, slotId: slot.id);
+      },
+    );
+  }
+
   factory Command.disconnectParent(Document doc, Node node) {
     final parents = doc.parentsOf(node);
     final slotIds = {for (var parent in parents) parent.id: parent.slotIdForChild(node)};
