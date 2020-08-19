@@ -155,7 +155,7 @@ class Document with ChangeNotifier, DirtyTracker {
     }
   }
 
-  AstNode flattenPrefabNode(PrefabNode node) {
+  List<AstNode> flattenPrefabNode(PrefabNode node) {
     final flattened = node.flatten();
     var first = flattened.first;
     if (flattened.length == 1) {
@@ -178,7 +178,7 @@ class Document with ChangeNotifier, DirtyTracker {
 
     _nodesChanged();
 
-    return first;
+    return flattened;
   }
 
   void forceRedraw() {

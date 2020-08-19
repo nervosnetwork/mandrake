@@ -35,8 +35,8 @@ class Command<T> extends Change {
         selection.select(node);
       },
       (previousSelectedNodeId) {
-        doc.deleteNode(node);
         selection.select(doc.findNode(previousSelectedNodeId as String));
+        doc.deleteNode(node);
       },
     );
   }
@@ -186,14 +186,31 @@ class Command<T> extends Change {
   }
 
   factory Command.flatten(Document doc, Selection selection, PrefabNode node) {
+    List<AstNode> flattened;
     return Command(
       node,
       () {
-        final flattened = doc.flattenPrefabNode(node);
-        selection.select(flattened);
+        flattened = doc.flattenPrefabNode(node);
+        selection.select(flattened.first);
       },
-      (node) {
-        // TODO: undo flatten
+      (oldNode) {
+        final node = oldNode as PrefabNode;
+        selection.select(node);
+
+        final firstFlattened = flattened.first;
+        final parents = doc.parentsOf(firstFlattened);
+        if (parents.isNotEmpty) {
+          for (final parent in parents) {
+            parent.replaceChild(firstFlattened.id, node);
+          }
+        } else {
+          final index = doc.topLevelNodes.indexOf(firstFlattened);
+          doc.topLevelNodes[index] = node;
+        }
+
+        for (final n in flattened) {
+          doc.deleteNodeAndDescendants(n);
+        }
       },
     );
   }
