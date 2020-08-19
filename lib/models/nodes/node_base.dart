@@ -130,11 +130,13 @@ class Node with ChangeNotifier, DirtyTracker {
     return slot;
   }
 
-  void attachSlot(ChildSlot slot) {
-    _slots.add(slot);
+  void attachSlot(ChildSlot slot, int index) {
+    _slots.insert(index, slot);
     markDirty();
     notifyListeners();
   }
+
+  int indexOfSlot(ChildSlot slot) => _slots.indexOf(slot);
 
   /// Remove both the slot and the child if there's one connected.
   void removeSlot(String slotId) {
