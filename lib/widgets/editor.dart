@@ -7,6 +7,7 @@ import '../models/document_template.dart';
 import '../models/selection.dart';
 import '../models/editor_state.dart';
 import '../models/recent_files.dart';
+import '../models/undo_manager.dart';
 
 import '../io/file_chooser.dart';
 import '../io/doc_reader.dart';
@@ -31,29 +32,34 @@ class Editor extends StatefulWidget {
 
 class _EditorState extends State<Editor> {
   Document _doc;
-  FileHandle _docHandle;
-  Selection _selection;
-  EditorState _editorState;
-  RecentFiles _recentFiles;
+  FileHandle docHandle;
+  Selection selection;
+  EditorState editorState;
+  RecentFiles recentFiles;
 
-  void _newDocument() {
-    _promptToSaveIfNecessary(() {
+  void resetState() {
+    selection = Selection();
+    editorState = EditorState();
+    UndoManager.shared().clear();
+  }
+
+  void newDocument() {
+    promptToSaveIfNecessary(() {
       setState(() {
         _doc = DocumentTemplate(DocumentTemplateType.blank).create();
-        _docHandle = null;
-        _selection = Selection();
-        _editorState = EditorState();
+        docHandle = null;
+        resetState();
       });
     });
   }
 
-  void _newDocumentFromTemplate() {
-    _promptToSaveIfNecessary(() {
-      _showTemplateDialog();
+  void newDocumentFromTemplate() {
+    promptToSaveIfNecessary(() {
+      showTemplateDialog();
     });
   }
 
-  Future<void> _showTemplateDialog({Function dangerAction, bool cancellable = true}) async {
+  Future<void> showTemplateDialog({Function dangerAction, bool cancellable = true}) async {
     final result = await showDialog(
       context: context,
       barrierDismissible: false,
@@ -105,15 +111,14 @@ class _EditorState extends State<Editor> {
     if (result != null) {
       setState(() {
         _doc = result.create();
-        _docHandle = null;
-        _selection = Selection();
-        _editorState = EditorState();
+        docHandle = null;
+        resetState();
       });
     }
   }
 
-  void _openDocument() {
-    _promptToSaveIfNecessary(() async {
+  void openDocument() {
+    promptToSaveIfNecessary(() async {
       final handle = await showOpenPanel(
         allowedFileTypes: [
           FileFilterGroup(extensions: ['json'], label: 'JSON')
@@ -130,34 +135,32 @@ class _EditorState extends State<Editor> {
           _doc = doc;
           _doc.rebuild();
           _doc.markNotDirty();
-          _docHandle = handle;
-          _trackRecentFile(handle);
-          _selection = Selection();
-          _editorState = EditorState();
+          docHandle = handle;
+          trackRecentFile(handle);
+          resetState();
         });
       }
     });
   }
 
-  void _openDocumentHandle(FileHandle handle) {
-    _promptToSaveIfNecessary(() async {
+  void openDocumentHandle(FileHandle handle) {
+    promptToSaveIfNecessary(() async {
       final doc = await DocReader(handle).read();
       if (doc != null) {
         setState(() {
           _doc = doc;
           _doc.rebuild();
           _doc.markNotDirty();
-          _docHandle = handle;
-          _trackRecentFile(handle);
-          _selection = Selection();
-          _editorState = EditorState();
+          docHandle = handle;
+          trackRecentFile(handle);
+          resetState();
         });
       }
     });
   }
 
-  Future<bool> _saveDocument() async {
-    if (_docHandle == null) {
+  Future<bool> saveDocument() async {
+    if (docHandle == null) {
       final handle = await showSavePanel(
         suggestedFileName: _doc.fileName,
         allowedFileTypes: [
@@ -165,20 +168,20 @@ class _EditorState extends State<Editor> {
         ],
       );
       if (handle != null) {
-        _docHandle = handle;
-        _trackRecentFile(handle);
+        docHandle = handle;
+        trackRecentFile(handle);
       }
     }
 
-    if (_docHandle != null) {
-      await DocWriter(_doc, _docHandle).write();
+    if (docHandle != null) {
+      await DocWriter(_doc, docHandle).write();
       _doc.markNotDirty();
       return true;
     }
     return false;
   }
 
-  Future<bool> _saveDocumentAs() async {
+  Future<bool> saveDocumentAs() async {
     final handle = await showSavePanel(
       suggestedFileName: _doc.fileName,
       allowedFileTypes: [
@@ -186,19 +189,19 @@ class _EditorState extends State<Editor> {
       ],
     );
     if (handle != null) {
-      _docHandle = handle;
-      _trackRecentFile(handle);
+      docHandle = handle;
+      trackRecentFile(handle);
     }
 
-    if (_docHandle != null) {
-      await DocWriter(_doc, _docHandle).write();
+    if (docHandle != null) {
+      await DocWriter(_doc, docHandle).write();
       _doc.markNotDirty();
       return true;
     }
     return false;
   }
 
-  void _exportAst() async {
+  void exportAst() async {
     final handle = await showSavePanel(
       suggestedFileName: 'ast.bin',
     );
@@ -208,11 +211,11 @@ class _EditorState extends State<Editor> {
     }
   }
 
-  void _trackRecentFile(FileHandle fileHandle) async {
-    await _recentFiles.push(fileHandle);
+  void trackRecentFile(FileHandle fileHandle) async {
+    await recentFiles.push(fileHandle);
   }
 
-  Future<void> _promptToSaveIfNecessary(Function dangerAction) async {
+  Future<void> promptToSaveIfNecessary(Function dangerAction) async {
     if (!_doc.isDirty) {
       return dangerAction();
     }
@@ -249,7 +252,7 @@ class _EditorState extends State<Editor> {
     );
 
     if (result) {
-      if (await _saveDocument()) {
+      if (await saveDocument()) {
         dangerAction();
       }
     } else {
@@ -260,15 +263,14 @@ class _EditorState extends State<Editor> {
   @override
   void initState() {
     _doc = Document();
-    _docHandle = null;
-    _selection = Selection();
-    _editorState = EditorState();
-    _recentFiles = RecentFiles();
-    _recentFiles.init();
+    docHandle = null;
+    resetState();
+    recentFiles = RecentFiles();
+    recentFiles.init();
 
     super.initState();
 
-    Timer.run(() => _showTemplateDialog(cancellable: false));
+    Timer.run(() => showTemplateDialog(cancellable: false));
   }
 
   @override
@@ -276,9 +278,9 @@ class _EditorState extends State<Editor> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<Document>.value(value: _doc),
-        ChangeNotifierProvider<Selection>.value(value: _selection),
-        ChangeNotifierProvider<EditorState>.value(value: _editorState),
-        ChangeNotifierProvider<RecentFiles>.value(value: _recentFiles),
+        ChangeNotifierProvider<Selection>.value(value: selection),
+        ChangeNotifierProvider<EditorState>.value(value: editorState),
+        ChangeNotifierProvider<RecentFiles>.value(value: recentFiles),
       ],
       child: Stack(
         children: [
@@ -331,13 +333,13 @@ class _EditorState extends State<Editor> {
             // Toolbar actual size to occupy full screen for main menu
             height: MediaQuery.of(context).size.height,
             child: Toolbar(
-              onNewDocument: _newDocument,
-              onNewDocumentFromTemplate: _newDocumentFromTemplate,
-              onOpenDocument: _openDocument,
-              onOpenDocumentHandle: _openDocumentHandle,
-              onSaveDocument: _saveDocument,
-              onSaveDocumentAs: _saveDocumentAs,
-              onExportAst: _exportAst,
+              onNewDocument: newDocument,
+              onNewDocumentFromTemplate: newDocumentFromTemplate,
+              onOpenDocument: openDocument,
+              onOpenDocumentHandle: openDocumentHandle,
+              onSaveDocument: saveDocument,
+              onSaveDocumentAs: saveDocumentAs,
+              onExportAst: exportAst,
             ),
           ),
         ],

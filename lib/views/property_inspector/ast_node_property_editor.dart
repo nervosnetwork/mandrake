@@ -7,6 +7,7 @@ import '../../models/document.dart';
 import '../../models/selection.dart';
 import '../../models/node.dart';
 import '../../models/node_action.dart';
+import '../../models/command.dart';
 
 class AstNodeInfoProperty extends StatelessWidget {
   @override
@@ -27,7 +28,7 @@ class AstNodeInfoProperty extends StatelessWidget {
               isDense: true,
               style: Theme.of(context).textTheme.subtitle1.copyWith(fontSize: 13),
               onChanged: (value) {
-                node.valueType = value;
+                Command.updateValueType(node, value).run();
               },
               value: node.valueType,
               items: node.exchangeableValueTypes.map((t) {

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'document.dart';
 import 'selection.dart';
 import 'node.dart';
+import 'command.dart';
 
 enum NodeAction {
   disconnectFromParent,
@@ -105,25 +106,22 @@ class NodeActionExecutor {
   void execute(NodeAction action) {
     switch (action) {
       case NodeAction.flatten:
-        final flattened = document.flattenPrefabNode(node);
-        selection.select(flattened);
+        Command.flatten(document, selection, node).run();
         break;
       case NodeAction.disconnectFromParent:
-        document.disconnectNodeFromParent(node);
+        Command.disconnectParent(document, node).run();
         break;
       case NodeAction.disconnectAllChildren:
-        document.disconnectAllChildren(node);
+        Command.disconnectChildren(document, node).run();
         break;
       case NodeAction.delete:
-        document.deleteNode(node);
-        selection.select(null);
+        Command.deleteNode(document, selection, node).run();
         break;
       case NodeAction.deleteWithDescendants:
-        document.deleteNodeAndDescendants(node);
-        selection.select(null);
+        Command.deleteNodeAndDescendants(document, selection, node).run();
         break;
       case NodeAction.autoLayout:
-        (node as AstNode).autoLayout();
+        Command.autoLayout(document, node).run();
         break;
     }
   }

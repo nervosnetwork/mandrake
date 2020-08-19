@@ -130,6 +130,14 @@ class Node with ChangeNotifier, DirtyTracker {
     return slot;
   }
 
+  void attachSlot(ChildSlot slot, int index) {
+    _slots.insert(index, slot);
+    markDirty();
+    notifyListeners();
+  }
+
+  int indexOfSlot(ChildSlot slot) => _slots.indexOf(slot);
+
   /// Remove both the slot and the child if there's one connected.
   void removeSlot(String slotId) {
     final slot = slots.firstWhere((s) => s.id == slotId, orElse: () => null);
@@ -140,6 +148,11 @@ class Node with ChangeNotifier, DirtyTracker {
       markDirty();
       notifyListeners();
     }
+  }
+
+  String slotIdForChild(Node child) {
+    final slot = slots.firstWhere((s) => s.childId == child.id);
+    return slot?.id;
   }
 
   void _fillSlot(Node child, String slotId) {
@@ -192,6 +205,8 @@ class Node with ChangeNotifier, DirtyTracker {
     markDirty();
     notifyListeners();
   }
+
+  Node findChild(String childId) => children.firstWhere((c) => c.id == childId, orElse: () => null);
 
   void replaceChild(String childId, Node newChild) {
     if (childId == null) {

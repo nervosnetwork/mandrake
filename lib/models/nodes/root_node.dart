@@ -8,7 +8,7 @@ part 'root_node.g.dart';
 /// AST Root.
 @JsonSerializable()
 class RootNode extends Node {
-  RootNode() : super(name: 'Root Node', position: Offset(80, 250));
+  RootNode() : super(name: 'Root Node', position: Offset(80, 250), maximumSlotCount: 100);
 
   factory RootNode.fromJson(Map<String, dynamic> json) => _$RootNodeFromJson(json);
   @override
@@ -71,6 +71,27 @@ class RootNode extends Node {
     _streamSlots.removeWhere((s) => s.id == slotId);
 
     super.removeSlot(slotId);
+  }
+
+  void attachCallSlot(ChildSlot slot, int index) {
+    _callSlots.insert(index, slot);
+    attachSlot(slot, 0);
+  }
+
+  @override
+  int indexOfSlot(ChildSlot slot) {
+    final index = _callSlots.indexOf(slot);
+    if (index != -1) {
+      return index;
+    }
+    return _streamSlots.indexOf(slot);
+  }
+
+  bool isCallSlot(ChildSlot slot) => _callSlots.contains(slot);
+
+  void attachStreamSlot(ChildSlot slot, int index) {
+    _streamSlots.insert(index, slot);
+    attachSlot(slot, 0);
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/document.dart';
 import '../../models/node.dart';
+import '../../models/command.dart';
 
 class PropertyEditorSection extends StatelessWidget {
   PropertyEditorSection({@required this.title, @required this.children, Key key}) : super(key: key);
@@ -81,7 +82,7 @@ class BasicInfoProperty extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: PropertyEditorTextFieldDecoration(),
                 onFieldSubmitted: (v) {
-                  node.name = v;
+                  _rename(node, v);
                 },
               ),
             ),
@@ -100,7 +101,10 @@ class BasicInfoProperty extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: PropertyEditorTextFieldDecoration().copyWith(suffixText: 'x'),
                 onFieldSubmitted: (v) {
-                  node.position = node.position + Offset(double.parse(v) - node.position.dx, 0);
+                  _movePosition(
+                    node,
+                    node.position + Offset(double.parse(v) - node.position.dx, 0),
+                  );
                 },
               ),
             ),
@@ -111,7 +115,10 @@ class BasicInfoProperty extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: PropertyEditorTextFieldDecoration().copyWith(suffixText: 'y'),
                 onFieldSubmitted: (v) {
-                  node.position = node.position + Offset(0, double.parse(v) - node.position.dy);
+                  _movePosition(
+                    node,
+                    node.position + Offset(0, double.parse(v) - node.position.dy),
+                  );
                 },
               ),
             ),
@@ -119,6 +126,14 @@ class BasicInfoProperty extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void _rename(Node node, String name) {
+    Command.renameNode(node, name).run();
+  }
+
+  void _movePosition(Node node, Offset pos) {
+    Command.movePosition(node, pos).run();
   }
 }
 
@@ -135,18 +150,15 @@ class SlotProperty extends StatelessWidget {
     nameController.text = slot.name;
 
     void deleteSlot() {
-      if (slot.childId != null) {
-        document.disconnectNode(parent: node, childId: slot.childId);
-      }
-      node.removeSlot(slot.id);
+      Command.deleteSlot(document, node, slot).run();
     }
 
-    void deleteChild() {
-      document.disconnectNode(parent: node, childId: slot.childId);
+    void disconnectChild() {
+      Command.disconnect(document, node, slot).run();
     }
 
     void renameSlot(String name) {
-      node.renameSlot(slot.id, name);
+      Command.renameSlot(node, slot, name).run();
     }
 
     return Container(
@@ -171,7 +183,7 @@ class SlotProperty extends StatelessWidget {
           GestureDetector(
             onTap: () {
               if (slot.isConnected) {
-                deleteChild();
+                disconnectChild();
               }
             },
             child: Icon(

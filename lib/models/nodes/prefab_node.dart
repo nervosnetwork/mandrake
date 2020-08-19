@@ -45,6 +45,11 @@ class PrefabNode extends AstNode {
     notifyListeners();
   }
 
+  String getProperty(String name) {
+    final p = properties.firstWhere((p) => p.name == name, orElse: () => null);
+    return p?.value;
+  }
+
   // Sub PrefabNode type could override this if they decide some properties
   // should be merged with a custom strategy.
   void mergeProperties(List<PrefabProperty> props) {
