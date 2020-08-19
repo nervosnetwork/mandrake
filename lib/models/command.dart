@@ -84,6 +84,55 @@ class Command<T> extends Change {
     );
   }
 
+  factory Command.renameNode(Node node, String name) {
+    return Command(
+      node.name,
+      () {
+        node.name = name;
+      },
+      (oldName) {
+        node.name = oldName as String;
+      },
+    );
+  }
+
+  factory Command.updateProperty(PrefabNode node, String name, String value) {
+    return Command(
+      [name, node.getProperty(name) ?? ''],
+      () {
+        node.updateProperty(name, value);
+      },
+      (oldValue) {
+        final nameAndValue = oldValue as List<String>;
+        node.updateProperty(nameAndValue[0], nameAndValue[1]);
+      },
+    );
+  }
+
+  factory Command.updateValue(PrimitiveNode node, String value) {
+    return Command(
+      node.value,
+      () {
+        node.value = value;
+      },
+      (oldValue) {
+        node.value = oldValue as String;
+      },
+    );
+  }
+
+  factory Command.updateValueType(AstNode node, ValueType valueType) {
+    return Command(
+      node.valueType,
+      () {
+        node.valueType = valueType;
+      },
+      (oldValue) {
+        node.valueType = oldValue as ValueType;
+      },
+    );
+  }
+
   factory Command.movePosition(Node node, Offset newPos, [Offset oldPos]) {
     return Command(
       oldPos ?? node.position,

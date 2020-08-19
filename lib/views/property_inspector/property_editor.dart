@@ -82,7 +82,7 @@ class BasicInfoProperty extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: PropertyEditorTextFieldDecoration(),
                 onFieldSubmitted: (v) {
-                  node.name = v;
+                  _rename(node, v);
                 },
               ),
             ),
@@ -101,7 +101,10 @@ class BasicInfoProperty extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: PropertyEditorTextFieldDecoration().copyWith(suffixText: 'x'),
                 onFieldSubmitted: (v) {
-                  node.position = node.position + Offset(double.parse(v) - node.position.dx, 0);
+                  _movePosition(
+                    node,
+                    node.position + Offset(double.parse(v) - node.position.dx, 0),
+                  );
                 },
               ),
             ),
@@ -112,10 +115,10 @@ class BasicInfoProperty extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: PropertyEditorTextFieldDecoration().copyWith(suffixText: 'y'),
                 onFieldSubmitted: (v) {
-                  Command.movePosition(
+                  _movePosition(
                     node,
                     node.position + Offset(0, double.parse(v) - node.position.dy),
-                  ).run();
+                  );
                 },
               ),
             ),
@@ -123,6 +126,14 @@ class BasicInfoProperty extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void _rename(Node node, String name) {
+    Command.renameNode(node, name).run();
+  }
+
+  void _movePosition(Node node, Offset pos) {
+    Command.movePosition(node, pos).run();
   }
 }
 

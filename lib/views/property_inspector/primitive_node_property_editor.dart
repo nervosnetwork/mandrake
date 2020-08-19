@@ -8,6 +8,7 @@ import '../../models/document.dart';
 import '../../models/selection.dart';
 import '../../models/node.dart';
 import '../../models/node_action.dart';
+import '../../models/command.dart';
 import '../../utils/focus_helper.dart';
 
 class PrimitiveNodePropertyEditor extends StatelessWidget {
@@ -70,7 +71,7 @@ class PrimitiveNodePropertyEditor extends StatelessWidget {
       return DropdownButton(
         isDense: true,
         onChanged: (value) {
-          node.value = value;
+          Command.updateValue(node, value).run();
         },
         value: node.value,
         items: [
@@ -98,7 +99,7 @@ class PrimitiveNodePropertyEditor extends StatelessWidget {
               decoration: PropertyEditorTextFieldDecoration(),
               onFieldSubmitted: (v) {
                 FocusHelper.unfocus(context);
-                node.value = v;
+                Command.updateValue(node, v).run();
               },
               maxLines: node.allowedEditLines,
               textInputAction: TextInputAction.next,

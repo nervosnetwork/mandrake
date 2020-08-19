@@ -8,6 +8,7 @@ import '../../models/document.dart';
 import '../../models/selection.dart';
 import '../../models/node.dart';
 import '../../models/node_action.dart';
+import '../../models/command.dart';
 import '../../utils/focus_helper.dart';
 
 class PrefabNodePropertyEditor extends StatelessWidget {
@@ -92,7 +93,7 @@ class PrefabNodePropertyEditor extends StatelessWidget {
                           maxLines: 2,
                           onFieldSubmitted: (v) {
                             FocusHelper.unfocus(context);
-                            node.updateProperty(value.name, v);
+                            Command.updateProperty(node, value.name, v).run();
                           },
                           textInputAction: TextInputAction.next,
                         ),
