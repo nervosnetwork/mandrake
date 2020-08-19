@@ -217,11 +217,13 @@ class _PointerLayerState extends State<PointerLayer> {
         isDraggingConnector = false;
       });
     } else {
-      Command.movePosition(
-        source,
-        source.position + event.delta / editorState.zoomScale,
-        startDraggingNodeOffset, // Undo would revert all small positions changes during the drag
-      ).run();
+      if (!isShowingContextMenu) {
+        Command.movePosition(
+          source,
+          source.position + event.delta / editorState.zoomScale,
+          startDraggingNodeOffset, // Undo would revert all small positions changes during the drag
+        ).run();
+      }
     }
   }
 
