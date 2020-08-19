@@ -30,8 +30,8 @@ class Toolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: UndoManager.shared(),
-      child: Consumer2<Document, EditorState>(
-        builder: (context, document, editorState, child) {
+      child: Consumer3<Document, EditorState, UndoManager>(
+        builder: (context, document, editorState, undoManager, child) {
           return Stack(
             children: [
               Container(
@@ -54,11 +54,11 @@ class Toolbar extends StatelessWidget {
                   _separator(),
                   _iconButton(
                     icon: Icon(Icons.undo),
-                    onPressed: canUndo ? () => undo() : null,
+                    onPressed: undoManager.canUndo ? () => undo() : null,
                   ),
                   _iconButton(
                     icon: Icon(Icons.redo),
-                    onPressed: canRedo ? () => redo() : null,
+                    onPressed: undoManager.canRedo ? () => redo() : null,
                   ),
                   _separator(),
                   _iconButton(

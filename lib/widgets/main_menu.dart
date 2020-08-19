@@ -119,8 +119,8 @@ class _MainMenuState extends State<MainMenu> {
       ),
       _Menu(
         [
-          _MenuItem('Undo', canUndo ? () => undo() : null),
-          _MenuItem('Redo', canRedo ? () => redo() : null),
+          _MenuItem('Undo', UndoManager.shared().canUndo ? () => undo() : null),
+          _MenuItem('Redo', UndoManager.shared().canRedo ? () => redo() : null),
         ],
         dismissSubMenu,
       ),

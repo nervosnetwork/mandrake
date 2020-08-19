@@ -3,44 +3,48 @@ import 'package:undo/undo.dart';
 
 import 'command.dart';
 
-class UndoManager extends ChangeStack with ChangeNotifier {
+class UndoManager with ChangeNotifier {
+  final ChangeStack _stack = ChangeStack();
   static final UndoManager _shared = UndoManager();
 
   UndoManager() : super() {
+    clear();
+  }
+
+  factory UndoManager.shared() => _shared;
+
+  void clear() {
+    _stack.clearHistory();
+
     /// The `undo` library we use assumes that there should be at least one history item
     /// to enable undo. Add one dummy change to satisfy that.
     /// https://github.com/rodydavis/undo/blob/master/lib/src/undo_stack.dart#L16-L17
-    add(Change(
+    _stack.add(Change(
       0,
       () {},
       (_) {},
     ));
   }
 
-  factory UndoManager.shared() => _shared;
+  bool get canUndo => _stack.canUndo;
+  bool get canRedo => _stack.canRedo;
 
-  @override
-  void add<T>(Change<T> change) {
-    super.add(change);
+  void add(Command change) {
+    _stack.add(change);
     notifyListeners();
   }
 
-  @override
   void undo() {
-    super.undo();
+    _stack.undo();
     notifyListeners();
   }
 
-  @override
   void redo() {
-    super.redo();
+    _stack.redo();
     notifyListeners();
   }
 }
 
 void addCommandToUndoList(Command command) => UndoManager._shared.add(command);
-
-bool get canUndo => UndoManager._shared.canUndo;
-bool get canRedo => UndoManager._shared.canRedo;
 void undo() => UndoManager._shared.undo();
 void redo() => UndoManager._shared.redo();
