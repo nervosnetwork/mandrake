@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart' show Offset;
 import 'package:undo/undo.dart';
 
@@ -72,14 +73,27 @@ class Command<T> extends Change {
   }
 
   factory Command.deleteNodeAndDescendants(Document doc, Selection selection, Node node) {
+    final parents = doc.parentsOf(node);
+    final slotIds = {for (var parent in parents) parent.id: parent.slotIdForChild(node)};
     return Command(
-      node,
+      jsonEncode(node),
       () {
         doc.deleteNodeAndDescendants(node);
         selection.select(null);
       },
-      (node) {
-        // TODO: undo delete and descendants
+      (jsonString) {
+        final json = jsonDecode(jsonString as String);
+        final node = Node.fromJson(json);
+        doc.addNode(node);
+        for (final parentId in slotIds.keys) {
+          final parent = doc.findNode(parentId);
+          doc.connectNode(
+            parent: parent,
+            child: node,
+            slotId: slotIds[parentId],
+          );
+        }
+        selection.select(node);
       },
     );
   }
