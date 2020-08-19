@@ -91,7 +91,7 @@ class Command<T> extends Change {
         node.position = newPos;
       },
       (oldPosition) {
-        node.position = oldPos;
+        node.position = oldPosition as Offset;
       },
     );
   }
