@@ -5,13 +5,13 @@ const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
   "index.html": "5b2952b4fbebca21a4308a3e170f2e99",
 "/": "5b2952b4fbebca21a4308a3e170f2e99",
-"main.dart.js": "f63ea057b6430292d0574f4398f6cf27",
+"main.dart.js": "5ce5921a0dd42987915e2b78f7bab963",
 "favicon.png": "71d414da28ea51edf68426cd2a7cb7ba",
 "icons/Icon-192.png": "5c71b22049c5bdb0af970a194c69e0c0",
 "icons/Icon-512.png": "fa07c5171efe91402991ff53b2332b62",
 "manifest.json": "cfab4153f9d02f885a077a26b672ebdd",
 "assets/AssetManifest.json": "2efbb41d7877d10aac9d091f58ccd7b9",
-"assets/NOTICES": "748a96ded089025cbda59979743dad4f",
+"assets/NOTICES": "0b05c544ea3504ca19252a59e9c4fcd3",
 "assets/FontManifest.json": "01700ba55b08a6141f33e168c4a6c22f",
 "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "115e937bb829a890521f72d2e664b632",
 "assets/fonts/MaterialIcons-Regular.ttf": "56d3ffdef7a25659eab6a68a3fbfaf16"
