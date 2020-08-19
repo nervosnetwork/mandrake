@@ -1,8 +1,6 @@
 import 'dart:collection';
 import 'dart:ui' show Offset, Size, Rect;
 
-import 'package:string_validator/string_validator.dart';
-
 import 'node_base.dart';
 
 part 'root_node.g.dart';
