@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:menubar/menubar.dart';
@@ -56,7 +57,7 @@ class Toolbar extends StatelessWidget {
               Wrap(
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  if (!Platform.isMacOS) ...[
+                  if (!Platform.isMacOS || kIsWeb) ...[
                     SizedBox(width: EditorDimensions.mainMenuWidth),
                     _separator(),
                   ],
@@ -99,7 +100,7 @@ class Toolbar extends StatelessWidget {
                   ),
                 ],
               ),
-              if (!Platform.isMacOS)
+              if (!Platform.isMacOS || kIsWeb)
                 MainMenu(
                   onNewDocument: onNewDocument,
                   onNewDocumentFromTemplate: onNewDocumentFromTemplate,
