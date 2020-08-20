@@ -17,7 +17,7 @@ class RecentFiles with ChangeNotifier {
   }
 
   static final String _storageKey = 'recent-files';
-  static final int _limit = 5;
+  static final int _limit = kIsWeb ? 5 : 10;
 
   UnmodifiableListView<FileHandle> files() {
     List<FileHandle> handles;
