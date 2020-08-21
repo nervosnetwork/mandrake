@@ -109,8 +109,7 @@ class _EditorState extends State<Editor> {
                             .map((file) {
                           return FlatButton(
                             onPressed: () {
-                              // TODO: return file handle
-                              print('open ${file.name}');
+                              Navigator.pop(context, file);
                             },
                             child: Text(file.name),
                           );
@@ -143,11 +142,15 @@ class _EditorState extends State<Editor> {
     );
 
     if (result != null) {
-      setState(() {
-        doc = result.create();
-        docHandle = null;
-        resetState();
-      });
+      if (result is FileHandle) {
+        readDocumentHandle(result);
+      } else {
+        setState(() {
+          doc = result.create();
+          docHandle = null;
+          resetState();
+        });
+      }
     }
   }
 
@@ -177,19 +180,24 @@ class _EditorState extends State<Editor> {
     });
   }
 
+  void readDocumentHandle(FileHandle handle) async {
+    final docRead = await DocReader(handle).read();
+    // TODO: handle read error
+    if (docRead != null) {
+      setState(() {
+        doc = docRead;
+        doc.rebuild();
+        doc.markNotDirty();
+        docHandle = handle;
+        trackRecentFile(handle);
+        resetState();
+      });
+    }
+  }
+
   void openDocumentHandle(FileHandle handle) {
     promptToSaveIfNecessary(() async {
-      final docRead = await DocReader(handle).read();
-      if (docRead != null) {
-        setState(() {
-          doc = docRead;
-          doc.rebuild();
-          doc.markNotDirty();
-          docHandle = handle;
-          trackRecentFile(handle);
-          resetState();
-        });
-      }
+      readDocumentHandle(handle);
     });
   }
 
