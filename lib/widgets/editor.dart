@@ -31,7 +31,7 @@ class Editor extends StatefulWidget {
 }
 
 class _EditorState extends State<Editor> {
-  Document _doc;
+  Document doc;
   FileHandle docHandle;
   Selection selection;
   EditorState editorState;
@@ -46,7 +46,7 @@ class _EditorState extends State<Editor> {
   void newDocument() {
     promptToSaveIfNecessary(() {
       setState(() {
-        _doc = DocumentTemplate(DocumentTemplateType.blank).create();
+        doc = DocumentTemplate(DocumentTemplateType.blank).create();
         docHandle = null;
         resetState();
       });
@@ -110,7 +110,7 @@ class _EditorState extends State<Editor> {
 
     if (result != null) {
       setState(() {
-        _doc = result.create();
+        doc = result.create();
         docHandle = null;
         resetState();
       });
@@ -129,12 +129,12 @@ class _EditorState extends State<Editor> {
         return;
       }
 
-      final doc = await DocReader(handle).read();
-      if (doc != null) {
+      final docRead = await DocReader(handle).read();
+      if (docRead != null) {
         setState(() {
-          _doc = doc;
-          _doc.rebuild();
-          _doc.markNotDirty();
+          doc = docRead;
+          doc.rebuild();
+          doc.markNotDirty();
           docHandle = handle;
           trackRecentFile(handle);
           resetState();
@@ -145,12 +145,12 @@ class _EditorState extends State<Editor> {
 
   void openDocumentHandle(FileHandle handle) {
     promptToSaveIfNecessary(() async {
-      final doc = await DocReader(handle).read();
-      if (doc != null) {
+      final docRead = await DocReader(handle).read();
+      if (docRead != null) {
         setState(() {
-          _doc = doc;
-          _doc.rebuild();
-          _doc.markNotDirty();
+          doc = docRead;
+          doc.rebuild();
+          doc.markNotDirty();
           docHandle = handle;
           trackRecentFile(handle);
           resetState();
@@ -162,7 +162,7 @@ class _EditorState extends State<Editor> {
   Future<bool> saveDocument() async {
     if (docHandle == null) {
       final handle = await showSavePanel(
-        suggestedFileName: _doc.fileName,
+        suggestedFileName: doc.fileName,
         allowedFileTypes: [
           FileFilterGroup(extensions: ['json'], label: 'JSON')
         ],
@@ -174,8 +174,8 @@ class _EditorState extends State<Editor> {
     }
 
     if (docHandle != null) {
-      await DocWriter(_doc, docHandle).write();
-      _doc.markNotDirty();
+      await DocWriter(doc, docHandle).write();
+      doc.markNotDirty();
       return true;
     }
     return false;
@@ -183,7 +183,7 @@ class _EditorState extends State<Editor> {
 
   Future<bool> saveDocumentAs() async {
     final handle = await showSavePanel(
-      suggestedFileName: _doc.fileName,
+      suggestedFileName: doc.fileName,
       allowedFileTypes: [
         FileFilterGroup(extensions: ['json'], label: 'JSON')
       ],
@@ -194,8 +194,8 @@ class _EditorState extends State<Editor> {
     }
 
     if (docHandle != null) {
-      await DocWriter(_doc, docHandle).write();
-      _doc.markNotDirty();
+      await DocWriter(doc, docHandle).write();
+      doc.markNotDirty();
       return true;
     }
     return false;
@@ -207,7 +207,7 @@ class _EditorState extends State<Editor> {
     );
 
     if (handle != null) {
-      await AstWriter(_doc, handle).write();
+      await AstWriter(doc, handle).write();
     }
   }
 
@@ -216,7 +216,7 @@ class _EditorState extends State<Editor> {
   }
 
   Future<void> promptToSaveIfNecessary(Function dangerAction) async {
-    if (!_doc.isDirty) {
+    if (!doc.isDirty) {
       return dangerAction();
     }
 
@@ -262,7 +262,7 @@ class _EditorState extends State<Editor> {
 
   @override
   void initState() {
-    _doc = Document();
+    doc = Document();
     docHandle = null;
     resetState();
     recentFiles = RecentFiles();
@@ -277,7 +277,7 @@ class _EditorState extends State<Editor> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<Document>.value(value: _doc),
+        ChangeNotifierProvider<Document>.value(value: doc),
         ChangeNotifierProvider<Selection>.value(value: selection),
         ChangeNotifierProvider<EditorState>.value(value: editorState),
         ChangeNotifierProvider<RecentFiles>.value(value: recentFiles),
