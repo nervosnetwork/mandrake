@@ -130,16 +130,20 @@ class Toolbar extends StatelessWidget {
         MenuItem(
           label: 'New File',
           enabled: true,
+          shortcut: LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyN),
           onClicked: onNewDocument,
         ),
         MenuItem(
           label: 'New File from Template...',
           enabled: true,
+          shortcut: LogicalKeySet(
+              LogicalKeyboardKey.shift, LogicalKeyboardKey.meta, LogicalKeyboardKey.keyN),
           onClicked: onNewDocumentFromTemplate,
         ),
         MenuItem(
           label: 'Open...',
           enabled: true,
+          shortcut: LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyO),
           onClicked: onOpenDocument,
         ),
         if (recentFiles.files().isNotEmpty)
@@ -159,11 +163,14 @@ class Toolbar extends StatelessWidget {
         MenuItem(
           label: 'Save',
           enabled: true,
+          shortcut: LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyS),
           onClicked: onSaveDocument,
         ),
         MenuItem(
           label: 'Save As...',
           enabled: true,
+          shortcut: LogicalKeySet(
+              LogicalKeyboardKey.shift, LogicalKeyboardKey.meta, LogicalKeyboardKey.keyS),
           onClicked: onSaveDocumentAs,
         ),
         MenuDivider(),
