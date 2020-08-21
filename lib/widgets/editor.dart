@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +11,7 @@ import '../models/editor_state.dart';
 import '../models/recent_files.dart';
 import '../models/undo_manager.dart';
 
+import '../io/io.dart';
 import '../io/file_chooser.dart';
 import '../io/doc_reader.dart';
 import '../io/doc_writer.dart';
@@ -59,32 +62,63 @@ class _EditorState extends State<Editor> {
     });
   }
 
-  Future<void> showTemplateDialog({Function dangerAction, bool cancellable = true}) async {
+  Future<void> showTemplateDialog({
+    Function dangerAction,
+    RecentFiles recentFiles,
+    bool cancellable = true,
+  }) async {
     final result = await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         var selectedTemplate = DocumentTemplate.templates.first;
+
         return AlertDialog(
           title: Text('Choose a template'),
           content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
             return Container(
               width: 800,
-              height: 400,
-              child: Column(
-                children: DocumentTemplate.templates.map((template) {
-                  return RadioListTile<DocumentTemplate>(
-                    title: Text(template.name),
-                    subtitle: Text(template.description),
-                    value: template,
-                    groupValue: selectedTemplate,
-                    onChanged: (DocumentTemplate value) {
-                      setState(() {
-                        selectedTemplate = value;
-                      });
-                    },
-                  );
-                }).toList(),
+              height: 600,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 750,
+                    height: 400,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ...DocumentTemplate.templates.map((template) {
+                          return RadioListTile<DocumentTemplate>(
+                            title: Text(template.name),
+                            subtitle: Text(template.description),
+                            value: template,
+                            groupValue: selectedTemplate,
+                            onChanged: (DocumentTemplate value) {
+                              setState(() {
+                                selectedTemplate = value;
+                              });
+                            },
+                          );
+                        }).toList(),
+                        SizedBox(height: 20),
+                        Text('Recent files', style: Theme.of(context).textTheme.headline6),
+                        ...recentFiles
+                            .files()
+                            .sublist(0, min(5, recentFiles.files().length))
+                            .map((file) {
+                          return FlatButton(
+                            onPressed: () {
+                              // TODO: return file handle
+                              print('open ${file.name}');
+                            },
+                            child: Text(file.name),
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             );
           }),
@@ -175,6 +209,7 @@ class _EditorState extends State<Editor> {
 
     if (docHandle != null) {
       await DocWriter(doc, docHandle).write();
+      recordSavingDocTime();
       doc.markNotDirty();
       return true;
     }
@@ -195,6 +230,7 @@ class _EditorState extends State<Editor> {
 
     if (docHandle != null) {
       await DocWriter(doc, docHandle).write();
+      recordSavingDocTime();
       doc.markNotDirty();
       return true;
     }
@@ -229,19 +265,19 @@ class _EditorState extends State<Editor> {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text("There're unsaved changes. Do you want to save the current document first?"),
+                Text("There're unsaved changes. Do you want to save the current document?"),
               ],
             ),
           ),
           actions: <Widget>[
             FlatButton(
-              child: Text('Yes, save the document.'),
+              child: Text('Yes, save.'),
               onPressed: () {
                 Navigator.pop(context, true);
               },
             ),
             FlatButton(
-              child: Text('No, discard the changes.'),
+              child: Text('No, discard.'),
               onPressed: () {
                 Navigator.pop(context, false);
               },
@@ -260,6 +296,21 @@ class _EditorState extends State<Editor> {
     }
   }
 
+  static final lastEditingDocKey = 'last-editing-doc';
+  static final lastSavingDocTimeKey = 'last-saving-doc-time';
+  void recordSavingDocTime() async {
+    writeToLocalStorage(lastSavingDocTimeKey, jsonEncode(DateTime.now()));
+  }
+
+  void persistDocToLocalStorage() async {
+    if (doc != null && !doc.isDirty) {
+      return;
+    }
+
+    final content = jsonEncode(doc);
+    writeToLocalStorage(lastEditingDocKey, content);
+  }
+
   @override
   void initState() {
     doc = Document();
@@ -270,7 +321,7 @@ class _EditorState extends State<Editor> {
 
     super.initState();
 
-    Timer.run(() => showTemplateDialog(cancellable: false));
+    Timer.run(() => showTemplateDialog(recentFiles: recentFiles, cancellable: false));
   }
 
   @override
@@ -284,6 +335,16 @@ class _EditorState extends State<Editor> {
       ],
       child: Stack(
         children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Consumer<Document>(builder: (context, doc, child) {
+              persistDocToLocalStorage();
+              return Text('');
+            }),
+          ),
           Positioned(
             top: EditorDimensions.toolbarHeight + EditorDimensions.rulerWidth,
             left: EditorDimensions.objectLibraryPanelWidth + EditorDimensions.rulerWidth,
