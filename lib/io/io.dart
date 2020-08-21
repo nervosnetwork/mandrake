@@ -5,7 +5,7 @@ import 'web.dart' if (dart.library.io) 'desktop.dart' as fs;
 bool isFileSystemAvailable() => fs.isFileSystemAvailable();
 
 void writeToLocalStorage(String key, String content) => fs.writeStringToLocalStorage(key, content);
-String readFromLocalStorage(String key) => fs.readStringFromLocalStorage(key);
+Future<String> readFromLocalStorage(String key) => fs.readStringFromLocalStorage(key);
 
 void _launchUrl(String url) async {
   await launch(url);

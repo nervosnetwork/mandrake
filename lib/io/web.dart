@@ -77,10 +77,10 @@ Future<String> readFileAsString(FileHandle handle) {
   return promiseToFuture(readString(handle.handle));
 }
 
-void writeStringToLocalStorage(String key, String content) {
+void writeStringToLocalStorage(String key, String content) async {
   window.localStorage[key] = content;
 }
 
-String readStringFromLocalStorage(String key) {
+Future<String> readStringFromLocalStorage(String key) async {
   return window.localStorage[key];
 }
