@@ -119,8 +119,13 @@ class Toolbar extends StatelessWidget {
   }
 
   // Manipulate native macOS menus.
-  void updateAppMenu(Document document, EditorState editorState, UndoManager undoManager,
-      RecentFiles recentFiles) {
+  // Note: this will show error messages on web console, as it's only for desktop.
+  void updateAppMenu(
+    Document document,
+    EditorState editorState,
+    UndoManager undoManager,
+    RecentFiles recentFiles,
+  ) {
     if (!Platform.isMacOS) {
       return;
     }
