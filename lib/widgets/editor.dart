@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:truncate/truncate.dart';
 
 import '../models/document.dart';
 import '../models/document_template.dart';
@@ -58,99 +59,135 @@ class _EditorState extends State<Editor> {
 
   void newDocumentFromTemplate() {
     promptToSaveIfNecessary(() {
-      showTemplateDialog();
+      showTemplateDialog(recentFiles: recentFiles);
     });
   }
 
   Future<void> showTemplateDialog({
-    Function dangerAction,
-    RecentFiles recentFiles,
+    @required RecentFiles recentFiles,
     bool cancellable = true,
   }) async {
-    final result = await showDialog(
+    final lastEditingDoc = await readLastEditingDoc();
+    final result = await showDialog<_TemplateDialogResult>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         var selectedTemplate = DocumentTemplate.templates.first;
+        var askToRestoreLastDoc = lastEditingDoc != null;
 
         return AlertDialog(
-          title: Text('Choose a template'),
           content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+            if (askToRestoreLastDoc) {
+              return Container(
+                width: 400,
+                height: 200,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Restore last session', style: Theme.of(context).textTheme.headline5),
+                    Text(
+                      'Some unsaved data was found in the cache. Restore your unsaved data if you want to continue editing it.',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        RaisedButton(
+                          child: Text('Do not restore'),
+                          onPressed: () {
+                            setState(() {
+                              askToRestoreLastDoc = false;
+                            });
+                          },
+                        ),
+                        SizedBox(width: 20),
+                        RaisedButton(
+                          child: Text('Restore'),
+                          onPressed: () {
+                            Navigator.pop(
+                                context, _TemplateDialogResult(lastEditingDoc: lastEditingDoc));
+                          },
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              );
+            }
+
             return Container(
-              width: 800,
-              height: 600,
-              child: Row(
+              width: 650,
+              height: 550,
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 750,
-                    height: 400,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ...DocumentTemplate.templates.map((template) {
-                          return RadioListTile<DocumentTemplate>(
-                            title: Text(template.name),
-                            subtitle: Text(template.description),
-                            value: template,
-                            groupValue: selectedTemplate,
-                            onChanged: (DocumentTemplate value) {
-                              setState(() {
-                                selectedTemplate = value;
-                              });
-                            },
-                          );
-                        }).toList(),
-                        SizedBox(height: 20),
-                        Text('Recent files', style: Theme.of(context).textTheme.headline6),
-                        ...recentFiles
-                            .files()
-                            .sublist(0, min(5, recentFiles.files().length))
-                            .map((file) {
-                          return FlatButton(
-                            onPressed: () {
-                              Navigator.pop(context, file);
-                            },
-                            child: Text(file.name),
-                          );
-                        }).toList(),
-                      ],
-                    ),
-                  ),
+                  Text('Choose a template', style: Theme.of(context).textTheme.headline5),
+                  ...DocumentTemplate.templates.map((template) {
+                    return RadioListTile<DocumentTemplate>(
+                      title: Text(template.name),
+                      subtitle: Text(template.description),
+                      value: template,
+                      groupValue: selectedTemplate,
+                      onChanged: (DocumentTemplate value) {
+                        setState(() {
+                          selectedTemplate = value;
+                        });
+                      },
+                    );
+                  }).toList(),
+                  SizedBox(height: 20),
+                  Text('Recent files', style: Theme.of(context).textTheme.headline6),
+                  ...recentFiles.files().sublist(0, min(5, recentFiles.files().length)).map((file) {
+                    return FlatButton(
+                      onPressed: () {
+                        Navigator.pop(context, _TemplateDialogResult(fileHandle: file));
+                      },
+                      child: Text(truncate(file.name, 80, position: TruncatePosition.middle)),
+                    );
+                  }).toList(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (cancellable)
+                        RaisedButton(
+                          child: Text('Cancel'),
+                          onPressed: () {
+                            Navigator.pop(context, _TemplateDialogResult());
+                          },
+                        ),
+                      SizedBox(width: 20),
+                      RaisedButton(
+                        child: Text('Create'),
+                        onPressed: () {
+                          Navigator.pop(context, _TemplateDialogResult(template: selectedTemplate));
+                        },
+                      ),
+                    ],
+                  )
                 ],
               ),
             );
           }),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('Cancel'),
-              onPressed: cancellable
-                  ? () {
-                      Navigator.pop(context, null);
-                    }
-                  : null,
-            ),
-            FlatButton(
-              child: Text('Create'),
-              onPressed: () {
-                Navigator.pop(context, selectedTemplate);
-              },
-            ),
-          ],
+          actions: [],
         );
       },
     );
 
-    if (result != null) {
-      if (result is FileHandle) {
-        readDocumentHandle(result);
-      } else {
-        setState(() {
-          doc = result.create();
-          docHandle = null;
-          resetState();
-        });
-      }
+    if (result.fileHandle != null) {
+      readDocumentHandle(result.fileHandle);
+    } else if (result.template != null) {
+      setState(() {
+        doc = result.template.create();
+        docHandle = null;
+        resetState();
+      });
+    } else if (result.lastEditingDoc != null) {
+      setState(() {
+        doc = result.lastEditingDoc;
+        doc.rebuild();
+        resetState();
+      });
     }
   }
 
@@ -306,8 +343,32 @@ class _EditorState extends State<Editor> {
 
   static final lastEditingDocKey = 'last-editing-doc';
   static final lastSavingDocTimeKey = 'last-saving-doc-time';
+  static final lastEditingDocSnapshotTimeKey = 'last-editing-doc-snapshot-time';
+
   void recordSavingDocTime() async {
-    writeToLocalStorage(lastSavingDocTimeKey, jsonEncode(DateTime.now()));
+    writeToLocalStorage(lastSavingDocTimeKey, DateTime.now().toIso8601String());
+  }
+
+  Future<DateTime> get lastSavingDocTime async {
+    final content = await readFromLocalStorage(lastSavingDocTimeKey);
+    try {
+      return DateTime.parse(content);
+    } catch (_) {
+      return DateTime.fromMillisecondsSinceEpoch(0);
+    }
+  }
+
+  void recordSnapshotingDocTime() async {
+    writeToLocalStorage(lastEditingDocSnapshotTimeKey, DateTime.now().toIso8601String());
+  }
+
+  Future<DateTime> get lastSnapshotingDocTime async {
+    final content = await readFromLocalStorage(lastEditingDocSnapshotTimeKey);
+    try {
+      return DateTime.parse(content);
+    } catch (_) {
+      return DateTime.fromMillisecondsSinceEpoch(0);
+    }
   }
 
   void persistDocToLocalStorage() async {
@@ -317,6 +378,22 @@ class _EditorState extends State<Editor> {
 
     final content = jsonEncode(doc);
     writeToLocalStorage(lastEditingDocKey, content);
+    recordSnapshotingDocTime();
+  }
+
+  Future<Document> readLastEditingDoc() async {
+    final lastSnapshotTime = await lastSnapshotingDocTime;
+    final lastSaveTime = await lastSavingDocTime;
+    if (lastSnapshotTime.difference(lastSaveTime).inSeconds > 10) {
+      final content = await readFromLocalStorage(lastEditingDocKey);
+      try {
+        return Document.fromJson(jsonDecode(content));
+      } catch (_) {
+        return null;
+      }
+    }
+
+    return null;
   }
 
   @override
@@ -415,6 +492,14 @@ class _EditorState extends State<Editor> {
       ),
     );
   }
+}
+
+class _TemplateDialogResult {
+  _TemplateDialogResult({this.fileHandle, this.template, this.lastEditingDoc});
+
+  FileHandle fileHandle;
+  DocumentTemplate template;
+  Document lastEditingDoc;
 }
 
 /// Graph design core editor.
