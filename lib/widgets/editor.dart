@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:truncate/truncate.dart';
 
 import '../models/document.dart';
 import '../models/document_template.dart';
@@ -9,6 +12,7 @@ import '../models/editor_state.dart';
 import '../models/recent_files.dart';
 import '../models/undo_manager.dart';
 
+import '../io/io.dart';
 import '../io/file_chooser.dart';
 import '../io/doc_reader.dart';
 import '../io/doc_writer.dart';
@@ -31,7 +35,7 @@ class Editor extends StatefulWidget {
 }
 
 class _EditorState extends State<Editor> {
-  Document _doc;
+  Document doc;
   FileHandle docHandle;
   Selection selection;
   EditorState editorState;
@@ -46,7 +50,7 @@ class _EditorState extends State<Editor> {
   void newDocument() {
     promptToSaveIfNecessary(() {
       setState(() {
-        _doc = DocumentTemplate(DocumentTemplateType.blank).create();
+        doc = DocumentTemplate(DocumentTemplateType.blank).create();
         docHandle = null;
         resetState();
       });
@@ -55,63 +59,133 @@ class _EditorState extends State<Editor> {
 
   void newDocumentFromTemplate() {
     promptToSaveIfNecessary(() {
-      showTemplateDialog();
+      showTemplateDialog(recentFiles: recentFiles);
     });
   }
 
-  Future<void> showTemplateDialog({Function dangerAction, bool cancellable = true}) async {
-    final result = await showDialog(
+  Future<void> showTemplateDialog({
+    @required RecentFiles recentFiles,
+    bool cancellable = true,
+  }) async {
+    final lastEditingDoc = await readLastEditingDoc();
+    final result = await showDialog<_TemplateDialogResult>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         var selectedTemplate = DocumentTemplate.templates.first;
+        var askToRestoreLastDoc = lastEditingDoc != null;
+
         return AlertDialog(
-          title: Text('Choose a template'),
           content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+            if (askToRestoreLastDoc) {
+              return Container(
+                width: 400,
+                height: 200,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Restore last session', style: Theme.of(context).textTheme.headline5),
+                    Text(
+                      'Some unsaved data was found in the cache. Restore your unsaved data if you want to continue editing it.',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        RaisedButton(
+                          child: Text('Do not restore'),
+                          onPressed: () {
+                            setState(() {
+                              askToRestoreLastDoc = false;
+                            });
+                          },
+                        ),
+                        SizedBox(width: 20),
+                        RaisedButton(
+                          child: Text('Restore'),
+                          onPressed: () {
+                            Navigator.pop(
+                                context, _TemplateDialogResult(lastEditingDoc: lastEditingDoc));
+                          },
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              );
+            }
+
             return Container(
-              width: 800,
-              height: 400,
+              width: 650,
+              height: 550,
               child: Column(
-                children: DocumentTemplate.templates.map((template) {
-                  return RadioListTile<DocumentTemplate>(
-                    title: Text(template.name),
-                    subtitle: Text(template.description),
-                    value: template,
-                    groupValue: selectedTemplate,
-                    onChanged: (DocumentTemplate value) {
-                      setState(() {
-                        selectedTemplate = value;
-                      });
-                    },
-                  );
-                }).toList(),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Choose a template', style: Theme.of(context).textTheme.headline5),
+                  ...DocumentTemplate.templates.map((template) {
+                    return RadioListTile<DocumentTemplate>(
+                      title: Text(template.name),
+                      subtitle: Text(template.description),
+                      value: template,
+                      groupValue: selectedTemplate,
+                      onChanged: (DocumentTemplate value) {
+                        setState(() {
+                          selectedTemplate = value;
+                        });
+                      },
+                    );
+                  }).toList(),
+                  SizedBox(height: 20),
+                  Text('Recent files', style: Theme.of(context).textTheme.headline6),
+                  ...recentFiles.files().sublist(0, min(5, recentFiles.files().length)).map((file) {
+                    return FlatButton(
+                      onPressed: () {
+                        Navigator.pop(context, _TemplateDialogResult(fileHandle: file));
+                      },
+                      child: Text(truncate(file.name, 80, position: TruncatePosition.middle)),
+                    );
+                  }).toList(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (cancellable)
+                        RaisedButton(
+                          child: Text('Cancel'),
+                          onPressed: () {
+                            Navigator.pop(context, _TemplateDialogResult());
+                          },
+                        ),
+                      SizedBox(width: 20),
+                      RaisedButton(
+                        child: Text('Create'),
+                        onPressed: () {
+                          Navigator.pop(context, _TemplateDialogResult(template: selectedTemplate));
+                        },
+                      ),
+                    ],
+                  )
+                ],
               ),
             );
           }),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('Cancel'),
-              onPressed: cancellable
-                  ? () {
-                      Navigator.pop(context, null);
-                    }
-                  : null,
-            ),
-            FlatButton(
-              child: Text('Create'),
-              onPressed: () {
-                Navigator.pop(context, selectedTemplate);
-              },
-            ),
-          ],
+          actions: [],
         );
       },
     );
 
-    if (result != null) {
+    if (result.fileHandle != null) {
+      readDocumentHandle(result.fileHandle);
+    } else if (result.template != null) {
       setState(() {
-        _doc = result.create();
+        doc = result.template.create();
         docHandle = null;
+        resetState();
+      });
+    } else if (result.lastEditingDoc != null) {
+      setState(() {
+        doc = result.lastEditingDoc;
+        doc.rebuild();
         resetState();
       });
     }
@@ -129,12 +203,12 @@ class _EditorState extends State<Editor> {
         return;
       }
 
-      final doc = await DocReader(handle).read();
-      if (doc != null) {
+      final docRead = await DocReader(handle).read();
+      if (docRead != null) {
         setState(() {
-          _doc = doc;
-          _doc.rebuild();
-          _doc.markNotDirty();
+          doc = docRead;
+          doc.rebuild();
+          doc.markNotDirty();
           docHandle = handle;
           trackRecentFile(handle);
           resetState();
@@ -143,26 +217,31 @@ class _EditorState extends State<Editor> {
     });
   }
 
+  void readDocumentHandle(FileHandle handle) async {
+    final docRead = await DocReader(handle).read();
+    // TODO: handle read error
+    if (docRead != null) {
+      setState(() {
+        doc = docRead;
+        doc.rebuild();
+        doc.markNotDirty();
+        docHandle = handle;
+        trackRecentFile(handle);
+        resetState();
+      });
+    }
+  }
+
   void openDocumentHandle(FileHandle handle) {
     promptToSaveIfNecessary(() async {
-      final doc = await DocReader(handle).read();
-      if (doc != null) {
-        setState(() {
-          _doc = doc;
-          _doc.rebuild();
-          _doc.markNotDirty();
-          docHandle = handle;
-          trackRecentFile(handle);
-          resetState();
-        });
-      }
+      readDocumentHandle(handle);
     });
   }
 
   Future<bool> saveDocument() async {
     if (docHandle == null) {
       final handle = await showSavePanel(
-        suggestedFileName: _doc.fileName,
+        suggestedFileName: doc.fileName,
         allowedFileTypes: [
           FileFilterGroup(extensions: ['json'], label: 'JSON')
         ],
@@ -174,8 +253,9 @@ class _EditorState extends State<Editor> {
     }
 
     if (docHandle != null) {
-      await DocWriter(_doc, docHandle).write();
-      _doc.markNotDirty();
+      await DocWriter(doc, docHandle).write();
+      recordSavingDocTime();
+      doc.markNotDirty();
       return true;
     }
     return false;
@@ -183,7 +263,7 @@ class _EditorState extends State<Editor> {
 
   Future<bool> saveDocumentAs() async {
     final handle = await showSavePanel(
-      suggestedFileName: _doc.fileName,
+      suggestedFileName: doc.fileName,
       allowedFileTypes: [
         FileFilterGroup(extensions: ['json'], label: 'JSON')
       ],
@@ -194,8 +274,9 @@ class _EditorState extends State<Editor> {
     }
 
     if (docHandle != null) {
-      await DocWriter(_doc, docHandle).write();
-      _doc.markNotDirty();
+      await DocWriter(doc, docHandle).write();
+      recordSavingDocTime();
+      doc.markNotDirty();
       return true;
     }
     return false;
@@ -207,7 +288,7 @@ class _EditorState extends State<Editor> {
     );
 
     if (handle != null) {
-      await AstWriter(_doc, handle).write();
+      await AstWriter(doc, handle).write();
     }
   }
 
@@ -216,7 +297,7 @@ class _EditorState extends State<Editor> {
   }
 
   Future<void> promptToSaveIfNecessary(Function dangerAction) async {
-    if (!_doc.isDirty) {
+    if (!doc.isDirty) {
       return dangerAction();
     }
 
@@ -229,19 +310,19 @@ class _EditorState extends State<Editor> {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text("There're unsaved changes. Do you want to save the current document first?"),
+                Text("There're unsaved changes. Do you want to save the current document?"),
               ],
             ),
           ),
           actions: <Widget>[
             FlatButton(
-              child: Text('Yes, save the document.'),
+              child: Text('Yes, save.'),
               onPressed: () {
                 Navigator.pop(context, true);
               },
             ),
             FlatButton(
-              child: Text('No, discard the changes.'),
+              child: Text('No, discard.'),
               onPressed: () {
                 Navigator.pop(context, false);
               },
@@ -260,9 +341,64 @@ class _EditorState extends State<Editor> {
     }
   }
 
+  static final lastEditingDocKey = 'last-editing-doc';
+  static final lastSavingDocTimeKey = 'last-saving-doc-time';
+  static final lastEditingDocSnapshotTimeKey = 'last-editing-doc-snapshot-time';
+
+  void recordSavingDocTime() async {
+    writeToLocalStorage(lastSavingDocTimeKey, DateTime.now().toIso8601String());
+  }
+
+  Future<DateTime> get lastSavingDocTime async {
+    final content = await readFromLocalStorage(lastSavingDocTimeKey);
+    try {
+      return DateTime.parse(content);
+    } catch (_) {
+      return DateTime.fromMillisecondsSinceEpoch(0);
+    }
+  }
+
+  void recordSnapshotingDocTime() async {
+    writeToLocalStorage(lastEditingDocSnapshotTimeKey, DateTime.now().toIso8601String());
+  }
+
+  Future<DateTime> get lastSnapshotingDocTime async {
+    final content = await readFromLocalStorage(lastEditingDocSnapshotTimeKey);
+    try {
+      return DateTime.parse(content);
+    } catch (_) {
+      return DateTime.fromMillisecondsSinceEpoch(0);
+    }
+  }
+
+  void persistDocToLocalStorage() async {
+    if (doc != null && !doc.isDirty) {
+      return;
+    }
+
+    final content = jsonEncode(doc);
+    writeToLocalStorage(lastEditingDocKey, content);
+    recordSnapshotingDocTime();
+  }
+
+  Future<Document> readLastEditingDoc() async {
+    final lastSnapshotTime = await lastSnapshotingDocTime;
+    final lastSaveTime = await lastSavingDocTime;
+    if (lastSnapshotTime.difference(lastSaveTime).inSeconds > 10) {
+      final content = await readFromLocalStorage(lastEditingDocKey);
+      try {
+        return Document.fromJson(jsonDecode(content));
+      } catch (_) {
+        return null;
+      }
+    }
+
+    return null;
+  }
+
   @override
   void initState() {
-    _doc = Document();
+    doc = Document();
     docHandle = null;
     resetState();
     recentFiles = RecentFiles();
@@ -270,20 +406,30 @@ class _EditorState extends State<Editor> {
 
     super.initState();
 
-    Timer.run(() => showTemplateDialog(cancellable: false));
+    Timer.run(() => showTemplateDialog(recentFiles: recentFiles, cancellable: false));
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<Document>.value(value: _doc),
+        ChangeNotifierProvider<Document>.value(value: doc),
         ChangeNotifierProvider<Selection>.value(value: selection),
         ChangeNotifierProvider<EditorState>.value(value: editorState),
         ChangeNotifierProvider<RecentFiles>.value(value: recentFiles),
       ],
       child: Stack(
         children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Consumer<Document>(builder: (context, doc, child) {
+              persistDocToLocalStorage();
+              return Text('');
+            }),
+          ),
           Positioned(
             top: EditorDimensions.toolbarHeight + EditorDimensions.rulerWidth,
             left: EditorDimensions.objectLibraryPanelWidth + EditorDimensions.rulerWidth,
@@ -346,6 +492,14 @@ class _EditorState extends State<Editor> {
       ),
     );
   }
+}
+
+class _TemplateDialogResult {
+  _TemplateDialogResult({this.fileHandle, this.template, this.lastEditingDoc});
+
+  FileHandle fileHandle;
+  DocumentTemplate template;
+  Document lastEditingDoc;
 }
 
 /// Graph design core editor.

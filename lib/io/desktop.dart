@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:file_chooser/file_chooser.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'foundation.dart';
 
@@ -66,5 +67,12 @@ Future<String> readFileAsString(FileHandle handle) {
   }
 }
 
-void writeStringToLocalStorage(String key, String content) => throw UnimplementedError();
-String readStringFromLocalStorage(String key) => throw UnimplementedError();
+void writeStringToLocalStorage(String key, String content) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString(key, content);
+}
+
+Future<String> readStringFromLocalStorage(String key) async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString(key);
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mandrake/widgets/editor.dart';
 import 'package:mandrake/widgets/object_library.dart';
@@ -13,6 +14,7 @@ void main() {
   );
 
   testWidgets('Editor shows template dialog on launch', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({'last-editing-doc': ''});
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();
 
