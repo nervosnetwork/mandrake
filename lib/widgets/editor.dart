@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:truncate/truncate.dart';
@@ -118,7 +119,7 @@ class _EditorState extends State<Editor> {
 
             return Container(
               width: 650,
-              height: 550,
+              height: isFileSystemAvailable() ? 550 : 350,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -137,15 +138,20 @@ class _EditorState extends State<Editor> {
                     );
                   }).toList(),
                   SizedBox(height: 20),
-                  Text('Recent files', style: Theme.of(context).textTheme.headline6),
-                  ...recentFiles.files().sublist(0, min(5, recentFiles.files().length)).map((file) {
-                    return FlatButton(
-                      onPressed: () {
-                        Navigator.pop(context, _TemplateDialogResult(fileHandle: file));
-                      },
-                      child: Text(truncate(file.name, 80, position: TruncatePosition.middle)),
-                    );
-                  }).toList(),
+                  if (isFileSystemAvailable()) ...[
+                    Text('Recent files', style: Theme.of(context).textTheme.headline6),
+                    ...recentFiles
+                        .files()
+                        .sublist(0, min(5, recentFiles.files().length))
+                        .map((file) {
+                      return FlatButton(
+                        onPressed: () {
+                          Navigator.pop(context, _TemplateDialogResult(fileHandle: file));
+                        },
+                        child: Text(truncate(file.name, 80, position: TruncatePosition.middle)),
+                      );
+                    }).toList(),
+                  ],
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
