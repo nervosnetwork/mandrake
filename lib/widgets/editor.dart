@@ -200,14 +200,17 @@ class _EditorState extends State<Editor> {
 
   void openDocument() {
     promptToSaveIfNecessary(() async {
-      final handle = await showOpenPanel(
-        allowedFileTypes: [
-          FileFilterGroup(extensions: ['json'], label: 'JSON')
-        ],
-      );
+      FileHandle handle;
+      if (isFileSystemAvailable()) {
+        handle = await showOpenPanel(
+          allowedFileTypes: [
+            FileFilterGroup(extensions: ['json'], label: 'JSON')
+          ],
+        );
 
-      if (handle == null) {
-        return;
+        if (handle == null) {
+          return;
+        }
       }
 
       final docRead = await DocReader(handle).read();
@@ -314,6 +317,9 @@ class _EditorState extends State<Editor> {
   }
 
   void trackRecentFile(FileHandle fileHandle) async {
+    if (!isFileSystemAvailable()) {
+      return;
+    }
     await recentFiles.push(fileHandle);
   }
 

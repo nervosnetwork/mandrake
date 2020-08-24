@@ -3,6 +3,7 @@ library testjs;
 
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'dart:html';
@@ -98,7 +99,35 @@ Future<void> writeFileAsString(FileHandle handle, String content) {
 
 /// Read file as string
 Future<String> readFileAsString(FileHandle handle) {
-  return promiseToFuture(readString(handle.handle));
+  if (isFileSystemAvailable()) {
+    return promiseToFuture(readString(handle.handle));
+  } else {
+    final completer = Completer<String>();
+
+    InputElement uploadInput = FileUploadInputElement();
+    uploadInput.multiple = false;
+    uploadInput.accept = '.json';
+    uploadInput.click();
+
+    uploadInput.onChange.listen((e) {
+      final files = uploadInput.files;
+      final file = files[0];
+      final reader = FileReader();
+
+      reader.onLoadEnd.listen((e) {
+        final result = reader.result;
+        completer.complete(utf8.decode(result));
+      });
+
+      reader.onError.listen((fileEvent) {
+        completer.completeError('Read file error');
+      });
+
+      reader.readAsArrayBuffer(file);
+    });
+
+    return completer.future;
+  }
 }
 
 void writeStringToLocalStorage(String key, String content) async {
