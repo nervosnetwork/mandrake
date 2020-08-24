@@ -246,30 +246,39 @@ class _EditorState extends State<Editor> {
   }
 
   Future<bool> saveDocument() async {
-    if (docHandle == null) {
-      final handle = await showSavePanel(
-        suggestedFileName: doc.fileName,
-        allowedFileTypes: [
-          FileFilterGroup(extensions: ['json'], label: 'JSON')
-        ],
-      );
-      if (handle != null) {
-        docHandle = handle;
-        trackRecentFile(handle);
+    if (isFileSystemAvailable()) {
+      if (docHandle == null) {
+        final handle = await showSavePanel(
+          suggestedFileName: doc.fileName,
+          allowedFileTypes: [
+            FileFilterGroup(extensions: ['json'], label: 'JSON')
+          ],
+        );
+        if (handle != null) {
+          docHandle = handle;
+          trackRecentFile(handle);
+        }
       }
-    }
 
-    if (docHandle != null) {
-      await DocWriter(doc, docHandle).write();
+      if (docHandle != null) {
+        await DocWriter(doc, docHandle).write();
+        recordSavingDocTime();
+        doc.markNotDirty();
+        return true;
+      }
+      return false;
+    } else {
+      await DocWriter(doc, FileHandle(null, name: doc.fileName)).write();
       recordSavingDocTime();
       doc.markNotDirty();
       return true;
     }
-    return false;
   }
 
   // Web without Native File System API should never call this.
   Future<bool> saveDocumentAs() async {
+    assert(isFileSystemAvailable());
+
     final handle = await showSavePanel(
       suggestedFileName: doc.fileName,
       allowedFileTypes: [

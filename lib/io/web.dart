@@ -85,7 +85,15 @@ Future<void> writeFile(FileHandle handle, List<int> content) {
 
 /// Write file as string
 Future<void> writeFileAsString(FileHandle handle, String content) {
-  return promiseToFuture(saveString(handle.handle, content));
+  if (handle.legacyWebFile) {
+    final encoded = base64Encode(utf8.encode(content));
+    AnchorElement(href: 'data:application/octet-stream;charset=utf-16le;base64,$encoded')
+      ..setAttribute('download', handle.name)
+      ..click();
+    return null;
+  } else {
+    return promiseToFuture(saveString(handle.handle, content));
+  }
 }
 
 /// Read file as string
