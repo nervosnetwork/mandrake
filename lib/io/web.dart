@@ -3,8 +3,10 @@ library testjs;
 
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
+import 'dart:async';
 import 'dart:typed_data';
-import 'dart:html' show Blob, window;
+import 'dart:convert';
+import 'dart:html';
 
 import 'foundation.dart';
 
@@ -61,20 +63,71 @@ Future<FileHandle> savePanel({
 
 /// Write file as bytes
 Future<void> writeFile(FileHandle handle, List<int> content) {
-  final bytes = ByteData.view((content as Uint8List).buffer);
-  return promiseToFuture(
-    saveBinary(handle.handle, Blob([bytes], 'application/x-binary', 'native')),
-  );
+  if (handle.legacyWebFile) {
+    final encoded = base64Encode(content);
+    AnchorElement(href: 'data:application/octet-stream;charset=utf-16le;base64,$encoded')
+      ..setAttribute('download', handle.name)
+      ..click();
+    return null;
+  } else {
+    final bytes = ByteData.view((content as Uint8List).buffer);
+    return promiseToFuture(
+      saveBinary(
+        handle.handle,
+        Blob(
+          [bytes],
+          'application/x-binary',
+          'native',
+        ),
+      ),
+    );
+  }
 }
 
 /// Write file as string
 Future<void> writeFileAsString(FileHandle handle, String content) {
-  return promiseToFuture(saveString(handle.handle, content));
+  if (handle.legacyWebFile) {
+    final encoded = base64Encode(utf8.encode(content));
+    AnchorElement(href: 'data:application/octet-stream;charset=utf-16le;base64,$encoded')
+      ..setAttribute('download', handle.name)
+      ..click();
+    return null;
+  } else {
+    return promiseToFuture(saveString(handle.handle, content));
+  }
 }
 
 /// Read file as string
 Future<String> readFileAsString(FileHandle handle) {
-  return promiseToFuture(readString(handle.handle));
+  if (isFileSystemAvailable()) {
+    return promiseToFuture(readString(handle.handle));
+  } else {
+    final completer = Completer<String>();
+
+    InputElement uploadInput = FileUploadInputElement();
+    uploadInput.multiple = false;
+    uploadInput.accept = '.json';
+    uploadInput.click();
+
+    uploadInput.onChange.listen((e) {
+      final files = uploadInput.files;
+      final file = files[0];
+      final reader = FileReader();
+
+      reader.onLoadEnd.listen((e) {
+        final result = reader.result;
+        completer.complete(utf8.decode(result));
+      });
+
+      reader.onError.listen((fileEvent) {
+        completer.completeError('Read file error');
+      });
+
+      reader.readAsArrayBuffer(file);
+    });
+
+    return completer.future;
+  }
 }
 
 void writeStringToLocalStorage(String key, String content) async {

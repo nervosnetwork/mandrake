@@ -200,14 +200,17 @@ class _EditorState extends State<Editor> {
 
   void openDocument() {
     promptToSaveIfNecessary(() async {
-      final handle = await showOpenPanel(
-        allowedFileTypes: [
-          FileFilterGroup(extensions: ['json'], label: 'JSON')
-        ],
-      );
+      FileHandle handle;
+      if (isFileSystemAvailable()) {
+        handle = await showOpenPanel(
+          allowedFileTypes: [
+            FileFilterGroup(extensions: ['json'], label: 'JSON')
+          ],
+        );
 
-      if (handle == null) {
-        return;
+        if (handle == null) {
+          return;
+        }
       }
 
       final docRead = await DocReader(handle).read();
@@ -246,29 +249,39 @@ class _EditorState extends State<Editor> {
   }
 
   Future<bool> saveDocument() async {
-    if (docHandle == null) {
-      final handle = await showSavePanel(
-        suggestedFileName: doc.fileName,
-        allowedFileTypes: [
-          FileFilterGroup(extensions: ['json'], label: 'JSON')
-        ],
-      );
-      if (handle != null) {
-        docHandle = handle;
-        trackRecentFile(handle);
+    if (isFileSystemAvailable()) {
+      if (docHandle == null) {
+        final handle = await showSavePanel(
+          suggestedFileName: doc.fileName,
+          allowedFileTypes: [
+            FileFilterGroup(extensions: ['json'], label: 'JSON')
+          ],
+        );
+        if (handle != null) {
+          docHandle = handle;
+          trackRecentFile(handle);
+        }
       }
-    }
 
-    if (docHandle != null) {
-      await DocWriter(doc, docHandle).write();
+      if (docHandle != null) {
+        await DocWriter(doc, docHandle).write();
+        recordSavingDocTime();
+        doc.markNotDirty();
+        return true;
+      }
+      return false;
+    } else {
+      await DocWriter(doc, FileHandle(null, name: doc.fileName)).write();
       recordSavingDocTime();
       doc.markNotDirty();
       return true;
     }
-    return false;
   }
 
+  // Web without Native File System API should never call this.
   Future<bool> saveDocumentAs() async {
+    assert(isFileSystemAvailable());
+
     final handle = await showSavePanel(
       suggestedFileName: doc.fileName,
       allowedFileTypes: [
@@ -290,16 +303,23 @@ class _EditorState extends State<Editor> {
   }
 
   void exportAst() async {
-    final handle = await showSavePanel(
-      suggestedFileName: 'ast.bin',
-    );
+    if (isFileSystemAvailable()) {
+      final handle = await showSavePanel(
+        suggestedFileName: 'ast.bin',
+      );
 
-    if (handle != null) {
-      await AstWriter(doc, handle).write();
+      if (handle != null) {
+        await AstWriter(doc, handle).write();
+      }
+    } else {
+      await AstWriter(doc, FileHandle(null, name: 'ast.bin')).write();
     }
   }
 
   void trackRecentFile(FileHandle fileHandle) async {
+    if (!isFileSystemAvailable()) {
+      return;
+    }
     await recentFiles.push(fileHandle);
   }
 

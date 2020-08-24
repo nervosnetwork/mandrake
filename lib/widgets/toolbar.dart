@@ -126,6 +126,9 @@ class Toolbar extends StatelessWidget {
     if (!Platform.isMacOS) {
       return;
     }
+    if (kIsWeb) {
+      return;
+    }
 
     setApplicationMenu([
       Submenu(label: 'File', children: [

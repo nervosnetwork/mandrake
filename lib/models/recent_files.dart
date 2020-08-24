@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mandrake/io/desktop.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../io/foundation.dart';
@@ -22,7 +23,11 @@ class RecentFiles with ChangeNotifier {
   UnmodifiableListView<FileHandle> files() {
     List<FileHandle> handles;
     if (kIsWeb) {
-      handles = _webStorage;
+      if (isFileSystemAvailable()) {
+        handles = _webStorage;
+      } else {
+        handles = [];
+      }
     } else {
       final storage = _desktopStorage();
       handles = storage.map((e) => FileHandle(e, name: e)).toList();
@@ -32,6 +37,9 @@ class RecentFiles with ChangeNotifier {
 
   void push(FileHandle file) async {
     if (kIsWeb) {
+      if (!isFileSystemAvailable()) {
+        return;
+      }
       _webStorage.removeWhere((f) => f.handle == file.handle);
       _webStorage.insert(0, file);
       if (_webStorage.length > _limit) {

@@ -98,19 +98,21 @@ class _MainMenuState extends State<MainMenu> {
         [
           _MenuItem('New File', widget.onNewDocument),
           _MenuItem('New File from Template...', widget.onNewDocumentFromTemplate),
+          _MenuItem('Open...', widget.onOpenDocument),
+          _SeparatorMenuItem(),
+          _MenuItem('Save', widget.onSaveDocument),
           if (isFileSystemAvailable()) ...[
-            _MenuItem('Open...', widget.onOpenDocument),
-            _SeparatorMenuItem(),
-            _MenuItem('Save', widget.onSaveDocument),
             _MenuItem('Save As...', widget.onSaveDocumentAs),
-            _SeparatorMenuItem(),
-            _MenuItem('Recent Files', null),
-            ...recentFilesItems,
           ],
           if (!isFileSystemAvailable()) ...[
             _MenuItem('Enable Native File System API...', () {
               showNativeFileSystemGuide(context);
-            })
+            }),
+          ],
+          if (isFileSystemAvailable()) ...[
+            _SeparatorMenuItem(),
+            _MenuItem('Recent Files', null),
+            ...recentFilesItems,
           ],
           _SeparatorMenuItem(),
           _MenuItem('Export AST...', widget.onExportAst),
