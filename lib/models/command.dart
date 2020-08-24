@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Offset;
 import 'package:undo/undo.dart';
 
@@ -6,6 +7,16 @@ import 'document.dart';
 import 'selection.dart';
 import 'node.dart';
 import 'undo_manager.dart';
+
+class CommandState with ChangeNotifier {
+  static final CommandState _shared = CommandState._();
+
+  CommandState._();
+
+  factory CommandState.shared() => _shared;
+
+  void update() => notifyListeners();
+}
 
 /// Encapsulate action/change that supports undo/redo
 class Command<T> extends Change {
@@ -16,7 +27,7 @@ class Command<T> extends Change {
   ) : super(oldValue, execute, undo);
 
   /// Execute, adding to undo list
-  void run() => addCommandToUndoList(this);
+  void run() => runCommand(this);
 
   factory Command.createNode(
     Document doc,

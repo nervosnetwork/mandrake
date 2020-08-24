@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:universal_io/io.dart';
 
 import '../models/document.dart';
+import '../models/command.dart';
 import '../models/editor_state.dart';
 import '../models/recent_files.dart';
 import '../models/undo_manager.dart';
@@ -33,88 +34,85 @@ class Toolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: UndoManager.shared(),
-      child: Consumer4<Document, EditorState, UndoManager, RecentFiles>(
-        builder: (context, document, editorState, undoManager, recentFiles, child) {
-          updateAppMenu(document, editorState, undoManager, recentFiles);
+    return Consumer4<Document, EditorState, CommandState, RecentFiles>(
+      builder: (context, document, editorState, commandState, recentFiles, child) {
+        updateAppMenu(document, editorState, recentFiles);
 
-          return Stack(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).canvasColor,
-                  border: Border(
-                    bottom: BorderSide(
-                      width: 1,
-                      color: Theme.of(context).dividerColor,
-                    ),
+        return Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).canvasColor,
+                border: Border(
+                  bottom: BorderSide(
+                    width: 1,
+                    color: Theme.of(context).dividerColor,
                   ),
                 ),
-                width: double.infinity,
-                height: EditorDimensions.toolbarHeight,
               ),
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  if (!Platform.isMacOS || kIsWeb) ...[
-                    SizedBox(width: EditorDimensions.mainMenuWidth),
-                    _separator(),
-                  ],
-                  _iconButton(
-                    icon: Icon(Icons.undo),
-                    onPressed: undoManager.canUndo ? () => undo() : null,
-                  ),
-                  _iconButton(
-                    icon: Icon(Icons.redo),
-                    onPressed: undoManager.canRedo ? () => redo() : null,
-                  ),
+              width: double.infinity,
+              height: EditorDimensions.toolbarHeight,
+            ),
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (!Platform.isMacOS || kIsWeb) ...[
+                  SizedBox(width: EditorDimensions.mainMenuWidth),
                   _separator(),
-                  _iconButton(
-                    icon: Icon(Icons.zoom_out),
-                    onPressed: editorState.zoomOutAction,
-                  ),
-                  SizedBox(
-                    width: 30,
-                    child: Text(
-                      '${(editorState.zoomScale * 100).round()}%',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                  _iconButton(
-                    icon: Icon(Icons.zoom_in),
-                    onPressed: editorState.zoomInAction,
-                  ),
-                  _separator(),
-                  _iconButton(
-                    icon: Icon(Icons.filter_center_focus),
-                    onPressed: () => editorState.resetCanvasOffset(),
-                  ),
-                  _iconButton(
-                    icon: Icon(Icons.developer_board),
-                    onPressed: () => _jumpToRoot(document, editorState),
-                  ),
                 ],
-              ),
-              if (!Platform.isMacOS || kIsWeb)
-                MainMenu(
-                  onNewDocument: onNewDocument,
-                  onNewDocumentFromTemplate: onNewDocumentFromTemplate,
-                  onOpenDocument: onOpenDocument,
-                  onOpenDocumentHandle: onOpenDocumentHandle,
-                  onSaveDocument: onSaveDocument,
-                  onSaveDocumentAs: onSaveDocumentAs,
-                  onExportAst: onExportAst,
-                  onLocateRootNode: () => _jumpToRoot(document, editorState),
+                _iconButton(
+                  icon: Icon(Icons.undo),
+                  onPressed: UndoManager.shared().canUndo ? () => undo() : null,
                 ),
-            ],
-          );
-        },
-      ),
+                _iconButton(
+                  icon: Icon(Icons.redo),
+                  onPressed: UndoManager.shared().canRedo ? () => redo() : null,
+                ),
+                _separator(),
+                _iconButton(
+                  icon: Icon(Icons.zoom_out),
+                  onPressed: editorState.zoomOutAction,
+                ),
+                SizedBox(
+                  width: 30,
+                  child: Text(
+                    '${(editorState.zoomScale * 100).round()}%',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+                _iconButton(
+                  icon: Icon(Icons.zoom_in),
+                  onPressed: editorState.zoomInAction,
+                ),
+                _separator(),
+                _iconButton(
+                  icon: Icon(Icons.filter_center_focus),
+                  onPressed: () => editorState.resetCanvasOffset(),
+                ),
+                _iconButton(
+                  icon: Icon(Icons.developer_board),
+                  onPressed: () => _jumpToRoot(document, editorState),
+                ),
+              ],
+            ),
+            if (!Platform.isMacOS || kIsWeb)
+              MainMenu(
+                onNewDocument: onNewDocument,
+                onNewDocumentFromTemplate: onNewDocumentFromTemplate,
+                onOpenDocument: onOpenDocument,
+                onOpenDocumentHandle: onOpenDocumentHandle,
+                onSaveDocument: onSaveDocument,
+                onSaveDocumentAs: onSaveDocumentAs,
+                onExportAst: onExportAst,
+                onLocateRootNode: () => _jumpToRoot(document, editorState),
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -123,7 +121,6 @@ class Toolbar extends StatelessWidget {
   void updateAppMenu(
     Document document,
     EditorState editorState,
-    UndoManager undoManager,
     RecentFiles recentFiles,
   ) {
     if (!Platform.isMacOS) {
@@ -188,13 +185,13 @@ class Toolbar extends StatelessWidget {
       Submenu(label: 'Edit', children: [
         MenuItem(
           label: 'Undo',
-          enabled: undoManager.canUndo,
+          enabled: UndoManager.shared().canUndo,
           shortcut: LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ),
           onClicked: undo,
         ),
         MenuItem(
           label: 'Redo',
-          enabled: undoManager.canRedo,
+          enabled: UndoManager.shared().canRedo,
           shortcut: LogicalKeySet(
               LogicalKeyboardKey.shift, LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ),
           onClicked: redo,

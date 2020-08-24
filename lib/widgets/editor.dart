@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mandrake/models/command.dart';
 import 'package:provider/provider.dart';
 import 'package:truncate/truncate.dart';
 
@@ -423,6 +424,7 @@ class _EditorState extends State<Editor> {
         ChangeNotifierProvider<Selection>.value(value: selection),
         ChangeNotifierProvider<EditorState>.value(value: editorState),
         ChangeNotifierProvider<RecentFiles>.value(value: recentFiles),
+        ChangeNotifierProvider<CommandState>.value(value: CommandState.shared()),
       ],
       child: Stack(
         children: [
@@ -431,7 +433,7 @@ class _EditorState extends State<Editor> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: Consumer<Document>(builder: (context, doc, child) {
+            child: Consumer<CommandState>(builder: (context, doc, child) {
               persistDocToLocalStorage();
               return Text('');
             }),
