@@ -268,6 +268,7 @@ class _EditorState extends State<Editor> {
     return false;
   }
 
+  // Web without Native File System API should never call this.
   Future<bool> saveDocumentAs() async {
     final handle = await showSavePanel(
       suggestedFileName: doc.fileName,
@@ -290,12 +291,16 @@ class _EditorState extends State<Editor> {
   }
 
   void exportAst() async {
-    final handle = await showSavePanel(
-      suggestedFileName: 'ast.bin',
-    );
+    if (isFileSystemAvailable()) {
+      final handle = await showSavePanel(
+        suggestedFileName: 'ast.bin',
+      );
 
-    if (handle != null) {
-      await AstWriter(doc, handle).write();
+      if (handle != null) {
+        await AstWriter(doc, handle).write();
+      }
+    } else {
+      await AstWriter(doc, FileHandle(null, name: 'ast.bin')).write();
     }
   }
 

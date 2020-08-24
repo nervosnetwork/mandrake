@@ -12,4 +12,6 @@ class FileHandle {
   /// For web, it will be a `FileSystemFileHandle`.
   final dynamic handle;
   final String name;
+
+  bool get legacyWebFile => handle == null;
 }

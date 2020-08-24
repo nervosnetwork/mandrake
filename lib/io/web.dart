@@ -4,7 +4,8 @@ library testjs;
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
 import 'dart:typed_data';
-import 'dart:html' show Blob, window;
+import 'dart:convert';
+import 'dart:html';
 
 import 'foundation.dart';
 
@@ -61,10 +62,25 @@ Future<FileHandle> savePanel({
 
 /// Write file as bytes
 Future<void> writeFile(FileHandle handle, List<int> content) {
-  final bytes = ByteData.view((content as Uint8List).buffer);
-  return promiseToFuture(
-    saveBinary(handle.handle, Blob([bytes], 'application/x-binary', 'native')),
-  );
+  if (handle.legacyWebFile) {
+    final encoded = base64Encode(content);
+    AnchorElement(href: 'data:application/octet-stream;charset=utf-16le;base64,$encoded')
+      ..setAttribute('download', handle.name)
+      ..click();
+    return null;
+  } else {
+    final bytes = ByteData.view((content as Uint8List).buffer);
+    return promiseToFuture(
+      saveBinary(
+        handle.handle,
+        Blob(
+          [bytes],
+          'application/x-binary',
+          'native',
+        ),
+      ),
+    );
+  }
 }
 
 /// Write file as string
