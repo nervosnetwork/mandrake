@@ -43,6 +43,7 @@ class _EditorState extends State<Editor> {
   Selection selection;
   EditorState editorState;
   RecentFiles recentFiles;
+  bool skipLastDopcRestore = false;
 
   void resetState() {
     selection = Selection();
@@ -71,12 +72,13 @@ class _EditorState extends State<Editor> {
     bool cancellable = true,
   }) async {
     final lastEditingDoc = await readLastEditingDoc();
+    final lastSnapshotTime = (await lastSnapshotingDocTime).toString().split('.').first;
     final result = await showDialog<_TemplateDialogResult>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         var selectedTemplate = DocumentTemplate.templates.first;
-        var askToRestoreLastDoc = lastEditingDoc != null;
+        var askToRestoreLastDoc = lastEditingDoc != null && !skipLastDopcRestore;
 
         return AlertDialog(
           content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
@@ -93,6 +95,10 @@ class _EditorState extends State<Editor> {
                       'Some unsaved data was found in the cache. Restore your unsaved data if you want to continue editing it.',
                       style: TextStyle(color: Colors.red),
                     ),
+                    Text(
+                      '${lastEditingDoc.fileName} ($lastSnapshotTime)',
+                      style: TextStyle(color: Colors.blue),
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -101,6 +107,7 @@ class _EditorState extends State<Editor> {
                           onPressed: () {
                             setState(() {
                               askToRestoreLastDoc = false;
+                              skipLastDopcRestore = true;
                             });
                           },
                         ),
