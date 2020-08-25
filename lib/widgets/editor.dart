@@ -24,6 +24,7 @@ import 'toolbar.dart';
 import 'object_library.dart';
 import 'property_inspector.dart';
 import 'ruler.dart';
+import 'message_box.dart';
 
 import '../views/editor/editor_dimensions.dart';
 import '../views/editor/canvas_layer.dart';
@@ -229,7 +230,6 @@ class _EditorState extends State<Editor> {
 
   void readDocumentHandle(FileHandle handle) async {
     final docRead = await DocReader(handle).read();
-    // TODO: handle read error
     if (docRead != null) {
       setState(() {
         doc = docRead;
@@ -239,6 +239,17 @@ class _EditorState extends State<Editor> {
         trackRecentFile(handle);
         resetState();
       });
+    } else {
+      setState(() {
+        doc = DocumentTemplate(DocumentTemplateType.blank).create();
+        docHandle = null;
+        resetState();
+      });
+      showMessageBox(
+        context,
+        'Failed to read file',
+        'Cannot open the file. A blank document was created instead.',
+      );
     }
   }
 
