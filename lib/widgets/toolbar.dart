@@ -97,6 +97,11 @@ class Toolbar extends StatelessWidget {
                   icon: Icon(Icons.developer_board),
                   onPressed: () => _jumpToRoot(document, editorState),
                 ),
+                _separator(),
+                _iconButton(
+                  icon: Icon(Icons.save),
+                  onPressed: document.isDirty ? onSaveDocument : null,
+                ),
               ],
             ),
             if (!Platform.isMacOS || kIsWeb)
