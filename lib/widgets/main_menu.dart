@@ -17,6 +17,7 @@ class MainMenu extends StatefulWidget {
     this.onNewDocument,
     this.onNewDocumentFromTemplate,
     this.onOpenDocument,
+    this.onOpenGist,
     this.onOpenDocumentHandle,
     this.onSaveDocument,
     this.onSaveDocumentAs,
@@ -26,6 +27,7 @@ class MainMenu extends StatefulWidget {
   final Function onNewDocument;
   final Function onNewDocumentFromTemplate;
   final Function onOpenDocument;
+  final Function onOpenGist;
   final Function onOpenDocumentHandle;
   final Function onSaveDocument;
   final Function onSaveDocumentAs;
@@ -99,6 +101,7 @@ class _MainMenuState extends State<MainMenu> {
           _MenuItem('New File', widget.onNewDocument),
           _MenuItem('New File from Template...', widget.onNewDocumentFromTemplate),
           _MenuItem('Open...', widget.onOpenDocument),
+          _MenuItem('Open Gist...', widget.onOpenGist),
           _SeparatorMenuItem(),
           _MenuItem('Save', widget.onSaveDocument),
           if (isFileSystemAvailable()) ...[

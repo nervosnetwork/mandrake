@@ -19,6 +19,7 @@ class Toolbar extends StatelessWidget {
     this.onNewDocument,
     this.onNewDocumentFromTemplate,
     this.onOpenDocument,
+    this.onOpenGist,
     this.onOpenDocumentHandle,
     this.onSaveDocument,
     this.onSaveDocumentAs,
@@ -27,6 +28,7 @@ class Toolbar extends StatelessWidget {
   final Function onNewDocument;
   final Function onNewDocumentFromTemplate;
   final Function onOpenDocument;
+  final Function onOpenGist;
   final Function onOpenDocumentHandle;
   final Function onSaveDocument;
   final Function onSaveDocumentAs;
@@ -109,6 +111,7 @@ class Toolbar extends StatelessWidget {
                 onNewDocument: onNewDocument,
                 onNewDocumentFromTemplate: onNewDocumentFromTemplate,
                 onOpenDocument: onOpenDocument,
+                onOpenGist: onOpenGist,
                 onOpenDocumentHandle: onOpenDocumentHandle,
                 onSaveDocument: onSaveDocument,
                 onSaveDocumentAs: onSaveDocumentAs,
@@ -155,6 +158,11 @@ class Toolbar extends StatelessWidget {
           enabled: true,
           shortcut: LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyO),
           onClicked: onOpenDocument,
+        ),
+        MenuItem(
+          label: 'Open Gist...',
+          enabled: true,
+          onClicked: onOpenGist,
         ),
         if (recentFiles.files().isNotEmpty)
           Submenu(

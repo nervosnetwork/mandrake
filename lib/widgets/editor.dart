@@ -18,6 +18,7 @@ import '../io/io.dart';
 import '../io/file_chooser.dart';
 import '../io/doc_reader.dart';
 import '../io/doc_writer.dart';
+import '../io/gist_doc_reader.dart';
 import '../io/ast_writer.dart';
 
 import 'toolbar.dart';
@@ -263,6 +264,23 @@ class _EditorState extends State<Editor> {
   void openDocumentHandle(FileHandle handle) {
     promptToSaveIfNecessary(() async {
       readDocumentHandle(handle);
+    });
+  }
+
+  void openGist() {
+    promptToSaveIfNecessary(() async {
+      // TODO: dialog for gist url
+      final gistUrl = 'https://gist.github.com/ashchan/9fec3b884067a4962d9d398cfc19b09d';
+      final docRead = await GistDocReader(gistUrl).read();
+      if (docRead != null) {
+        setState(() {
+          doc = docRead;
+          doc.rebuild();
+          doc.markNotDirty();
+          docHandle = null;
+          resetState();
+        });
+      }
     });
   }
 
@@ -528,6 +546,7 @@ class _EditorState extends State<Editor> {
               onNewDocument: newDocument,
               onNewDocumentFromTemplate: newDocumentFromTemplate,
               onOpenDocument: openDocument,
+              onOpenGist: openGist,
               onOpenDocumentHandle: openDocumentHandle,
               onSaveDocument: saveDocument,
               onSaveDocumentAs: saveDocumentAs,
