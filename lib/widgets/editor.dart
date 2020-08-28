@@ -345,7 +345,7 @@ class _EditorState extends State<Editor> {
             title: Text('Shared to gists.'),
             content: Container(
               width: 500,
-              height: 200,
+              height: 150,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

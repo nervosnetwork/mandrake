@@ -12,7 +12,7 @@ class GistDocWriter {
   // Return gist URL if successful.
   Future<String> write() async {
     final endpoint = 'https://api.github.com/gists';
-    final content = jsonEncode(_doc);
+    final content = JsonEncoder.withIndent('  ').convert(_doc);
     final body = {
       'public': true,
       'files': {
