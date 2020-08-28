@@ -365,12 +365,14 @@ class _EditorState extends State<Editor> {
                   Clipboard.setData(ClipboardData(text: url));
                 },
               ),
+              SizedBox(width: 20),
               FlatButton(
                 child: Text('View gist'),
                 onPressed: () {
                   launch(url);
                 },
               ),
+              SizedBox(width: 20),
               FlatButton(
                 child: Text('OK'),
                 onPressed: () {
