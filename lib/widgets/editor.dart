@@ -252,12 +252,8 @@ class _EditorState extends State<Editor> {
         doc = DocumentTemplate(DocumentTemplateType.blank).create();
         docHandle = null;
         resetState();
+        showReadError();
       });
-      showMessageBox(
-        context,
-        'Failed to read file',
-        'Cannot open the file. A blank document was created instead.',
-      );
     }
   }
 
@@ -267,11 +263,63 @@ class _EditorState extends State<Editor> {
     });
   }
 
+  void showReadError() {
+    showMessageBox(
+      context,
+      'Failed to read file',
+      'Cannot open the file. A blank document was created instead.',
+    );
+  }
+
   void openGist() {
     promptToSaveIfNecessary(() async {
-      // TODO: dialog for gist url
-      final gistUrl = 'https://gist.github.com/ashchan/9fec3b884067a4962d9d398cfc19b09d';
-      final docRead = await GistDocReader(gistUrl).read();
+      final url = await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          final controller = TextEditingController();
+          return AlertDialog(
+            title: Text('Enter a gist URL or id:'),
+            content: Container(
+              width: 500,
+              height: 200,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Note: only the first file will be parsed.'),
+                  TextField(
+                    controller: controller,
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      RaisedButton(
+                        child: Text('Cancel'),
+                        onPressed: () {
+                          Navigator.pop(context, null);
+                        },
+                      ),
+                      SizedBox(width: 20),
+                      RaisedButton(
+                        child: Text('Open'),
+                        onPressed: () {
+                          Navigator.pop(context, controller.text);
+                        },
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
+      if (url == null) {
+        return;
+      }
+      final docRead = await GistDocReader(url).read();
       if (docRead != null) {
         setState(() {
           doc = docRead;
@@ -279,6 +327,13 @@ class _EditorState extends State<Editor> {
           doc.markNotDirty();
           docHandle = null;
           resetState();
+        });
+      } else {
+        setState(() {
+          doc = DocumentTemplate(DocumentTemplateType.blank).create();
+          docHandle = null;
+          resetState();
+          showReadError();
         });
       }
     });
