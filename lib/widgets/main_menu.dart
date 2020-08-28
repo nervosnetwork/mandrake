@@ -18,6 +18,7 @@ class MainMenu extends StatefulWidget {
     this.onNewDocumentFromTemplate,
     this.onOpenDocument,
     this.onOpenGist,
+    this.onShareGist,
     this.onOpenDocumentHandle,
     this.onSaveDocument,
     this.onSaveDocumentAs,
@@ -28,6 +29,7 @@ class MainMenu extends StatefulWidget {
   final Function onNewDocumentFromTemplate;
   final Function onOpenDocument;
   final Function onOpenGist;
+  final Function onShareGist;
   final Function onOpenDocumentHandle;
   final Function onSaveDocument;
   final Function onSaveDocumentAs;
@@ -118,6 +120,7 @@ class _MainMenuState extends State<MainMenu> {
             ...recentFilesItems,
           ],
           _SeparatorMenuItem(),
+          _MenuItem('Share with GitHub Gists...', widget.onShareGist),
           _MenuItem('Export AST...', widget.onExportAst),
         ],
         dismissSubMenu,

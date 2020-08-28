@@ -20,6 +20,7 @@ class Toolbar extends StatelessWidget {
     this.onNewDocumentFromTemplate,
     this.onOpenDocument,
     this.onOpenGist,
+    this.onShareGist,
     this.onOpenDocumentHandle,
     this.onSaveDocument,
     this.onSaveDocumentAs,
@@ -29,6 +30,7 @@ class Toolbar extends StatelessWidget {
   final Function onNewDocumentFromTemplate;
   final Function onOpenDocument;
   final Function onOpenGist;
+  final Function onShareGist;
   final Function onOpenDocumentHandle;
   final Function onSaveDocument;
   final Function onSaveDocumentAs;
@@ -104,6 +106,10 @@ class Toolbar extends StatelessWidget {
                   icon: Icon(Icons.save),
                   onPressed: document.isDirty ? onSaveDocument : null,
                 ),
+                _iconButton(
+                  icon: Icon(Icons.share),
+                  onPressed: onShareGist,
+                ),
               ],
             ),
             if (!Platform.isMacOS || kIsWeb)
@@ -112,6 +118,7 @@ class Toolbar extends StatelessWidget {
                 onNewDocumentFromTemplate: onNewDocumentFromTemplate,
                 onOpenDocument: onOpenDocument,
                 onOpenGist: onOpenGist,
+                onShareGist: onShareGist,
                 onOpenDocumentHandle: onOpenDocumentHandle,
                 onSaveDocument: onSaveDocument,
                 onSaveDocumentAs: onSaveDocumentAs,
@@ -192,6 +199,11 @@ class Toolbar extends StatelessWidget {
           onClicked: onSaveDocumentAs,
         ),
         MenuDivider(),
+        MenuItem(
+          label: 'Share with GitHub Gists...',
+          enabled: true,
+          onClicked: onShareGist,
+        ),
         MenuItem(
           label: 'Export AST...',
           enabled: true,

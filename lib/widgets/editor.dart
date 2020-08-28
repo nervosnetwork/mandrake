@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mandrake/models/command.dart';
 import 'package:provider/provider.dart';
 import 'package:truncate/truncate.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/document.dart';
 import '../models/document_template.dart';
@@ -19,6 +21,7 @@ import '../io/file_chooser.dart';
 import '../io/doc_reader.dart';
 import '../io/doc_writer.dart';
 import '../io/gist_doc_reader.dart';
+import '../io/gist_doc_writer.dart';
 import '../io/ast_writer.dart';
 
 import 'toolbar.dart';
@@ -269,6 +272,118 @@ class _EditorState extends State<Editor> {
       'Failed to read file',
       'Cannot open the file. A blank document was created instead.',
     );
+  }
+
+  void shareGist() async {
+    final result = await showDialog<List<String>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        final token = ''; // TODO
+        final fileNameController = TextEditingController(text: doc.fileName);
+        final tokenController = TextEditingController(text: token);
+        return AlertDialog(
+          title: Text('Share with GitHub gists'),
+          content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              width: 500,
+              height: 200,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('File name:'),
+                  TextField(
+                    controller: fileNameController,
+                  ),
+                  SizedBox(height: 20),
+                  Text('GitHub personal access token:'),
+                  TextField(
+                    controller: tokenController,
+                    obscureText: true,
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      RaisedButton(
+                        child: Text('Cancel'),
+                        onPressed: () {
+                          Navigator.pop(context, null);
+                        },
+                      ),
+                      SizedBox(width: 20),
+                      RaisedButton(
+                        child: Text('Share'),
+                        onPressed: () {
+                          Navigator.pop(context, [fileNameController.text, tokenController.text]);
+                        },
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            );
+          }),
+        );
+      },
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    try {
+      final url = await GistDocWriter(doc, result[0], result[1]).write();
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          final controller = TextEditingController(text: url);
+          controller.selection = TextSelection(baseOffset: 0, extentOffset: url.length);
+
+          return AlertDialog(
+            title: Text('Shared to gists.'),
+            content: Container(
+              width: 500,
+              height: 200,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Your gist URL is:'),
+                  TextField(
+                    controller: controller,
+                    readOnly: true,
+                    autofocus: true,
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              FlatButton(
+                child: Text('Copy URL'),
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: url));
+                },
+              ),
+              FlatButton(
+                child: Text('View gist'),
+                onPressed: () {
+                  launch(url);
+                },
+              ),
+              FlatButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.pop(context, null);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      showMessageBox(context, 'Sharing to gists failed.', e.toString());
+    }
   }
 
   void openGist() {
@@ -602,6 +717,7 @@ class _EditorState extends State<Editor> {
               onNewDocumentFromTemplate: newDocumentFromTemplate,
               onOpenDocument: openDocument,
               onOpenGist: openGist,
+              onShareGist: shareGist,
               onOpenDocumentHandle: openDocumentHandle,
               onSaveDocument: saveDocument,
               onSaveDocumentAs: saveDocumentAs,
