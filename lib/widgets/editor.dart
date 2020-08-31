@@ -274,20 +274,31 @@ class _EditorState extends State<Editor> {
     );
   }
 
+  static final gistTokenKey = 'gist-token';
+  Future<String> readGistToken() {
+    return readFromLocalStorage(gistTokenKey);
+  }
+
+  void persistGistToken(String token) async {
+    writeToLocalStorage(gistTokenKey, token);
+  }
+
   void shareGist() async {
+    final token = await readGistToken() ?? '';
     final result = await showDialog<List<String>>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        final token = ''; // TODO
         final fileNameController = TextEditingController(text: doc.fileName);
         final tokenController = TextEditingController(text: token);
+        var persistToken = token.isNotEmpty;
+
         return AlertDialog(
           title: Text('Share with GitHub gists'),
           content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
             return Container(
               width: 500,
-              height: 200,
+              height: 380,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -300,6 +311,27 @@ class _EditorState extends State<Editor> {
                   TextField(
                     controller: tokenController,
                     obscureText: true,
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'We highly recommend that you create a personal access token with only the "gist" scope.',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  SizedBox(height: 20),
+                  CheckboxListTile(
+                    title: Text('Persist personal access token in local storage'),
+                    value: persistToken,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.all(0),
+                    onChanged: (value) => {
+                      setState(() {
+                        persistToken = value;
+                      })
+                    },
+                  ),
+                  Text(
+                    'IMPORTANT: saving the token in local storage is NOT secure. Please use this option at your own risk.',
+                    style: TextStyle(color: Colors.red),
                   ),
                   SizedBox(height: 20),
                   Row(
@@ -315,7 +347,11 @@ class _EditorState extends State<Editor> {
                       RaisedButton(
                         child: Text('Share'),
                         onPressed: () {
-                          Navigator.pop(context, [fileNameController.text, tokenController.text]);
+                          Navigator.pop(context, [
+                            fileNameController.text,
+                            tokenController.text,
+                            persistToken.toString(),
+                          ]);
                         },
                       ),
                     ],
@@ -334,6 +370,16 @@ class _EditorState extends State<Editor> {
 
     try {
       final url = await GistDocWriter(doc, result[0], result[1]).write();
+      if (url == null) {
+        throw 'Creating gist failed. Please check that the personal access token is correct';
+      }
+
+      if (result[2] == true.toString()) {
+        persistGistToken(result[1]);
+      } else {
+        persistGistToken(null);
+      }
+
       await showDialog(
         context: context,
         barrierDismissible: false,
