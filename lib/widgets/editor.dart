@@ -37,6 +37,9 @@ import '../views/editor/nodes_layer.dart';
 import '../views/editor/pointer_layer.dart';
 
 class Editor extends StatefulWidget {
+  Editor({this.gist});
+  final String gist;
+
   @override
   _EditorState createState() => _EditorState();
 }
@@ -482,24 +485,29 @@ class _EditorState extends State<Editor> {
       if (url == null) {
         return;
       }
-      final docRead = await GistDocReader(url).read();
-      if (docRead != null) {
-        setState(() {
-          doc = docRead;
-          doc.rebuild();
-          doc.markNotDirty();
-          docHandle = null;
-          resetState();
-        });
-      } else {
-        setState(() {
-          doc = DocumentTemplate(DocumentTemplateType.blank).create();
-          docHandle = null;
-          resetState();
-          showReadError();
-        });
-      }
+
+      readDocFromGist(url);
     });
+  }
+
+  void readDocFromGist(String url) async {
+    final docRead = await GistDocReader(url).read();
+    if (docRead != null) {
+      setState(() {
+        doc = docRead;
+        doc.rebuild();
+        doc.markNotDirty();
+        docHandle = null;
+        resetState();
+      });
+    } else {
+      setState(() {
+        doc = DocumentTemplate(DocumentTemplateType.blank).create();
+        docHandle = null;
+        resetState();
+        showReadError();
+      });
+    }
   }
 
   Future<bool> saveDocument() async {
@@ -687,7 +695,11 @@ class _EditorState extends State<Editor> {
 
     super.initState();
 
-    Timer.run(() => showTemplateDialog(recentFiles: recentFiles, cancellable: false));
+    if (widget.gist != null) {
+      readDocFromGist(widget.gist);
+    } else {
+      Timer.run(() => showTemplateDialog(recentFiles: recentFiles, cancellable: false));
+    }
   }
 
   @override

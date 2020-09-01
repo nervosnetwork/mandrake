@@ -10,6 +10,21 @@ class MandrakeApp extends StatelessWidget {
     return MaterialApp(
       title: 'Mandrake',
       debugShowCheckedModeBanner: false,
+      onGenerateRoute: (settings) {
+        for (final path in paths) {
+          final regExpPattern = RegExp(path.pattern);
+          if (regExpPattern.hasMatch(settings.name)) {
+            final firstMatch = regExpPattern.firstMatch(settings.name);
+            final match = (firstMatch.groupCount == 1) ? firstMatch.group(1) : null;
+            print(match);
+            return MaterialPageRoute<void>(
+              builder: (context) => path.builder(context, match),
+              settings: settings,
+            );
+          }
+        }
+        return null;
+      },
       theme: ThemeData(
         primaryColor: Colors.red,
         accentColor: Colors.blue[600],
@@ -25,9 +40,26 @@ class MandrakeApp extends StatelessWidget {
         dialogBackgroundColor: Colors.grey[600],
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Scaffold(
-        body: Editor(),
-      ),
     );
   }
+
+  static List<_Path> paths = [
+    _Path(
+      r'^/gist/([\w-]+)$',
+      (context, match) => Scaffold(body: Editor(gist: match)),
+    ),
+    _Path(
+      r'^/',
+      (context, match) => Scaffold(body: Editor()),
+    ),
+  ];
+}
+
+// Implemented in the way as per
+// https://medium.com/flutter/flutter-web-navigating-urls-using-named-routes-307e1b1e2050
+class _Path {
+  const _Path(this.pattern, this.builder);
+
+  final String pattern;
+  final Widget Function(BuildContext, String) builder;
 }
