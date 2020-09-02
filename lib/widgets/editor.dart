@@ -47,7 +47,6 @@ class _EditorState extends State<Editor> {
   Selection selection;
   EditorState editorState;
   RecentFiles recentFiles;
-  bool skipLastDopcRestore = false;
 
   void resetState() {
     selection = Selection();
@@ -75,61 +74,14 @@ class _EditorState extends State<Editor> {
     @required RecentFiles recentFiles,
     bool cancellable = true,
   }) async {
-    final lastEditingDoc = await readLastEditingDoc();
-    final lastSnapshotTime = (await lastSnapshotingDocTime).toString().split('.').first;
     final result = await showDialog<_TemplateDialogResult>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         var selectedTemplate = DocumentTemplate.templates.first;
-        var askToRestoreLastDoc = lastEditingDoc != null && !skipLastDopcRestore;
 
         return AlertDialog(
           content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
-            if (askToRestoreLastDoc) {
-              return Container(
-                width: 400,
-                height: 200,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Restore last session', style: Theme.of(context).textTheme.headline5),
-                    Text(
-                      'Some unsaved data was found in the cache. Restore your unsaved data if you want to continue editing it.',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                    Text(
-                      '${lastEditingDoc.fileName} ($lastSnapshotTime)',
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        RaisedButton(
-                          child: Text('Do not restore'),
-                          onPressed: () {
-                            setState(() {
-                              askToRestoreLastDoc = false;
-                              skipLastDopcRestore = true;
-                            });
-                          },
-                        ),
-                        SizedBox(width: 20),
-                        RaisedButton(
-                          child: Text('Restore'),
-                          onPressed: () {
-                            Navigator.pop(
-                                context, _TemplateDialogResult(lastEditingDoc: lastEditingDoc));
-                          },
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              );
-            }
-
             return Container(
               width: 650,
               height: isFileSystemAvailable() ? 550 : 350,
@@ -201,12 +153,6 @@ class _EditorState extends State<Editor> {
         docHandle = null;
         resetState();
       });
-    } else if (result.lastEditingDoc != null) {
-      setState(() {
-        doc = result.lastEditingDoc;
-        doc.rebuild();
-        resetState();
-      });
     }
   }
 
@@ -237,6 +183,69 @@ class _EditorState extends State<Editor> {
         });
       }
     });
+  }
+
+  Future<void> promptToRestoreIfNecessary() async {
+    final lastEditingDoc = await readLastEditingDoc();
+    if (lastEditingDoc == null) {
+      return;
+    }
+
+    final lastSnapshotTime = (await lastSnapshotingDocTime).toString().split('.').first;
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              width: 400,
+              height: 160,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Restore last session', style: Theme.of(context).textTheme.headline5),
+                  Text(
+                    'Some unsaved data was found in the cache. Restore your unsaved data if you want to continue editing it.',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  Text(
+                    '${lastEditingDoc.fileName} ($lastSnapshotTime)',
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ],
+              ),
+            );
+          }),
+          actions: [
+            FlatButton(
+              child: Text('Do not restore'),
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+            ),
+            SizedBox(width: 20),
+            FlatButton(
+              child: Text('Restore'),
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result) {
+      setState(() {
+        doc = lastEditingDoc;
+        doc.rebuild();
+        resetState();
+      });
+    } else {
+      deleteDocFromLocalStorage();
+    }
   }
 
   void readDocumentHandle(FileHandle handle) async {
@@ -662,6 +671,10 @@ class _EditorState extends State<Editor> {
     recordSnapshotingDocTime();
   }
 
+  void deleteDocFromLocalStorage() async {
+    writeToLocalStorage(lastEditingDocKey, null);
+  }
+
   Future<Document> readLastEditingDoc() async {
     final lastSnapshotTime = await lastSnapshotingDocTime;
     final lastSaveTime = await lastSavingDocTime;
@@ -679,7 +692,7 @@ class _EditorState extends State<Editor> {
 
   @override
   void initState() {
-    doc = Document();
+    doc = DocumentTemplate(DocumentTemplateType.blank).create();
     docHandle = null;
     resetState();
     recentFiles = RecentFiles();
@@ -687,7 +700,7 @@ class _EditorState extends State<Editor> {
 
     super.initState();
 
-    Timer.run(() => showTemplateDialog(recentFiles: recentFiles, cancellable: false));
+    Timer.run(() => promptToRestoreIfNecessary());
   }
 
   @override
@@ -779,11 +792,10 @@ class _EditorState extends State<Editor> {
 }
 
 class _TemplateDialogResult {
-  _TemplateDialogResult({this.fileHandle, this.template, this.lastEditingDoc});
+  _TemplateDialogResult({this.fileHandle, this.template});
 
   FileHandle fileHandle;
   DocumentTemplate template;
-  Document lastEditingDoc;
 }
 
 /// Graph design core editor.
