@@ -13,12 +13,12 @@ void main() {
     home: Scaffold(body: Editor()),
   );
 
-  testWidgets('Editor shows template dialog on launch', (WidgetTester tester) async {
+  testWidgets('Editor does not show template dialog on launch', (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({'last-editing-doc': ''});
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();
 
-    expect(find.text('Choose a template'), findsOneWidget);
+    expect(find.text('Choose a template'), findsNothing);
   });
 
   testWidgets('Main components', (WidgetTester tester) async {
