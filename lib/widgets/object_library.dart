@@ -9,13 +9,20 @@ class ObjectLibrary extends StatefulWidget {
 }
 
 class _ObjectLibraryState extends State<ObjectLibrary> {
-  List<_NodeTemplateGroupItem> _groups;
+  List<_NodeTemplateGroupItem> groups;
+  TextEditingController searchController;
+  bool get isSearching => searchController.text.trim().isNotEmpty;
+
+  /// Used to fix for ExpansionPanel Duplicate Global Keys issue.
+  /// See https://github.com/flutter/flutter/issues/13780.
+  int key = 0;
 
   @override
   void initState() {
     super.initState();
 
-    _groups = NodeTemplateGroup.values.map((g) => _NodeTemplateGroupItem(g)).toList();
+    searchController = TextEditingController();
+    groups = NodeTemplateGroup.values.map((g) => _NodeTemplateGroupItem(g)).toList();
   }
 
   @override
@@ -30,43 +37,108 @@ class _ObjectLibraryState extends State<ObjectLibrary> {
           ),
         ),
       ),
-      padding: EdgeInsets.only(top: 20),
-      child: SingleChildScrollView(
-        child: ExpansionPanelList(
-          expandedHeaderPadding: EdgeInsets.symmetric(vertical: 0),
-          expansionCallback: (int index, bool isExpanded) {
-            setState(() {
-              _groups[index].isExpanded = !isExpanded;
-            });
-          },
-          children: _groups.map((g) {
-            return ExpansionPanel(
-              headerBuilder: (BuildContext context, bool isExpanded) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SizedBox(width: 40, child: Center(child: Icon(g.icon, size: 20))),
-                    Expanded(child: Text(g.title, style: Theme.of(context).textTheme.subtitle2)),
-                  ],
-                );
-              },
-              body: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Column(
-                  children: _templateWidgets(g),
+      child: Stack(
+        children: [
+          Positioned(
+            top: 2,
+            height: 40,
+            left: 2,
+            right: 2,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 10,
+                      ),
+                      isDense: true,
+                      hintText: 'Search',
+                      suffixIcon: Icon(Icons.search),
+                    ),
+                    style: Theme.of(context).textTheme.bodyText2,
+                    onChanged: (value) {
+                      setState(() {
+                        // trigger search
+                      });
+                    },
+                  ),
                 ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 46,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: SingleChildScrollView(
+              child: ExpansionPanelList(
+                key: Key('${key++}'),
+                elevation: 0,
+                expandedHeaderPadding: EdgeInsets.symmetric(vertical: 0),
+                expansionCallback: (int index, bool isExpanded) {
+                  if (!isSearching) {
+                    setState(() {
+                      groups[index].isExpanded = !isExpanded;
+                    });
+                  }
+                },
+                children: filteredGroups().map((g) {
+                  return ExpansionPanel(
+                    headerBuilder: (BuildContext context, bool isExpanded) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SizedBox(width: 40, child: Center(child: Icon(g.icon, size: 20))),
+                          Expanded(
+                            child: Text(g.title, style: Theme.of(context).textTheme.subtitle2),
+                          ),
+                        ],
+                      );
+                    },
+                    body: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Column(
+                        children: templateWidgets(g),
+                      ),
+                    ),
+                    isExpanded: isSearching || g.isExpanded,
+                    canTapOnHeader: true,
+                  );
+                }).toList(),
               ),
-              isExpanded: g.isExpanded,
-              canTapOnHeader: true,
-            );
-          }).toList(),
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  List<Widget> _templateWidgets(_NodeTemplateGroupItem group) {
-    return group.templates.map((template) {
+  List<_NodeTemplateGroupItem> filteredGroups() {
+    if (isSearching) {
+      final keyword = searchController.text.trim();
+      return groups.where((group) {
+        return group.templates.where((template) {
+          return template.title.toLowerCase().contains(keyword.toLowerCase());
+        }).isNotEmpty;
+      }).toList();
+    }
+    return groups;
+  }
+
+  List<Widget> templateWidgets(_NodeTemplateGroupItem group) {
+    final keyword = searchController.text.trim();
+    final templates = group.templates.where((template) {
+      if (!isSearching) {
+        return true;
+      }
+      return template.title.toLowerCase().contains(keyword.toLowerCase());
+    });
+    return templates.map((template) {
       final child = _NodeTemplateItem(template.title);
       return Padding(
         padding: const EdgeInsets.all(1),
