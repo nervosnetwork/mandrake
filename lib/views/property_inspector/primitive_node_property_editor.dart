@@ -102,6 +102,7 @@ class PrimitiveNodePropertyEditor extends StatelessWidget {
                 Command.updateValue(node, v).run();
               },
               maxLines: node.allowedEditLines,
+              keyboardType: TextInputType.text,
               textInputAction: TextInputAction.next,
             ),
           ),

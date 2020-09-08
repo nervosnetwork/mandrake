@@ -90,6 +90,7 @@ class PrefabNodePropertyEditor extends StatelessWidget {
                           controller: _valueController,
                           style: Theme.of(context).textTheme.bodyText2,
                           decoration: PropertyEditorTextFieldDecoration(),
+                          keyboardType: TextInputType.text,
                           maxLines: 2,
                           onFieldSubmitted: (v) {
                             FocusHelper.unfocus(context);

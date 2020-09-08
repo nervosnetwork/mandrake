@@ -78,6 +78,7 @@ class PrimitiveNodeView extends AstNodeView {
             node.value = v;
           },
           maxLines: maxLines,
+          keyboardType: TextInputType.text,
           textInputAction: TextInputAction.next,
         ),
       );
