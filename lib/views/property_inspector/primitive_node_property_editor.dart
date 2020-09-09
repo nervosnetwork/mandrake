@@ -67,11 +67,12 @@ class PrimitiveNodePropertyEditor extends StatelessWidget {
   }
 
   Widget _valueField(BuildContext context, PrimitiveNode node) {
+    final doc = Provider.of<Document>(context, listen: false);
     if (node.valueType == ValueType.bool) {
       return DropdownButton(
         isDense: true,
         onChanged: (value) {
-          Command.updateValue(node, value).run();
+          Command.updateValue(doc, node, value).run();
         },
         value: node.value,
         items: [
@@ -99,7 +100,7 @@ class PrimitiveNodePropertyEditor extends StatelessWidget {
               decoration: PropertyEditorTextFieldDecoration(),
               onFieldSubmitted: (v) {
                 FocusHelper.unfocus(context);
-                Command.updateValue(node, v).run();
+                Command.updateValue(doc, node, v).run();
               },
               maxLines: node.allowedEditLines,
               keyboardType: TextInputType.text,

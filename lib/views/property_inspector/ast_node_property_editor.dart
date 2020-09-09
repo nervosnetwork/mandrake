@@ -12,6 +12,7 @@ import '../../models/command.dart';
 class AstNodeInfoProperty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final doc = Provider.of<Document>(context, listen: false);
     final node = Provider.of<Node>(context) as AstNode;
 
     return Column(
@@ -28,7 +29,7 @@ class AstNodeInfoProperty extends StatelessWidget {
               isDense: true,
               style: Theme.of(context).textTheme.subtitle1.copyWith(fontSize: 13),
               onChanged: (value) {
-                Command.updateValueType(node, value).run();
+                Command.updateValueType(doc, node, value).run();
               },
               value: node.valueType,
               items: node.exchangeableValueTypes.map((t) {

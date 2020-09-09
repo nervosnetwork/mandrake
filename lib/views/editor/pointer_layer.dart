@@ -219,6 +219,7 @@ class _PointerLayerState extends State<PointerLayer> {
     } else {
       if (!isShowingContextMenu) {
         Command.movePosition(
+          document,
           source,
           source.position + event.delta / editorState.zoomScale,
           startDraggingNodeOffset, // Undo would revert all small positions changes during the drag

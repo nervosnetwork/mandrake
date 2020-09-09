@@ -18,6 +18,11 @@ class CommandState with ChangeNotifier {
   void update() => notifyListeners();
 }
 
+/// TODO fix these:
+///   * flatten
+///   * connect/disconnect
+///   * slot operation
+
 /// Encapsulate action/change that supports undo/redo
 class Command<T> extends Change {
   Command(
@@ -35,11 +40,20 @@ class Command<T> extends Change {
     NodeTemplate template,
     Offset pos,
   ) {
-    Node node;
+    String nodeId;
+    String serializedNode;
     return Command(
       selection.selectedNode(doc.nodes)?.id,
       () {
-        node = NodeCreator.create(template, pos);
+        Node node;
+        if (serializedNode != null) {
+          // Redo
+          final json = jsonDecode(serializedNode);
+          node = Node.fromJson(json);
+        } else {
+          node = NodeCreator.create(template, pos);
+        }
+        nodeId = node.id;
         if (!doc.nodes.contains((node))) {
           // NodeCreator is free to add the node to document if it wants to.
           doc.addNode(node);
@@ -48,6 +62,8 @@ class Command<T> extends Change {
       },
       (previousSelectedNodeId) {
         selection.select(doc.findNode(previousSelectedNodeId as String));
+        final node = doc.findNode(nodeId);
+        serializedNode = jsonEncode(node);
         doc.deleteNode(node);
       },
     );
@@ -109,101 +125,122 @@ class Command<T> extends Change {
     );
   }
 
-  factory Command.renameNode(Node node, String name) {
+  factory Command.renameNode(Document doc, Node node, String name) {
+    final nodeId = node.id;
     return Command(
       node.name,
       () {
-        node.name = name;
+        doc.findNode(nodeId).name = name;
       },
       (oldName) {
-        node.name = oldName as String;
+        doc.findNode(nodeId).name = oldName as String;
       },
     );
   }
 
-  factory Command.updateProperty(PrefabNode node, String name, String value) {
+  factory Command.updateProperty(Document doc, PrefabNode node, String name, String value) {
+    final nodeId = node.id;
     return Command(
       [name, node.getProperty(name) ?? ''],
       () {
-        node.updateProperty(name, value);
+        (doc.findNode(nodeId) as PrefabNode).updateProperty(name, value);
       },
       (oldValue) {
         final nameAndValue = oldValue as List<String>;
-        node.updateProperty(nameAndValue[0], nameAndValue[1]);
+        (doc.findNode(nodeId) as PrefabNode).updateProperty(nameAndValue[0], nameAndValue[1]);
       },
     );
   }
 
-  factory Command.updateValue(PrimitiveNode node, String value) {
+  factory Command.updateValue(Document doc, PrimitiveNode node, String value) {
+    final nodeId = node.id;
     return Command(
       node.value,
       () {
-        node.value = value;
+        (doc.findNode(nodeId) as PrimitiveNode).value = value;
       },
       (oldValue) {
-        node.value = oldValue as String;
+        (doc.findNode(nodeId) as PrimitiveNode).value = oldValue as String;
       },
     );
   }
 
-  factory Command.updateValueType(AstNode node, ValueType valueType) {
+  factory Command.updateValueType(Document doc, AstNode node, ValueType valueType) {
+    final nodeId = node.id;
     return Command(
       node.valueType,
       () {
-        node.valueType = valueType;
+        (doc.findNode(nodeId) as AstNode).valueType = valueType;
       },
       (oldValue) {
-        node.valueType = oldValue as ValueType;
+        (doc.findNode(nodeId) as AstNode).valueType = oldValue as ValueType;
       },
     );
   }
 
-  factory Command.movePosition(Node node, Offset newPos, [Offset oldPos]) {
+  factory Command.movePosition(Document doc, Node node, Offset newPos, [Offset oldPos]) {
+    final nodeId = node.id;
     return Command(
       oldPos ?? node.position,
       () {
-        node.position = newPos;
+        doc.findNode(nodeId).position = newPos;
       },
       (oldPosition) {
-        node.position = oldPosition as Offset;
+        doc.findNode(nodeId).position = oldPosition as Offset;
       },
     );
   }
 
   factory Command.connect(Document doc, Node parent, Node node, ChildSlot slot) {
+    final parentId = parent.id;
+    final nodeId = node.id;
     return Command(
-      node,
+      nodeId,
       () {
-        doc.connectNode(parent: parent, child: node, slotId: slot?.id);
+        doc.connectNode(
+          parent: doc.findNode(parentId),
+          child: doc.findNode(nodeId),
+          slotId: slot?.id,
+        );
       },
-      (node) {
-        doc.disconnectNodeFromParent(node as Node);
+      (_) {
+        doc.disconnectNodeFromParent(doc.findNode(nodeId));
       },
     );
   }
 
   factory Command.disconnect(Document doc, Node parent, ChildSlot slot) {
+    final parentId = parent.id;
     return Command(
       slot.childId,
       () {
-        doc.disconnectNode(parent: parent, childId: slot.childId);
+        doc.disconnectNode(
+          parent: doc.findNode(parentId),
+          childId: slot.childId,
+        );
       },
       (childId) {
         final child = doc.findNode(childId as String);
-        doc.connectNode(parent: parent, child: child, slotId: slot.id);
+        doc.connectNode(
+          parent: doc.findNode(parentId),
+          child: child,
+          slotId: slot.id,
+        );
       },
     );
   }
 
   factory Command.disconnectParent(Document doc, Node node) {
+    final nodeId = node.id;
     final parents = doc.parentsOf(node);
     final slotIds = {for (var parent in parents) parent.id: parent.slotIdForChild(node)};
     return Command(
       slotIds,
       () {
-        doc.disconnectNodeFromParent(node);
+        doc.disconnectNodeFromParent(doc.findNode(nodeId));
       },
       (parents) {
+        final node = doc.findNode(nodeId);
         for (final parentId in (parents as Map<String, String>).keys) {
           final parent = doc.findNode(parentId);
           doc.connectNode(
@@ -217,13 +254,15 @@ class Command<T> extends Change {
   }
 
   factory Command.disconnectChildren(Document doc, Node node) {
+    final nodeId = node.id;
     final slotIds = {for (var n in node.children) n.id: node.slotIdForChild(n)};
     return Command(
       slotIds,
       () {
-        doc.disconnectAllChildren(node);
+        doc.disconnectAllChildren(doc.findNode(nodeId));
       },
       (childIds) {
+        final node = doc.findNode(nodeId);
         for (final childId in (childIds as Map<String, String>).keys) {
           final child = doc.findNode(childId);
           doc.connectNode(
@@ -236,19 +275,21 @@ class Command<T> extends Change {
     );
   }
 
-  factory Command.renameSlot(Node node, ChildSlot slot, String name) {
+  factory Command.renameSlot(Document doc, Node node, ChildSlot slot, String name) {
+    final nodeId = node.id;
     return Command(
       slot.name,
       () {
-        node.renameSlot(slot.id, name);
+        doc.findNode(nodeId).renameSlot(slot.id, name);
       },
       (oldName) {
-        node.renameSlot(slot.id, oldName as String);
+        doc.findNode(nodeId).renameSlot(slot.id, oldName as String);
       },
     );
   }
 
   factory Command.deleteSlot(Document doc, Node node, ChildSlot slot) {
+    final nodeId = node.id;
     final childId = slot.childId;
     final slotIndex = node.indexOfSlot(slot);
     var isCallSlot = false;
@@ -259,11 +300,12 @@ class Command<T> extends Change {
       childId,
       () {
         if (slot.childId != null) {
-          doc.disconnectNode(parent: node, childId: slot.childId);
+          doc.disconnectNode(parent: doc.findNode(nodeId), childId: slot.childId);
         }
         node.removeSlot(slot.id);
       },
       (childId) {
+        final node = doc.findNode(nodeId);
         if (node is RootNode) {
           if (isCallSlot) {
             node.attachCallSlot(slot, slotIndex);
@@ -282,15 +324,16 @@ class Command<T> extends Change {
   }
 
   factory Command.flatten(Document doc, Selection selection, PrefabNode node) {
+    final nodeId = node.id;
     List<AstNode> flattened;
     return Command(
-      node,
+      nodeId,
       () {
-        flattened = doc.flattenPrefabNode(node);
+        flattened = doc.flattenPrefabNode(doc.findNode(nodeId));
         selection.select(flattened.first);
       },
-      (oldNode) {
-        final node = oldNode as PrefabNode;
+      (oldNodeId) {
+        final node = doc.findNode(oldNodeId as String) as PrefabNode;
         selection.select(node);
 
         final firstFlattened = flattened.first;
@@ -312,14 +355,16 @@ class Command<T> extends Change {
   }
 
   factory Command.autoLayout(Document doc, AstNode node) {
+    final nodeId = node.id;
     final positions = {for (var n in node.nodes) n.id: n.position};
     return Command(
       positions,
       () {
-        node.autoLayout();
+        (doc.findNode(nodeId) as AstNode).autoLayout();
         doc.forceRedraw();
       },
       (oldPositions) {
+        final node = doc.findNode(nodeId);
         final positions = oldPositions as Map<String, Offset>;
         for (final n in node.nodes) {
           n.position = positions[n.id];

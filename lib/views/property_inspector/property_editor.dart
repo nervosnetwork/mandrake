@@ -60,6 +60,7 @@ class BasicInfoProperty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final doc = Provider.of<Document>(context, listen: false);
     final node = Provider.of<Node>(context);
 
     _nameController.text = node.name;
@@ -82,7 +83,7 @@ class BasicInfoProperty extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyText2,
                 decoration: PropertyEditorTextFieldDecoration(),
                 onFieldSubmitted: (v) {
-                  _rename(node, v);
+                  _rename(doc, node, v);
                 },
               ),
             ),
@@ -102,6 +103,7 @@ class BasicInfoProperty extends StatelessWidget {
                 decoration: PropertyEditorTextFieldDecoration().copyWith(suffixText: 'x'),
                 onFieldSubmitted: (v) {
                   _movePosition(
+                    doc,
                     node,
                     node.position + Offset(double.parse(v) - node.position.dx, 0),
                   );
@@ -116,6 +118,7 @@ class BasicInfoProperty extends StatelessWidget {
                 decoration: PropertyEditorTextFieldDecoration().copyWith(suffixText: 'y'),
                 onFieldSubmitted: (v) {
                   _movePosition(
+                    doc,
                     node,
                     node.position + Offset(0, double.parse(v) - node.position.dy),
                   );
@@ -128,12 +131,12 @@ class BasicInfoProperty extends StatelessWidget {
     );
   }
 
-  void _rename(Node node, String name) {
-    Command.renameNode(node, name).run();
+  void _rename(Document doc, Node node, String name) {
+    Command.renameNode(doc, node, name).run();
   }
 
-  void _movePosition(Node node, Offset pos) {
-    Command.movePosition(node, pos).run();
+  void _movePosition(Document doc, Node node, Offset pos) {
+    Command.movePosition(doc, node, pos).run();
   }
 }
 
@@ -158,7 +161,7 @@ class SlotProperty extends StatelessWidget {
     }
 
     void renameSlot(String name) {
-      Command.renameSlot(node, slot, name).run();
+      Command.renameSlot(document, node, slot, name).run();
     }
 
     return Container(
