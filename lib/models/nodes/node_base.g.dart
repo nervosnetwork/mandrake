@@ -39,10 +39,11 @@ ChildSlot _$ChildSlotFromJson(Map<String, dynamic> json) {
   return ChildSlot(
     name: json['name'] as String,
     childId: json['child_id'] as String,
-  );
+  )..id = json['id'] as String;
 }
 
 Map<String, dynamic> _$ChildSlotToJson(ChildSlot instance) => <String, dynamic>{
+      'id': instance.id,
       'name': instance.name,
       'child_id': instance.childId,
     };
