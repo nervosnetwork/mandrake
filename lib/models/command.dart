@@ -325,17 +325,21 @@ class Command<T> extends Change {
 
   factory Command.flatten(Document doc, Selection selection, PrefabNode node) {
     final nodeId = node.id;
-    List<AstNode> flattened;
+    String serializedFlattened;
     return Command(
-      nodeId,
+      jsonEncode(node),
       () {
-        flattened = doc.flattenPrefabNode(doc.findNode(nodeId));
+        final flattened = doc.flattenPrefabNode(doc.findNode(nodeId));
         selection.select(flattened.first);
+        serializedFlattened = jsonEncode(flattened);
       },
-      (oldNodeId) {
-        final node = doc.findNode(oldNodeId as String) as PrefabNode;
+      (serializedNode) {
+        final json = jsonDecode(serializedNode as String);
+        final node = Node.fromJson(json);
         selection.select(node);
 
+        List<Object> flattenedJson = jsonDecode(serializedFlattened);
+        final flattened = flattenedJson.map((j) => Node.fromJson(j)).toList();
         final firstFlattened = flattened.first;
         final parents = doc.parentsOf(firstFlattened);
         if (parents.isNotEmpty) {
