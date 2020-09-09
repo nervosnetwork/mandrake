@@ -300,12 +300,12 @@ class Node with ChangeNotifier, DirtyTracker {
 /// before connecting to child.
 @JsonSerializable()
 class ChildSlot {
-  ChildSlot({this.name = '', this.childId});
+  ChildSlot({this.name = '', this.childId}) : id = Uuid().v4();
 
   factory ChildSlot.fromJson(Map<String, dynamic> json) => _$ChildSlotFromJson(json);
   Map<String, dynamic> toJson() => _$ChildSlotToJson(this);
 
-  final String id = Uuid().v4();
+  String id;
   String name;
   String childId;
 
