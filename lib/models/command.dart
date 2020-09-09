@@ -72,14 +72,17 @@ class Command<T> extends Change {
   factory Command.deleteNode(Document doc, Selection selection, Node node) {
     final parentSlotIds = {for (var n in doc.parentsOf(node)) n.id: n.slotIdForChild(node)};
     final childSlotIds = {for (var n in node.children) n.id: node.slotIdForChild(n)};
+    final serialized = jsonEncode(node);
+    final nodeId = node.id;
 
     return Command(
       [parentSlotIds, childSlotIds],
       () {
-        doc.deleteNode(node);
+        doc.deleteNode(doc.findNode(nodeId));
         selection.select(null);
       },
       (slotIds) {
+        final node = Node.fromJson(jsonDecode(serialized));
         doc.addNode(node);
 
         final parents = (slotIds as List<Map<String, String>>)[0];
