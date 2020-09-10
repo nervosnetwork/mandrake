@@ -137,11 +137,11 @@ class Document with ChangeNotifier, DirtyTracker {
     if (parentsOf(child).length == 1) {
       topLevelNodes.add(child);
     }
-    final slotId = parent?.slotIdForChild(child);
-    parent?.removeChild(childId);
     if (deleteSlot) {
+      final slotId = parent?.slotIdForChild(child);
       parent?.removeSlot(slotId);
     }
+    parent?.removeChild(childId);
 
     _nodesChanged();
   }
