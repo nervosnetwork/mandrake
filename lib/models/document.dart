@@ -132,19 +132,23 @@ class Document with ChangeNotifier, DirtyTracker {
     _nodesChanged();
   }
 
-  void disconnectNode({@required Node parent, @required String childId}) {
+  void disconnectNode({@required Node parent, @required String childId, deleteSlot = false}) {
     final child = _allNodes.firstWhere((n) => n.id == childId, orElse: () => null);
     if (parentsOf(child).length == 1) {
       topLevelNodes.add(child);
     }
+    final slotId = parent?.slotIdForChild(child);
     parent?.removeChild(childId);
+    if (deleteSlot) {
+      parent?.removeSlot(slotId);
+    }
 
     _nodesChanged();
   }
 
-  void disconnectNodeFromParent(Node node) {
+  void disconnectNodeFromParent(Node node, {deleteSlot = false}) {
     for (final parent in parentsOf(node)) {
-      disconnectNode(parent: parent, childId: node.id);
+      disconnectNode(parent: parent, childId: node.id, deleteSlot: deleteSlot);
     }
   }
 

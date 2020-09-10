@@ -18,11 +18,6 @@ class CommandState with ChangeNotifier {
   void update() => notifyListeners();
 }
 
-/// TODO fix these:
-///   * flatten
-///   * connect/disconnect
-///   * slot operation
-
 /// Encapsulate action/change that supports undo/redo
 class Command<T> extends Change {
   Command(
@@ -197,6 +192,11 @@ class Command<T> extends Change {
   factory Command.connect(Document doc, Node parent, Node node, ChildSlot slot) {
     final parentId = parent.id;
     final nodeId = node.id;
+    final addNewSlot = [
+      RootNode.addCallChildSlot,
+      RootNode.addStreamChildSlot,
+      Node.addChildSlot,
+    ].contains(slot);
     return Command(
       nodeId,
       () {
@@ -207,27 +207,32 @@ class Command<T> extends Change {
         );
       },
       (_) {
-        doc.disconnectNodeFromParent(doc.findNode(nodeId));
+        doc.disconnectNodeFromParent(
+          doc.findNode(nodeId),
+          deleteSlot: addNewSlot,
+        );
       },
     );
   }
 
   factory Command.disconnect(Document doc, Node parent, ChildSlot slot) {
     final parentId = parent.id;
+    final childId = slot.childId;
+    final slotId = slot.id;
     return Command(
       slot.childId,
       () {
         doc.disconnectNode(
           parent: doc.findNode(parentId),
-          childId: slot.childId,
+          childId: childId,
         );
       },
-      (childId) {
-        final child = doc.findNode(childId as String);
+      (_) {
+        final child = doc.findNode(childId);
         doc.connectNode(
           parent: doc.findNode(parentId),
           child: child,
-          slotId: slot.id,
+          slotId: slotId,
         );
       },
     );
@@ -291,9 +296,51 @@ class Command<T> extends Change {
     );
   }
 
+  factory Command.addSlot(Document doc, Node node, String name) {
+    final nodeId = node.id;
+    String slotId;
+    return Command(
+      node.id,
+      () {
+        slotId = doc.findNode(nodeId).addSlot('new child').id;
+      },
+      (_) {
+        doc.findNode(nodeId).removeSlot(slotId);
+      },
+    );
+  }
+
+  factory Command.addCallSlot(Document doc, RootNode root) {
+    String slotId;
+    return Command(
+      root.id,
+      () {
+        slotId = root.addCallSlot().id;
+      },
+      (_) {
+        root.removeSlot(slotId);
+      },
+    );
+  }
+
+  factory Command.addStreamSlot(Document doc, RootNode root) {
+    String slotId;
+    return Command(
+      root.id,
+      () {
+        slotId = root.addStreamSlot().id;
+      },
+      (_) {
+        root.removeSlot(slotId);
+      },
+    );
+  }
+
   factory Command.deleteSlot(Document doc, Node node, ChildSlot slot) {
     final nodeId = node.id;
     final childId = slot.childId;
+    final slotId = slot.id;
+    String serializedSlot;
     final slotIndex = node.indexOfSlot(slot);
     var isCallSlot = false;
     if (node is RootNode) {
@@ -302,13 +349,15 @@ class Command<T> extends Change {
     return Command(
       childId,
       () {
-        if (slot.childId != null) {
-          doc.disconnectNode(parent: doc.findNode(nodeId), childId: slot.childId);
+        if (childId != null) {
+          doc.disconnectNode(parent: doc.findNode(nodeId), childId: childId);
         }
-        node.removeSlot(slot.id);
+        serializedSlot = jsonEncode(slot);
+        node.removeSlot(slotId);
       },
       (childId) {
         final node = doc.findNode(nodeId);
+        final slot = ChildSlot.fromJson(jsonDecode(serializedSlot));
         if (node is RootNode) {
           if (isCallSlot) {
             node.attachCallSlot(slot, slotIndex);
@@ -320,7 +369,7 @@ class Command<T> extends Change {
         }
         if (childId != null) {
           final child = doc.findNode(childId as String);
-          doc.connectNode(parent: node, child: child, slotId: slot.id);
+          doc.connectNode(parent: node, child: child, slotId: slotId);
         }
       },
     );

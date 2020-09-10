@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/document.dart';
 import '../../models/node.dart';
 import '../../models/selection.dart';
 import '../../models/editor_state.dart';
+import '../../models/command.dart';
 
 class NodeView extends StatelessWidget {
   static const double borderRadius = 5;
@@ -94,11 +96,12 @@ class NodeView extends StatelessWidget {
 
   /// Override this to customize node shape.
   Widget buildView(BuildContext context) {
+    final doc = Provider.of<Document>(context, listen: false);
     final node = Provider.of<Node>(context);
     final slots = node.slots.map((s) => slot(context, s)).toList();
 
     void onAddChildButtonClicked() {
-      node.addSlot('new child');
+      Command.addSlot(doc, node, 'new child').run();
     }
 
     return Column(
