@@ -153,7 +153,7 @@ class NodeTemplate {
       NT(ValueType.getLock),
       NT(ValueType.getType),
       NT(ValueType.getDataHash),
-      NT(ValueType.getOutputs),
+      NT(ValueType.getOutPoint),
     ],
     NodeTemplateGroup.script: [
       NT(ValueType.getCodeHash),
