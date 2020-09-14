@@ -32,8 +32,14 @@ class AstNode extends Node {
   Value toAstValue() {
     final value = Value();
     value.t = valueType.rawType;
-    final childrenAst = children.map((e) => (e as AstNode).toAstValue()).toList();
+
+    final slotWithChild = slots.where((s) => s.childId != null);
+    final childrenAst = slotWithChild.map((s) {
+      final child = findChild(s.childId);
+      return (child as AstNode).toAstValue();
+    }).toList();
     value.children.addAll(childrenAst);
+
     return value;
   }
 
