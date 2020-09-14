@@ -56,6 +56,6 @@ class OperationNode extends AstNode {
     ValueType.len: ['bytes'],
     ValueType.index: ['index', 'list'],
     ValueType.slice: ['start', 'end', 'bytes'],
-    ValueType.cond: ['condition', 'expr1', 'expr1'],
+    ValueType.cond: ['condition', 'expr1', 'expr2'],
   };
 }
