@@ -20,14 +20,10 @@ RootNode _$RootNodeFromJson(Map<String, dynamic> json) {
         ?.map((e) =>
             e == null ? null : ChildSlot.fromJson(e as Map<String, dynamic>))
         ?.toList()
-    ..callSlots = (json['call_slots'] as List)
-        ?.map((e) =>
-            e == null ? null : ChildSlot.fromJson(e as Map<String, dynamic>))
-        ?.toList()
-    ..streamSlots = (json['stream_slots'] as List)
-        ?.map((e) =>
-            e == null ? null : ChildSlot.fromJson(e as Map<String, dynamic>))
-        ?.toList();
+    ..callSlotIds =
+        (json['call_slot_ids'] as List)?.map((e) => e as String)?.toList()
+    ..streamSlotIds =
+        (json['stream_slot_ids'] as List)?.map((e) => e as String)?.toList();
 }
 
 Map<String, dynamic> _$RootNodeToJson(RootNode instance) => <String, dynamic>{
@@ -36,6 +32,6 @@ Map<String, dynamic> _$RootNodeToJson(RootNode instance) => <String, dynamic>{
       'position': OffsetJsonConverter.offsetToJson(instance.position),
       'children': instance.children,
       'slots': instance.slots,
-      'call_slots': instance.callSlots,
-      'stream_slots': instance.streamSlots,
+      'call_slot_ids': instance.callSlotIds,
+      'stream_slot_ids': instance.streamSlotIds,
     };

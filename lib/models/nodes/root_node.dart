@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:ui' show Offset, Size, Rect;
 
 import 'node_base.dart';
@@ -14,18 +13,19 @@ class RootNode extends Node {
   @override
   Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$RootNodeToJson);
 
-  final List<ChildSlot> _callSlots = [];
-  List<ChildSlot> get callSlots => UnmodifiableListView(_callSlots);
-  set callSlots(List<ChildSlot> value) {
-    _callSlots.clear();
-    _callSlots.addAll(value);
+  List<String> callSlotIds = [];
+  List<String> streamSlotIds = [];
+
+  List<ChildSlot> get callSlots {
+    return callSlotIds.map((id) {
+      return findSlot(id);
+    }).toList();
   }
 
-  final List<ChildSlot> _streamSlots = [];
-  List<ChildSlot> get streamSlots => UnmodifiableListView(_streamSlots);
-  set streamSlots(List<ChildSlot> value) {
-    _streamSlots.clear();
-    _streamSlots.addAll(value);
+  List<ChildSlot> get streamSlots {
+    return streamSlotIds.map((id) {
+      return findSlot(id);
+    }).toList();
   }
 
   /// Child slots binding to 'add call' and 'add stream' buttons to allow
@@ -52,7 +52,7 @@ class RootNode extends Node {
   /// Add a new slot for call node.
   ChildSlot addCallSlot([String name = 'call']) {
     final slot = addSlot(name);
-    _callSlots.add(slot);
+    callSlotIds.add(slot.id);
     notifyListeners();
     return slot;
   }
@@ -60,37 +60,37 @@ class RootNode extends Node {
   /// Add a new slot for stream node.
   ChildSlot addStreamSlot([String name = 'stream']) {
     final slot = addSlot(name);
-    _streamSlots.add(slot);
+    streamSlotIds.add(slot.id);
     notifyListeners();
     return slot;
   }
 
   @override
   void removeSlot(String slotId) {
-    _callSlots.removeWhere((s) => s.id == slotId);
-    _streamSlots.removeWhere((s) => s.id == slotId);
+    callSlotIds.remove(slotId);
+    streamSlotIds.remove(slotId);
 
     super.removeSlot(slotId);
   }
 
   void attachCallSlot(ChildSlot slot, int index) {
-    _callSlots.insert(index, slot);
+    callSlotIds.insert(index, slot.id);
     attachSlot(slot, 0);
   }
 
   @override
   int indexOfSlot(ChildSlot slot) {
-    final index = _callSlots.indexOf(slot);
+    final index = callSlotIds.indexOf(slot.id);
     if (index != -1) {
       return index;
     }
-    return _streamSlots.indexOf(slot);
+    return streamSlotIds.indexOf(slot.id);
   }
 
-  bool isCallSlot(ChildSlot slot) => _callSlots.contains(slot);
+  bool isCallSlot(ChildSlot slot) => callSlotIds.contains(slot.id);
 
   void attachStreamSlot(ChildSlot slot, int index) {
-    _streamSlots.insert(index, slot);
+    streamSlotIds.insert(index, slot.id);
     attachSlot(slot, 0);
   }
 
@@ -107,12 +107,12 @@ class RootNode extends Node {
 
   @override
   Offset childConnectorPosition(Node child) {
-    final callSlot = _callSlots.firstWhere((s) => s.childId == child.id, orElse: () => null);
+    final callSlot = callSlots.firstWhere((s) => s.childId == child.id, orElse: () => null);
     if (callSlot != null) {
       return slotConnectorPosition(callSlot);
     }
 
-    final streamSlot = _streamSlots.firstWhere((s) => s.childId == child.id, orElse: () => null);
+    final streamSlot = streamSlots.firstWhere((s) => s.childId == child.id, orElse: () => null);
     if (streamSlot != null) {
       return slotConnectorPosition(streamSlot);
     }
@@ -122,7 +122,7 @@ class RootNode extends Node {
 
   @override
   Offset slotConnectorPosition(ChildSlot slot) {
-    final callIndex = _callSlots.indexOf(slot);
+    final callIndex = callSlotIds.indexOf(slot.id);
     if (callIndex != -1) {
       return position +
           Offset(
@@ -131,7 +131,7 @@ class RootNode extends Node {
           );
     }
 
-    final streamIndex = _streamSlots.indexOf(slot);
+    final streamIndex = streamSlotIds.indexOf(slot.id);
     if (streamIndex != -1) {
       return position +
           Offset(
@@ -144,7 +144,7 @@ class RootNode extends Node {
       return position +
           Offset(
             size.width - 12,
-            _callsVerticalOffset + slotRowHeight * _callSlots.length + slotRowHeight / 2,
+            _callsVerticalOffset + slotRowHeight * callSlotIds.length + slotRowHeight / 2,
           );
     }
 
@@ -152,7 +152,7 @@ class RootNode extends Node {
       return position +
           Offset(
             size.width - 12,
-            _streamsVerticalOffset + slotRowHeight * _streamSlots.length + slotRowHeight / 2,
+            _streamsVerticalOffset + slotRowHeight * streamSlotIds.length + slotRowHeight / 2,
           );
     }
 
@@ -169,8 +169,8 @@ class RootNode extends Node {
   ChildSlot hitTest(Offset point) {
     final hitWidth = 25.0;
 
-    for (var i = 0; i < _callSlots.length; i++) {
-      if (_callSlots[i].isConnected) {
+    for (var i = 0; i < callSlots.length; i++) {
+      if (callSlots[i].isConnected) {
         // Already connected(filled), cannot link to another child.
         continue;
       }
@@ -182,12 +182,12 @@ class RootNode extends Node {
         slotRowHeight,
       );
       if (rect.contains(point)) {
-        return _callSlots[i];
+        return callSlots[i];
       }
     }
     final addCallButtonRect = Rect.fromLTWH(
       size.width - hitWidth,
-      _callsVerticalOffset + slotRowHeight * _callSlots.length,
+      _callsVerticalOffset + slotRowHeight * callSlots.length,
       hitWidth,
       slotRowHeight,
     );
@@ -195,8 +195,8 @@ class RootNode extends Node {
       return addCallChildSlot;
     }
 
-    for (var i = 0; i < _streamSlots.length; i++) {
-      if (_streamSlots[i].isConnected) {
+    for (var i = 0; i < streamSlots.length; i++) {
+      if (streamSlots[i].isConnected) {
         // Already connected(filled), cannot link to another child.
         continue;
       }
@@ -208,12 +208,12 @@ class RootNode extends Node {
         slotRowHeight,
       );
       if (rect.contains(point)) {
-        return _streamSlots[i];
+        return streamSlots[i];
       }
     }
     final addStreamButtonRect = Rect.fromLTWH(
       size.width - hitWidth,
-      _streamsVerticalOffset + slotRowHeight * _streamSlots.length,
+      _streamsVerticalOffset + slotRowHeight * streamSlots.length,
       hitWidth,
       slotRowHeight,
     );

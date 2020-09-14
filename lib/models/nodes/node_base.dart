@@ -137,6 +137,7 @@ class Node with ChangeNotifier, DirtyTracker {
   }
 
   int indexOfSlot(ChildSlot slot) => _slots.indexOf(slot);
+  ChildSlot findSlot(String slotId) => _slots.firstWhere((s) => s.id == slotId, orElse: () => null);
 
   /// Remove both the slot and the child if there's one connected.
   void removeSlot(String slotId) {
