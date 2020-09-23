@@ -47,24 +47,27 @@ class _ObjectLibraryState extends State<ObjectLibrary> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 10,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 10,
+                        ),
+                        isDense: true,
+                        hintText: 'Search',
+                        suffixIcon: Icon(Icons.search),
                       ),
-                      isDense: true,
-                      hintText: 'Search',
-                      suffixIcon: Icon(Icons.search),
+                      style: Theme.of(context).textTheme.bodyText2,
+                      onChanged: (value) {
+                        setState(() {
+                          // trigger search
+                        });
+                      },
                     ),
-                    style: Theme.of(context).textTheme.bodyText2,
-                    onChanged: (value) {
-                      setState(() {
-                        // trigger search
-                      });
-                    },
                   ),
                 ),
               ],
