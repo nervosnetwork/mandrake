@@ -24,6 +24,7 @@ class NodesLayer extends StatelessWidget {
         final nodes = _visibleNodes(visibleArea, document);
 
         return Stack(
+          clipBehavior: Clip.none,
           children: nodes.map((node) {
             return ChangeNotifierProvider<Node>.value(
               value: node,
