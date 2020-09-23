@@ -24,7 +24,6 @@ class NodesLayer extends StatelessWidget {
         final nodes = _visibleNodes(visibleArea, document);
 
         return Stack(
-          overflow: Overflow.visible,
           children: nodes.map((node) {
             return ChangeNotifierProvider<Node>.value(
               value: node,
