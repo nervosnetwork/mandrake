@@ -15,10 +15,6 @@ Node _$NodeFromJson(Map<String, dynamic> json) {
     maximumSlotCount: json['maximum_slot_count'] as int,
   )
     ..id = json['id'] as String
-    ..children = (json['children'] as List)
-        ?.map(
-            (e) => e == null ? null : Node.fromJson(e as Map<String, dynamic>))
-        ?.toList()
     ..slots = (json['slots'] as List)
         ?.map((e) =>
             e == null ? null : ChildSlot.fromJson(e as Map<String, dynamic>))
@@ -29,7 +25,6 @@ Map<String, dynamic> _$NodeToJson(Node instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'position': OffsetJsonConverter.offsetToJson(instance.position),
-      'children': instance.children,
       'slots': instance.slots,
       'minimum_slot_count': instance.minimumSlotCount,
       'maximum_slot_count': instance.maximumSlotCount,

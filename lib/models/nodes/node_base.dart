@@ -74,11 +74,6 @@ class Node with ChangeNotifier, DirtyTracker {
 
   final List<Node> _children = [];
   List<Node> get children => UnmodifiableListView(_children);
-  // This set method merely exists to make JSON serialization easy. Same for `set slots`.
-  set children(List<Node> value) {
-    _children.clear();
-    _children.addAll(value);
-  }
 
   final List<ChildSlot> _slots = [];
   List<ChildSlot> get slots => UnmodifiableListView(_slots);

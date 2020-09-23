@@ -11,6 +11,7 @@ part 'document.g.dart';
 @JsonSerializable()
 class Document with ChangeNotifier, DirtyTracker {
   final List<Node> topLevelNodes; // Reference to top level nodes only
+  final List<Node> allNodes;
   final List<Node> _allNodes = [];
   final List<Link> _links = [];
 
@@ -64,7 +65,7 @@ class Document with ChangeNotifier, DirtyTracker {
     }
   }
 
-  Document({this.topLevelNodes});
+  Document({this.topLevelNodes, this.allNodes = const []});
 
   factory Document.fromJson(Map<String, dynamic> json) => _$DocumentFromJson(json);
   Map<String, dynamic> toJson() => _$DocumentToJson(this);

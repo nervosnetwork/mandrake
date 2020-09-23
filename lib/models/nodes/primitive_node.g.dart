@@ -16,10 +16,6 @@ PrimitiveNode _$PrimitiveNodeFromJson(Map<String, dynamic> json) {
   )
     ..id = json['id'] as String
     ..name = json['name'] as String
-    ..children = (json['children'] as List)
-        ?.map(
-            (e) => e == null ? null : Node.fromJson(e as Map<String, dynamic>))
-        ?.toList()
     ..slots = (json['slots'] as List)
         ?.map((e) =>
             e == null ? null : ChildSlot.fromJson(e as Map<String, dynamic>))
@@ -32,7 +28,6 @@ Map<String, dynamic> _$PrimitiveNodeToJson(PrimitiveNode instance) =>
       'id': instance.id,
       'name': instance.name,
       'position': OffsetJsonConverter.offsetToJson(instance.position),
-      'children': instance.children,
       'slots': instance.slots,
       'value_type': instance.valueType,
       'value': instance.value,
