@@ -106,6 +106,7 @@ class Command<T> extends Change {
         selection.select(null);
       },
       (jsonString) {
+        /// TODO: fix undo
         final json = jsonDecode(jsonString as String);
         final node = Node.fromJson(json);
         node.setDocDeep(doc);

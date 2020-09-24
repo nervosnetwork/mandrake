@@ -82,12 +82,12 @@ class Node with ChangeNotifier, DirtyTracker {
     );
   }
 
-  List<Node> get children {
+  List<String> get childIds {
     final slotWithChild = slots.where((s) => s.childId != null);
-    return slotWithChild.map((s) {
-      return findChild(s.childId);
-    }).toList();
+    return slotWithChild.map((s) => s.childId).toList();
   }
+
+  List<Node> get children => childIds.map((id) => findChild(id)).toList();
 
   final List<ChildSlot> _slots = [];
   List<ChildSlot> get slots => UnmodifiableListView(_slots);

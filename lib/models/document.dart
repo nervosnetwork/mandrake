@@ -89,7 +89,26 @@ class Document with ChangeNotifier, DirtyTracker {
 
   void deleteNodeAndDescendants(Node node) {
     disconnectNodeFromParent(node);
-    // TODO: fix deleting
+
+    final childNodeIds = Set<String>.from(node.nodes.map((n) => n.id));
+    final otherNodeIds = Set<String>.from(allNodes.keys).difference(childNodeIds);
+    final otherNodes = otherNodeIds.map((id) => findNode(id)).toList();
+
+    final hasOutsideParent = (Node node) {
+      return otherNodes.any((n) => n.childIds.contains(node.id));
+    };
+
+    void processChildren(List<Node> children) {
+      for (final child in children) {
+        if (!hasOutsideParent(child)) {
+          processChildren(child.children);
+          allNodes.remove(child.id);
+        }
+      }
+    }
+
+    processChildren(node.children);
+    allNodes.remove(node.id);
 
     _nodesChanged();
   }
