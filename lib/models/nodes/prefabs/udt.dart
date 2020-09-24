@@ -86,7 +86,7 @@ class _UdtConverter {
     slice.addChild(uintValue(Int64(16)), slice.addSlot('16').id);
     slice.addChild(arg(Int64(0)), slice.addSlot('arg0').id);
     final tokens = mapFuns(_inputCells(), [
-      getField(ValueType.getData, arg(Int64(0))),
+      getField(ValueType.getData, arg(Int64(0)), node.doc),
       slice,
     ]);
 
@@ -149,7 +149,7 @@ class _UdtConverter {
     serialized.addChild(tx, serialized.slots.first.id);
     final length = OperationNode(valueType: ValueType.len);
     length.addChild(serialized, length.slots.first.id);
-    final addedLength = add(length, uintValue(Int64(100)));
+    final addedLength = add(length, uintValue(Int64(100)), node.doc);
     final fee = OperationNode(valueType: ValueType.multiply);
     fee.addChild(addedLength, fee.slots.first.id);
     fee.addChild(uintValue(Int64(1)), fee.slots.last.id);
@@ -157,7 +157,7 @@ class _UdtConverter {
     final changeCell = tx.children[1].children[1];
     final adjustedChangeCell = OperationNode(valueType: ValueType.cell);
     adjustedChangeCell.addChild(
-      subtract(changeCell.children[0], fee),
+      subtract(changeCell.children[0], fee, node.doc),
       adjustedChangeCell.slots.first.id,
     );
     adjustedChangeCell.addChild(
@@ -263,7 +263,7 @@ class _UdtConverter {
     result.addChild(uintValue(Int64(0)), result.addSlot('0').id);
     result.addChild(uintValue(Int64(16)), result.addSlot('16').id);
     result.addChild(
-      add(bytesValue('0x00000000000000000000000000000000'), param(Int64(3))),
+      add(bytesValue('0x00000000000000000000000000000000'), param(Int64(3)), node.doc),
       result.addSlot('add').id,
     );
     return result;
@@ -271,12 +271,15 @@ class _UdtConverter {
 
   AstNode _totalCapacities() {
     final map = AstNode(valueType: ValueType.map);
-    map.addChild(getField(ValueType.getCapacity, arg(Int64(0))), map.addSlot('get capacity').id);
+    map.addChild(
+      getField(ValueType.getCapacity, arg(Int64(0)), node.doc),
+      map.addSlot('get capacity').id,
+    );
     map.addChild(_inputCells(), map.addSlot('cells').id);
 
     final result = AstNode(valueType: ValueType.reduce);
     result.addChild(
-      add(arg(Int64(0)), arg(Int64(1))),
+      add(arg(Int64(0)), arg(Int64(1)), node.doc),
       result.addSlot('arg0 + arg1').id,
     );
     result.addChild(
@@ -295,33 +298,37 @@ class _UdtConverter {
   }
 
   AstNode _changeCapacities() {
-    return subtract(_totalCapacities(), _transferValue());
+    return subtract(_totalCapacities(), _transferValue(), node.doc);
   }
 
   AstNode _changeTokens() {
     final result = AstNode(valueType: ValueType.slice);
     result.addChild(uintValue(Int64(0)), result.addSlot('0').id);
     result.addChild(uintValue(Int64(16)), result.addSlot('16').id);
-    result.addChild(subtract(_balance(), _transferTokens()), result.addSlot('change token').id);
+    result.addChild(
+        subtract(_balance(), _transferTokens(), node.doc), result.addSlot('change token').id);
     return result;
   }
 
   AstNode _isDefaultSecpCell(
     Int64 argIndex,
   ) {
-    final lock = getField(ValueType.getLock, arg(argIndex));
+    final lock = getField(ValueType.getLock, arg(argIndex), node.doc);
 
     final codeHash = equal(
-      getField(ValueType.getCodeHash, lock),
+      getField(ValueType.getCodeHash, lock, node.doc),
       bytesValue(findPropValue(props, 'Secp256k1 lock hash') ?? secpTypeHash),
+      node.doc,
     );
     final hashType = equal(
-      getField(ValueType.getHashType, lock),
+      getField(ValueType.getHashType, lock, node.doc),
       uintValue(Int64(1)),
+      node.doc,
     );
     final args = equal(
-      getField(ValueType.getArgs, lock),
+      getField(ValueType.getArgs, lock, node.doc),
       param(Int64(1)),
+      node.doc,
     );
 
     final result = OperationNode(valueType: ValueType.and);
@@ -332,19 +339,22 @@ class _UdtConverter {
   }
 
   AstNode _isSimpleUdtCell(Int64 argIndex, Int64 paramIndex, String udtCodeHash) {
-    final getType = getField(ValueType.getType, arg(argIndex));
+    final getType = getField(ValueType.getType, arg(argIndex), node.doc);
 
     final codeHash = equal(
-      getField(ValueType.getCodeHash, getType),
+      getField(ValueType.getCodeHash, getType, node.doc),
       bytesValue(udtCodeHash),
+      node.doc,
     );
     final hashType = equal(
-      getField(ValueType.getHashType, getType),
+      getField(ValueType.getHashType, getType, node.doc),
       uintValue(Int64(0)),
+      node.doc,
     );
     final args = equal(
-      getField(ValueType.getArgs, getType),
+      getField(ValueType.getArgs, getType, node.doc),
       param(paramIndex),
+      node.doc,
     );
 
     final result = OperationNode(valueType: ValueType.and);

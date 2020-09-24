@@ -11,6 +11,7 @@ import '../primitive_node.dart';
 List<AstNode> convertGetBalance(PrefabNode node) {
   final balance = AstNode(valueType: ValueType.reduce);
   balance.name = 'balance';
+  node.doc.addNode(balance);
 
   final func = AstNode(valueType: ValueType.add);
   func.name = 'func';
@@ -41,6 +42,7 @@ List<AstNode> convertGetBalance(PrefabNode node) {
 List<AstNode> convertMapCapacities(PrefabNode node) {
   final mapCapacities = AstNode(valueType: ValueType.map, position: node.position);
   mapCapacities.name = 'capacities';
+  node.doc.addNode(mapCapacities);
 
   final getCapacity = GetOpNode(valueType: ValueType.getCapacity);
   mapCapacities.addChild(getCapacity, mapCapacities.addSlot('get capacity').id);
@@ -59,6 +61,7 @@ List<AstNode> convertMapCapacities(PrefabNode node) {
 List<AstNode> convertQueryCells(PrefabNode node) {
   final queryCells = AstNode(valueType: ValueType.queryCells);
   queryCells.name = 'cells';
+  node.doc.addNode(queryCells);
 
   final queryTest = AstNode(valueType: ValueType.and);
   queryCells.addChild(queryTest, queryCells.addSlot('and').id);
@@ -66,33 +69,31 @@ List<AstNode> convertQueryCells(PrefabNode node) {
   final getCodeHash = GetOpNode(valueType: ValueType.getCodeHash);
   final codeHashValue = PrimitiveNode(valueType: ValueType.bytes);
   codeHashValue.value = findPropValue(node.properties, 'Secp256k1 lock hash') ?? secpTypeHash;
-  final codeHash = equal(getCodeHash, codeHashValue);
+  final codeHash = equal(getCodeHash, codeHashValue, node.doc);
   codeHash.name = 'code hash';
   queryTest.addChild(codeHash, queryTest.addSlot('code hash').id);
 
   final lock = GetOpNode(valueType: ValueType.getLock);
   lock.name = 'script lock';
+  getCodeHash.addChild(lock, getCodeHash.slots.first.id);
   final arg0 = arg(Int64(0));
   arg0.name = 'arg0 as cell';
   lock.addChild(arg0, lock.slots.first.id);
 
-  getCodeHash.addChild(lock, getCodeHash.slots.first.id);
-
   final getHashType = GetOpNode(valueType: ValueType.getHashType);
-  getHashType.addChild(lock, getHashType.slots.first.id);
   final hashTypeValue = uintValue(Int64(1));
-  final hashType = equal(getHashType, hashTypeValue);
+  final hashType = equal(getHashType, hashTypeValue, node.doc);
+  getHashType.addChild(lock, getHashType.slots.first.id);
   hashType.name = 'hash type';
   queryTest.addChild(hashType, queryTest.addSlot('hash type').id);
 
   final getArgs = GetOpNode(valueType: ValueType.getArgs);
-  getArgs.addChild(lock, getArgs.slots.first.id);
   final param0 = param(Int64(0));
   param0.name = 'param0';
-  final args = equal(getArgs, param0);
+  final args = equal(getArgs, param0, node.doc);
   args.name = 'args';
+  getArgs.addChild(lock, getArgs.slots.first.id);
   queryTest.addChild(args, queryTest.addSlot('args').id);
 
-  node.doc.addNode(queryCells);
   return [autoLayout(queryCells, initialPosition: node.position)];
 }

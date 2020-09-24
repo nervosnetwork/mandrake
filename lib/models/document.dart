@@ -167,6 +167,8 @@ class Document with ChangeNotifier, DirtyTracker {
       addNode(other);
     }
 
+    allNodes.remove(node.id);
+
     _nodesChanged();
 
     return flattened;

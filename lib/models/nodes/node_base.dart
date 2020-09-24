@@ -184,6 +184,8 @@ class Node with ChangeNotifier, DirtyTracker {
   }
 
   /// Add a child. If slotId is provided fill the child to that slot.
+  /// Node only references its children. Children are persisted within a [Document].
+  /// This means a [Node] should be assigned a doc if possible.
   void addChild(Node child, [String slotId]) {
     assert(canAddChild);
 
