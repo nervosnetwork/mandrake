@@ -1,9 +1,22 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mandrake/models/document.dart';
 import 'package:mandrake/models/node.dart';
 
 void main() {
+  Document doc;
+
+  setUp(() {
+    doc = Document(allNodes: {});
+  });
+
+  RootNode createRootNode() {
+    final root = RootNode();
+    root.doc = doc;
+    return root;
+  }
+
   test('dynamic size based on count of calls and streams', () {
-    final node = RootNode();
+    final node = createRootNode();
     var size = node.size;
     node.addCallSlot();
     expect(node.size.height, greaterThan(size.height));
@@ -19,7 +32,7 @@ void main() {
   });
 
   test('add call slot', () {
-    final node = RootNode();
+    final node = createRootNode();
     expect(node.callSlots.length, 0);
     node.addCallSlot();
     expect(node.callSlots.length, 1);
@@ -27,7 +40,7 @@ void main() {
   });
 
   test('add stream slot', () {
-    final node = RootNode();
+    final node = createRootNode();
     expect(node.streamSlots.length, 0);
     node.addStreamSlot();
     expect(node.streamSlots.length, 1);
@@ -35,14 +48,14 @@ void main() {
   });
 
   test('add call and stream slots', () {
-    final node = RootNode();
+    final node = createRootNode();
     node.addCallSlot();
     node.addStreamSlot();
     expect(node.slots.length, 2);
   });
 
   test('remove call and stream slots', () {
-    final node = RootNode();
+    final node = createRootNode();
     final callSlot = node.addCallSlot();
     final streamSlot = node.addStreamSlot();
     node.removeSlot(callSlot.id);
@@ -54,7 +67,7 @@ void main() {
   });
 
   test('add call child', () {
-    final node = RootNode();
+    final node = createRootNode();
     final callSlot = node.addCallSlot();
     final call = Node();
     node.addChild(call, callSlot.id);
@@ -68,7 +81,7 @@ void main() {
   });
 
   test('add stream child', () {
-    final node = RootNode();
+    final node = createRootNode();
     final streamSlot = node.addStreamSlot();
     final stream = Node();
     node.addChild(stream, streamSlot.id);
@@ -82,7 +95,7 @@ void main() {
   });
 
   test('child connector position', () {
-    final node = RootNode();
+    final node = createRootNode();
     final call = Node(), stream = Node();
     node.addCallSlot();
     var callSlot = node.addCallSlot();
@@ -99,12 +112,12 @@ void main() {
 
   group('slot connector position and hittest', () {
     test("slot not from node can't get position", () {
-      final node = RootNode();
+      final node = createRootNode();
       expect(node.slotConnectorPosition(ChildSlot()), null);
     });
 
     test('hittest position outside/inside the node', () {
-      final node = RootNode();
+      final node = createRootNode();
       expect(node.hitTest(Offset(0, -1)), null);
       expect(node.hitTest(Offset(-1, 0)), null);
       expect(node.hitTest(Offset(node.size.width, node.size.width + 1)), null);
@@ -112,7 +125,7 @@ void main() {
     });
 
     test('on first call slot connector', () {
-      final node = RootNode();
+      final node = createRootNode();
       final child = Node();
       var slot = node.addCallSlot();
       final pos = node.slotConnectorPosition(slot) - node.position;
@@ -121,7 +134,7 @@ void main() {
       expect(node.hitTest(pos), null);
     });
     test('on second call slot connector', () {
-      final node = RootNode();
+      final node = createRootNode();
       final child = Node();
       node.addCallSlot();
       var slot = node.addCallSlot();
@@ -132,13 +145,13 @@ void main() {
     });
 
     test('on add call button', () {
-      final node = RootNode();
+      final node = createRootNode();
       final pos = node.slotConnectorPosition(RootNode.addCallChildSlot) - node.position;
       expect(node.hitTest(pos), RootNode.addCallChildSlot);
     });
 
     test('on first stream slot connector', () {
-      final node = RootNode();
+      final node = createRootNode();
       final child = Node();
       var slot = node.addStreamSlot();
       final pos = node.slotConnectorPosition(slot) - node.position;
@@ -147,7 +160,7 @@ void main() {
       expect(node.hitTest(pos), null);
     });
     test('on second stream slot connector', () {
-      final node = RootNode();
+      final node = createRootNode();
       final child = Node();
       node.addStreamSlot();
       var slot = node.addStreamSlot();
@@ -157,7 +170,7 @@ void main() {
       expect(node.hitTest(pos), null);
     });
     test('on stream slot connector with call slot', () {
-      final node = RootNode();
+      final node = createRootNode();
       final child = Node();
       node.addCallSlot();
       node.addStreamSlot();
@@ -169,7 +182,7 @@ void main() {
     });
 
     test('on add stream button', () {
-      final node = RootNode();
+      final node = createRootNode();
       final pos = node.slotConnectorPosition(RootNode.addStreamChildSlot) - node.position;
       expect(node.hitTest(pos), RootNode.addStreamChildSlot);
     });

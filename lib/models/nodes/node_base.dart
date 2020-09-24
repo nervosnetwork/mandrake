@@ -192,6 +192,9 @@ class Node with ChangeNotifier, DirtyTracker {
       _fillSlot(child, addSlot('new child').id);
     } else if (slotId != null) {
       _fillSlot(child, slotId);
+    } else {
+      // Should not do this.
+      _fillSlot(child, addSlot('new child').id);
     }
 
     markDirty();

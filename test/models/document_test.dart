@@ -4,15 +4,18 @@ import 'package:mandrake/models/document_template.dart';
 import 'package:mandrake/models/node.dart';
 
 void main() {
-  Document createDocument() => Document(allNodes: {});
+  Document doc;
+
+  setUp(() {
+    doc = Document(allNodes: {});
+  });
 
   test('a document from template contains a root node by default', () {
     final doc = DocumentTemplate(DocumentTemplateType.blank).create();
-    expect(doc.nodes[0], isA<RootNode>());
+    expect(doc.root, isNotNull);
   });
 
   test('adding node increases node count', () {
-    final doc = createDocument();
     final count = doc.nodes.length;
     doc.addListener(() {
       expect(doc.nodes.length, count + 1);
@@ -22,7 +25,6 @@ void main() {
 
   group('connect (links)', () {
     test('can add a node to multiple parents', () {
-      final doc = createDocument();
       final node1 = Node(), node2 = Node(), node3 = Node();
       doc.addNode(node1);
       doc.addNode(node2);
@@ -33,7 +35,6 @@ void main() {
     });
 
     test('cannot add null node', () {
-      final doc = createDocument();
       final node1 = Node();
       doc.addNode(node1);
       expect(doc.canConnect(parent: null, child: null), false);
@@ -42,14 +43,12 @@ void main() {
     });
 
     test('cannot add self', () {
-      final doc = createDocument();
       final node1 = Node();
       doc.addNode(node1);
       expect(doc.canConnect(parent: node1, child: node1), false);
     });
 
     test('cannot add to descendants to form loop', () {
-      final doc = createDocument();
       final node1 = Node(), node2 = Node(), node3 = Node();
       doc.addNode(node1);
       doc.addNode(node2);
@@ -61,7 +60,6 @@ void main() {
     });
 
     test('cannot add to parent multiple times', () {
-      final doc = createDocument();
       final node1 = Node(), node2 = Node();
       doc.addNode(node1);
       doc.addNode(node2);
@@ -71,13 +69,11 @@ void main() {
     });
 
     test('cannot add root node to other node as child', () {
-      final doc = createDocument();
       final root = RootNode(), normal = Node();
       expect(doc.canConnect(parent: normal, child: root), false);
     });
 
     test('a node should be in the doc before it can be connected', () {
-      final doc = createDocument();
       final node1 = Node(), node2 = Node();
       doc.addNode(node2);
       expect(() {
@@ -88,7 +84,6 @@ void main() {
 
   group('disconnect (links)', () {
     test('a node becomes top level node after it is disconnected from all parents', () {
-      final doc = createDocument();
       final node1 = Node(), node2 = Node(), node3 = Node();
       doc.addNode(node1);
       doc.addNode(node2);
@@ -103,7 +98,6 @@ void main() {
     });
 
     test('disconnect from parent', () {
-      final doc = createDocument();
       final node1 = Node(), node2 = Node();
       doc.addNode(node1);
       doc.addNode(node2);
@@ -116,7 +110,6 @@ void main() {
     });
 
     test('disconnect all children', () {
-      final doc = createDocument();
       final node1 = Node(), node2 = Node(), node3 = Node();
       doc.addNode(node1);
       doc.addNode(node2);
@@ -130,7 +123,6 @@ void main() {
   });
 
   test('delete node', () {
-    final doc = createDocument();
     final node1 = Node(), node2 = Node(), node3 = Node();
     doc.addNode(node1);
     doc.addNode(node2);
@@ -145,7 +137,6 @@ void main() {
   });
 
   test('delete node and descendants', () {
-    final doc = createDocument();
     final node1 = Node(), node2 = Node(), node3 = Node(), node4 = Node();
     doc.addNode(node1);
     doc.addNode(node2);
@@ -162,7 +153,6 @@ void main() {
   });
 
   test('parents of', () {
-    final doc = createDocument();
     final node1 = Node(), node2 = Node();
     doc.addNode(node1);
     doc.addNode(node2);
@@ -170,7 +160,6 @@ void main() {
     expect(doc.parentsOf(node2).first, node1);
   });
   test('multiple parents of', () {
-    final doc = createDocument();
     final node1 = Node(), node2 = Node(), node3 = Node();
     doc.addNode(node1);
     doc.addNode(node2);

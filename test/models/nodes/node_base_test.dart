@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mandrake/models/document.dart';
 import 'package:mandrake/models/nodes/node_base.dart';
 
 class _SomeNode extends Node {
@@ -16,6 +17,12 @@ class _SingleNode extends Node {
 }
 
 void main() {
+  Document doc;
+
+  setUp(() {
+    doc = Document(allNodes: {});
+  });
+
   group('child slot', () {
     test('is connected', () {
       var slot = ChildSlot();
@@ -53,6 +60,7 @@ void main() {
 
   test('add child', () {
     final parent = Node();
+    doc.addNode(parent);
     final child = Node();
     parent.addChild(child);
     expect(parent.children.contains(child), true);
@@ -61,12 +69,13 @@ void main() {
     parent.addChild(Node());
     expect(parent.children.length, 2);
 
-    parent.addChild(child); // no re-entry
-    expect(parent.children.length, 2);
+    parent.addChild(child); // allow re-entry
+    expect(parent.children.length, 3);
   });
 
   test('remove child', () {
     final node = Node();
+    doc.addNode(node);
     final slot = node.addSlot('first');
     final child = Node();
     node.addChild(child, slot.id);
@@ -77,6 +86,7 @@ void main() {
 
   test('add slot when children are added', () {
     final node = Node();
+    doc.addNode(node);
     final slot = node.addSlot('first');
     node.addChild(Node(), slot.id);
     expect(node.slots.length, 1);
@@ -90,6 +100,7 @@ void main() {
 
   test('child is removed when its slot is removed', () {
     final node = Node();
+    doc.addNode(node);
     final slot = node.addSlot('first');
     final child = Node();
     node.addChild(child, slot.id);
@@ -106,6 +117,7 @@ void main() {
 
     test('tree', () {
       final parent = Node();
+      doc.addNode(parent);
       final child1 = Node();
       parent.addChild(child1);
       final grandson = Node();
