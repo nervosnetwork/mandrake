@@ -48,9 +48,9 @@ class Command<T> extends Change {
         } else {
           node = NodeCreator.create(template, pos);
         }
+        node.doc = doc;
         nodeId = node.id;
         if (!doc.nodes.contains((node))) {
-          // NodeCreator is free to add the node to document if it wants to.
           doc.addNode(node);
         }
         selection.select(node);

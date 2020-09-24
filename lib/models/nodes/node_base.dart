@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../document.dart';
 import '../offset_json_converter.dart';
 import '../dirty_tracker.dart';
 import '../node.dart' show NodeDeserializer, NodeSerializer;
@@ -39,6 +40,9 @@ class Node with ChangeNotifier, DirtyTracker {
   String _name;
   Offset _position;
 
+  @JsonKey(ignore: true)
+  Document doc; // Delegate child nodes query and other use
+
   String get id => _id;
   set id(String id) {
     _id = id;
@@ -72,8 +76,12 @@ class Node with ChangeNotifier, DirtyTracker {
     );
   }
 
-  final List<Node> _children = [];
-  List<Node> get children => UnmodifiableListView(_children);
+  List<Node> get children {
+    final slotWithChild = slots.where((s) => s.childId != null);
+    return slotWithChild.map((s) {
+      return findChild(s.childId);
+    }).toList();
+  }
 
   final List<ChildSlot> _slots = [];
   List<ChildSlot> get slots => UnmodifiableListView(_slots);
@@ -138,7 +146,6 @@ class Node with ChangeNotifier, DirtyTracker {
   void removeSlot(String slotId) {
     final slot = slots.firstWhere((s) => s.id == slotId, orElse: () => null);
     if (slot != null) {
-      removeChild(slot.childId);
       _slots.remove(slot);
 
       markDirty();
@@ -169,11 +176,6 @@ class Node with ChangeNotifier, DirtyTracker {
   /// Add a child. If slotId is provided fill the child to that slot.
   void addChild(Node child, [String slotId]) {
     assert(canAddChild);
-    if (_children.contains(child)) {
-      return;
-    }
-
-    _children.add(child);
     if (slotId == addChildSlot.id) {
       _fillSlot(child, addSlot('new child').id);
     } else if (slotId != null) {
@@ -196,13 +198,11 @@ class Node with ChangeNotifier, DirtyTracker {
       slot.childId = null;
     }
 
-    _children.removeWhere((c) => c.id == childId);
-
     markDirty();
     notifyListeners();
   }
 
-  Node findChild(String childId) => children.firstWhere((c) => c.id == childId, orElse: () => null);
+  Node findChild(String childId) => doc?.findNode(childId);
 
   void replaceChild(String childId, Node newChild) {
     if (childId == null) {
@@ -213,9 +213,6 @@ class Node with ChangeNotifier, DirtyTracker {
     if (slot != null) {
       slot.childId = newChild.id;
     }
-
-    final index = _children.indexWhere((c) => c.id == childId);
-    _children[index] = newChild;
 
     markDirty();
     notifyListeners();

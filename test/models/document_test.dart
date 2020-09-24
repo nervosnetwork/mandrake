@@ -25,7 +25,7 @@ void main() {
       final doc = createDocument();
       final node1 = Node(), node2 = Node(), node3 = Node();
       doc.addNode(node1);
-      doc.addNode(node2, parent: node1);
+      doc.addNode(node2);
       doc.addNode(node3);
       expect(doc.canConnect(parent: node1, child: node3), true);
       expect(doc.canConnect(parent: node3, child: node1), true);
@@ -52,7 +52,8 @@ void main() {
       final doc = createDocument();
       final node1 = Node(), node2 = Node(), node3 = Node();
       doc.addNode(node1);
-      doc.addNode(node2, parent: node1);
+      doc.addNode(node2);
+      doc.connectNode(parent: node1, child: node2);
       doc.addNode(node3);
       doc.connectNode(parent: node2, child: node3);
       expect(doc.canConnect(parent: node2, child: node1), false);

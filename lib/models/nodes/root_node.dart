@@ -96,6 +96,7 @@ class RootNode extends Node {
 
   @override
   void addChild(Node child, [String slotId]) {
+    doc?.addNode(child);
     if (slotId == addCallChildSlot.id) {
       super.addChild(child, addCallSlot().id);
     } else if (slotId == addStreamChildSlot.id) {

@@ -12,12 +12,11 @@ part 'document.g.dart';
 class Document with ChangeNotifier, DirtyTracker {
   final List<Node> topLevelNodes; // Reference to top level nodes only
   final List<Node> allNodes;
-  final List<Node> _allNodes = [];
   final List<Link> _links = [];
 
-  UnmodifiableListView<Node> get nodes => UnmodifiableListView(_allNodes);
+  UnmodifiableListView<Node> get nodes => UnmodifiableListView(allNodes);
   UnmodifiableListView<Link> get links => UnmodifiableListView(_links);
-  RootNode get root => _allNodes.firstWhere((n) => n is RootNode);
+  RootNode get root => allNodes.firstWhere((n) => n is RootNode);
 
   String _fileName = '';
   String get fileName {
@@ -60,24 +59,21 @@ class Document with ChangeNotifier, DirtyTracker {
   void markNotDirty() {
     markClean();
 
-    for (var node in _allNodes) {
+    for (var node in allNodes) {
       node.markClean();
     }
   }
 
-  Document({this.topLevelNodes, this.allNodes = const []});
+  Document({this.topLevelNodes, this.allNodes});
 
   factory Document.fromJson(Map<String, dynamic> json) => _$DocumentFromJson(json);
   Map<String, dynamic> toJson() => _$DocumentToJson(this);
 
   Node findNode(String nodeId) => nodes.firstWhere((c) => c.id == nodeId, orElse: () => null);
 
-  void addNode(Node node, {Node parent}) {
-    if (parent != null) {
-      assert(_allNodes.contains(parent));
-      parent.addChild(node);
-    } else {
-      topLevelNodes.add(node);
+  void addNode(Node node) {
+    if (!allNodes.contains(node)) {
+      allNodes.add(node);
     }
 
     _nodesChanged();
@@ -117,11 +113,11 @@ class Document with ChangeNotifier, DirtyTracker {
     if (child is RootNode) {
       return false;
     }
-    return _allNodes.contains(parent); // && _topLevelNodes.contains(child);
+    return allNodes.contains(parent); // && _topLevelNodes.contains(child);
   }
 
   List<Node> parentsOf(Node node) {
-    return _allNodes.where((n) => n.children.contains(node)).toList();
+    return allNodes.where((n) => n.children.contains(node)).toList();
   }
 
   void connectNode({@required Node parent, @required Node child, String slotId}) {
@@ -134,7 +130,7 @@ class Document with ChangeNotifier, DirtyTracker {
   }
 
   void disconnectNode({@required Node parent, @required String childId, deleteSlot = false}) {
-    final child = _allNodes.firstWhere((n) => n.id == childId, orElse: () => null);
+    final child = allNodes.firstWhere((n) => n.id == childId, orElse: () => null);
     if (parentsOf(child).length == 1) {
       topLevelNodes.add(child);
     }
@@ -202,14 +198,7 @@ class Document with ChangeNotifier, DirtyTracker {
   }
 
   void _rebuildNodes() {
-    _allNodes.clear();
-    for (final root in topLevelNodes) {
-      for (final child in root.nodes) {
-        if (!_allNodes.contains(child)) {
-          _allNodes.add(child);
-        }
-      }
-    }
+    // TODO
   }
 
   void _rebuildLinks() {
