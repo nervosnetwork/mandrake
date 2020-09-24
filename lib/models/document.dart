@@ -100,7 +100,7 @@ class Document with ChangeNotifier, DirtyTracker {
 
     void processChildren(List<Node> children) {
       for (final child in children) {
-        if (!hasOutsideParent(child)) {
+        if (child != null && !hasOutsideParent(child)) {
           processChildren(child.children);
           allNodes.remove(child.id);
         }
