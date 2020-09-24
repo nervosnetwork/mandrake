@@ -87,7 +87,9 @@ class Node with ChangeNotifier, DirtyTracker {
     return slotWithChild.map((s) => s.childId).toList();
   }
 
-  List<Node> get children => childIds.map((id) => findChild(id)).toList();
+  List<Node> get children {
+    return childIds.map((id) => findChild(id)).where((c) => c != null).toList();
+  }
 
   final List<ChildSlot> _slots = [];
   List<ChildSlot> get slots => UnmodifiableListView(_slots);
@@ -116,9 +118,6 @@ class Node with ChangeNotifier, DirtyTracker {
 
   /// Full list as this node plus its children.
   UnmodifiableListView<Node> get nodes {
-    for (final c in children) {
-      c.doc = doc;
-    }
     final descendants = children.map((e) => e.nodes).fold(<Node>[], (value, element) {
       return value + element;
     });
