@@ -43,6 +43,12 @@ class Node with ChangeNotifier, DirtyTracker {
   @JsonKey(ignore: true)
   Document doc; // Delegate child nodes query and other use
 
+  void setDocDeep(Document doc) {
+    for (final n in nodes) {
+      n.doc = doc;
+    }
+  }
+
   String get id => _id;
   set id(String id) {
     _id = id;
@@ -96,7 +102,7 @@ class Node with ChangeNotifier, DirtyTracker {
   /// operator should have both values fixed to `2`.
   final int minimumSlotCount;
   final int maximumSlotCount;
-  bool get canAddChild => children.length < maximumSlotCount;
+  bool get canAddChild => doc != null && children.length < maximumSlotCount;
   bool get canAddSlot => slots.length < maximumSlotCount;
   bool get canRemoveSlot => slots.length > minimumSlotCount;
 
@@ -110,8 +116,12 @@ class Node with ChangeNotifier, DirtyTracker {
 
   /// Full list as this node plus its children.
   UnmodifiableListView<Node> get nodes {
-    final descendants =
-        children.map((e) => e.nodes).fold(<Node>[], (value, element) => value + element);
+    for (final c in children) {
+      c.doc = doc;
+    }
+    final descendants = children.map((e) => e.nodes).fold(<Node>[], (value, element) {
+      return value + element;
+    });
     return UnmodifiableListView([this] + descendants);
   }
 
@@ -176,6 +186,8 @@ class Node with ChangeNotifier, DirtyTracker {
   /// Add a child. If slotId is provided fill the child to that slot.
   void addChild(Node child, [String slotId]) {
     assert(canAddChild);
+
+    doc?.addNode(child);
     if (slotId == addChildSlot.id) {
       _fillSlot(child, addSlot('new child').id);
     } else if (slotId != null) {

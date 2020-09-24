@@ -62,7 +62,7 @@ class DocumentTemplate {
   }
 
   Document _createDefaultDoc() {
-    final doc = Document(topLevelNodes: [], allNodes: []);
+    final doc = Document(allNodes: {});
     final root = RootNode();
     root.doc = doc;
     final callResult = NodeCreator.create(
@@ -78,7 +78,7 @@ class DocumentTemplate {
   }
 
   Document _createUdtDoc() {
-    final doc = Document(topLevelNodes: [], allNodes: []);
+    final doc = Document(allNodes: {});
     doc.fileName = 'simple_udt';
 
     final root = RootNode();
@@ -95,8 +95,8 @@ class DocumentTemplate {
     doc.addNode(root);
     doc.flattenPrefabNode(udt);
 
-    final balance = doc.topLevelNodes.where((n) => n.name == 'balance').first;
-    final transfer = doc.topLevelNodes.where((n) => n.name == 'transfer').first;
+    final balance = doc.nodes.where((n) => n.name == 'balance').first;
+    final transfer = doc.nodes.where((n) => n.name == 'transfer').first;
 
     doc.connectNode(
       parent: root,
@@ -114,7 +114,7 @@ class DocumentTemplate {
   }
 
   Document _createBalanceDoc() {
-    final doc = Document(topLevelNodes: [], allNodes: []);
+    final doc = Document(allNodes: {});
     doc.fileName = 'balance';
 
     final root = RootNode();

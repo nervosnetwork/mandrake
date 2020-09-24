@@ -80,6 +80,7 @@ class PrefabNode extends AstNode {
     if (convert != null) {
       final results = convert(this);
       for (final node in results) {
+        doc?.addNode(node);
         if (node is PrefabNode) {
           node.mergeProperties(properties);
         }

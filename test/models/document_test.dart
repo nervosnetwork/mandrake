@@ -4,7 +4,7 @@ import 'package:mandrake/models/document_template.dart';
 import 'package:mandrake/models/node.dart';
 
 void main() {
-  Document createDocument() => Document(topLevelNodes: []);
+  Document createDocument() => Document(allNodes: {});
 
   test('a document from template contains a root node by default', () {
     final doc = DocumentTemplate(DocumentTemplateType.blank).create();

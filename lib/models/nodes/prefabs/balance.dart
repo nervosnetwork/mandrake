@@ -93,5 +93,6 @@ List<AstNode> convertQueryCells(PrefabNode node) {
   args.name = 'args';
   queryTest.addChild(args, queryTest.addSlot('args').id);
 
+  node.doc.addNode(queryCells);
   return [autoLayout(queryCells, initialPosition: node.position)];
 }
