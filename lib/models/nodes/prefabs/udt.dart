@@ -48,9 +48,10 @@ class _UdtConverter {
   }
 
   AstNode _ready() {
-    final ready = AstNode(valueType: ValueType.equal);
+    final ready = AstNode(valueType: ValueType.equal)..doc = node.doc;
 
     final typeCellsLength = OperationNode(valueType: ValueType.len);
+    ready.addChild(typeCellsLength, ready.addSlot('type cells length').id);
     typeCellsLength.addChild(
       _typeCells(),
       typeCellsLength.slots.first.id,
@@ -58,22 +59,20 @@ class _UdtConverter {
 
     final lengthValue = PrimitiveNode(valueType: ValueType.uint64);
     lengthValue.value = '1';
-
-    ready.addChild(typeCellsLength, ready.addSlot('type cells length').id);
     ready.addChild(lengthValue, ready.addSlot('1').id);
 
     return ready;
   }
 
   AstNode _balance() {
-    final add = AstNode(valueType: ValueType.add);
+    final add = AstNode(valueType: ValueType.add)..doc = node.doc;
     add.addChild(arg(Int64(0)), add.addSlot('arg0').id);
     add.addChild(arg(Int64(1)), add.addSlot('arg1').id);
 
     final mapFuns = (AstNode aList, List<AstNode> funcs) {
       var list = aList;
       for (final func in funcs) {
-        final newList = AstNode(valueType: ValueType.map);
+        final newList = AstNode(valueType: ValueType.map)..doc = node.doc;
         newList.addChild(func, newList.addSlot('func').id);
         newList.addChild(list, newList.addSlot('list').id);
         list = newList;
@@ -81,7 +80,7 @@ class _UdtConverter {
       return list;
     };
 
-    final slice = AstNode(valueType: ValueType.slice);
+    final slice = AstNode(valueType: ValueType.slice)..doc = node.doc;
     slice.addChild(uintValue(Int64(0)), slice.addSlot('0').id);
     slice.addChild(uintValue(Int64(16)), slice.addSlot('16').id);
     slice.addChild(arg(Int64(0)), slice.addSlot('arg0').id);
@@ -90,7 +89,7 @@ class _UdtConverter {
       slice,
     ]);
 
-    final reduce = AstNode(valueType: ValueType.reduce);
+    final reduce = AstNode(valueType: ValueType.reduce)..doc = node.doc;
     reduce.addChild(add, reduce.addSlot('func').id);
     reduce.addChild(
       bytesValue('0x00000000000000000000000000000000'),
@@ -98,64 +97,62 @@ class _UdtConverter {
     );
     reduce.addChild(tokens, reduce.addSlot('tokens').id);
 
-    final result = AstNode(valueType: ValueType.slice);
+    final result = AstNode(valueType: ValueType.slice)..doc = node.doc;
     result.addChild(uintValue(Int64(0)), result.addSlot('0').id);
     result.addChild(uintValue(Int64(16)), result.addSlot('16').id);
     result.addChild(reduce, result.addSlot('added').id);
     return result;
   }
 
+  /// TODO: tweak performance
   AstNode _transfer() {
-    final transaction = AstNode(valueType: ValueType.transaction);
+    final transaction = AstNode(valueType: ValueType.transaction)..doc = node.doc;
     transaction.addChild(
       _inputCells(),
       transaction.addSlot('inputs').id,
     );
 
     final outputs = AstNode(valueType: ValueType.list);
-    outputs.addChild(_transferCell(), outputs.addSlot('transfer').id);
-    outputs.addChild(_changeCell(), outputs.addSlot('change').id);
     transaction.addChild(
       outputs,
       transaction.addSlot('outputs').id,
     );
+    outputs.addChild(_transferCell(), outputs.addSlot('transfer').id);
+    outputs.addChild(_changeCell(), outputs.addSlot('change').id);
 
     final cellDeps = AstNode(valueType: ValueType.list);
+    transaction.addChild(
+      cellDeps,
+      transaction.addSlot('cell deps').id,
+    );
     cellDeps.addChild(
       _assembleSecpCellDep(),
       cellDeps.addSlot('secp cell dep').id,
     );
     final index = AstNode(valueType: ValueType.index);
+    cellDeps.addChild(index, cellDeps.addSlot('index').id);
     final indexValue = PrimitiveNode(valueType: ValueType.uint64);
     indexValue.value = '0';
     index.addChild(indexValue, index.addSlot('0').id);
-    index.addChild(
-      _typeCells(),
-      index.addSlot('type cells').id,
-    );
-    cellDeps.addChild(index, cellDeps.addSlot('index').id);
-    transaction.addChild(
-      cellDeps,
-      transaction.addSlot('cell deps').id,
-    );
+    index.addChild(_typeCells(), index.addSlot('type cells').id);
 
-    final result = OperationNode(valueType: ValueType.serializeToJson);
+    final result = OperationNode(valueType: ValueType.serializeToJson)..doc = node.doc;
     result.addChild(_adjustFee(transaction), result.slots.first.id);
     return result;
   }
 
   AstNode _adjustFee(AstNode tx) {
-    final serialized = OperationNode(valueType: ValueType.serializeToCore);
+    final serialized = OperationNode(valueType: ValueType.serializeToCore)..doc = node.doc;
     serialized.addChild(tx, serialized.slots.first.id);
     final length = OperationNode(valueType: ValueType.len);
-    length.addChild(serialized, length.slots.first.id);
     final addedLength = add(length, uintValue(Int64(100)), node.doc);
-    final fee = OperationNode(valueType: ValueType.multiply);
+    length.addChild(serialized, length.slots.first.id);
+    final fee = OperationNode(valueType: ValueType.multiply)..doc = node.doc;
     fee.addChild(addedLength, fee.slots.first.id);
     fee.addChild(uintValue(Int64(1)), fee.slots.last.id);
 
     final changeCell = tx.children[1].children[1];
-    final adjustedChangeCell = OperationNode(valueType: ValueType.cell);
+    final adjustedChangeCell = OperationNode(valueType: ValueType.cell)..doc = node.doc;
     adjustedChangeCell.addChild(
       subtract(changeCell.children[0], fee, node.doc),
       adjustedChangeCell.slots.first.id,
@@ -173,12 +170,12 @@ class _UdtConverter {
       adjustedChangeCell.addSlot('tokens').id,
     );
 
+    final result = AstNode(valueType: ValueType.transaction)..doc = node.doc;
+    result.addChild(tx.children[0], result.addSlot('inputs').id);
     final outputs = AstNode(valueType: ValueType.list);
+    result.addChild(outputs, result.addSlot('outputs').id);
     outputs.addChild(tx.children[1].children[0], outputs.addSlot('amount').id);
     outputs.addChild(adjustedChangeCell, outputs.addSlot('change').id);
-    final result = AstNode(valueType: ValueType.transaction);
-    result.addChild(tx.children[0], result.addSlot('inputs').id);
-    result.addChild(outputs, result.addSlot('outputs').id);
     result.addChild(tx.children[2], result.addSlot('cell deps').id);
     return result;
   }
@@ -186,27 +183,26 @@ class _UdtConverter {
   AstNode _typeCells() {
     final queryCells = AstNode(valueType: ValueType.queryCells);
     queryCells.name = 'type cells';
+    queryCells.doc = node.doc;
 
     final dataHashTest = OperationNode(valueType: ValueType.equal);
     dataHashTest.name = 'data hash';
     queryCells.addChild(dataHashTest, queryCells.addSlot('data hash').id);
 
     final getDataHash = GetOpNode(valueType: ValueType.getDataHash);
-
+    dataHashTest.addChild(getDataHash, dataHashTest.slots.first.id);
     getDataHash.addChild(arg(Int64(0)), getDataHash.slots.first.id);
 
     final codeHash = PrimitiveNode(valueType: ValueType.bytes);
     codeHash.value = findPropValue(props, 'UDT code hash') ?? defaultUdtCodeHash;
-
-    dataHashTest.addChild(getDataHash, dataHashTest.slots.first.id);
     dataHashTest.addChild(codeHash, dataHashTest.slots.last.id);
 
     return queryCells;
   }
 
   AstNode _inputCells() {
-    final queryCells = AstNode(valueType: ValueType.queryCells);
-    final and = OperationNode(valueType: ValueType.and);
+    final queryCells = AstNode(valueType: ValueType.queryCells)..doc = node.doc;
+    final and = OperationNode(valueType: ValueType.and)..doc = node.doc;
     and.addChild(
         _isDefaultSecpCell(
           Int64(0),
@@ -225,7 +221,7 @@ class _UdtConverter {
   }
 
   AstNode _transferCell() {
-    final result = AstNode(valueType: ValueType.cell);
+    final result = AstNode(valueType: ValueType.cell)..doc = node.doc;
     result.addChild(_transferValue(), result.addSlot('value').id);
     result.addChild(
         _assembleSecpLock(
@@ -242,7 +238,7 @@ class _UdtConverter {
   }
 
   AstNode _changeCell() {
-    final result = AstNode(valueType: ValueType.cell);
+    final result = AstNode(valueType: ValueType.cell)..doc = node.doc;
     result.addChild(_changeCapacities(), result.addSlot('value').id);
     result.addChild(
         _assembleSecpLock(
@@ -259,7 +255,7 @@ class _UdtConverter {
   }
 
   AstNode _transferTokens() {
-    final result = AstNode(valueType: ValueType.slice);
+    final result = AstNode(valueType: ValueType.slice)..doc = node.doc;
     result.addChild(uintValue(Int64(0)), result.addSlot('0').id);
     result.addChild(uintValue(Int64(16)), result.addSlot('16').id);
     result.addChild(
@@ -270,14 +266,14 @@ class _UdtConverter {
   }
 
   AstNode _totalCapacities() {
-    final map = AstNode(valueType: ValueType.map);
+    final map = AstNode(valueType: ValueType.map)..doc = node.doc;
     map.addChild(
       getField(ValueType.getCapacity, arg(Int64(0)), node.doc),
       map.addSlot('get capacity').id,
     );
     map.addChild(_inputCells(), map.addSlot('cells').id);
 
-    final result = AstNode(valueType: ValueType.reduce);
+    final result = AstNode(valueType: ValueType.reduce)..doc = node.doc;
     result.addChild(
       add(arg(Int64(0)), arg(Int64(1)), node.doc),
       result.addSlot('arg0 + arg1').id,
@@ -302,7 +298,7 @@ class _UdtConverter {
   }
 
   AstNode _changeTokens() {
-    final result = AstNode(valueType: ValueType.slice);
+    final result = AstNode(valueType: ValueType.slice)..doc = node.doc;
     result.addChild(uintValue(Int64(0)), result.addSlot('0').id);
     result.addChild(uintValue(Int64(16)), result.addSlot('16').id);
     result.addChild(
@@ -331,7 +327,7 @@ class _UdtConverter {
       node.doc,
     );
 
-    final result = OperationNode(valueType: ValueType.and);
+    final result = OperationNode(valueType: ValueType.and)..doc = node.doc;
     result.addChild(codeHash, result.slots.first.id);
     result.addChild(hashType, result.slots.last.id);
     result.addChild(args, result.addSlot('args').id);
@@ -357,7 +353,7 @@ class _UdtConverter {
       node.doc,
     );
 
-    final result = OperationNode(valueType: ValueType.and);
+    final result = OperationNode(valueType: ValueType.and)..doc = node.doc;
     result.addChild(codeHash, result.slots.first.id);
     result.addChild(hashType, result.slots.last.id);
     result.addChild(args, result.addSlot('args').id);
@@ -367,7 +363,7 @@ class _UdtConverter {
   AstNode _assembleSecpLock(
     Int64 paramIndex,
   ) {
-    final result = AstNode(valueType: ValueType.script);
+    final result = AstNode(valueType: ValueType.script)..doc = node.doc;
     result.addChild(
       bytesValue(findPropValue(props, 'Secp256k1 lock hash') ?? secpTypeHash),
       result.addSlot('sepc type hash').id,
@@ -380,7 +376,7 @@ class _UdtConverter {
   AstNode _assembleUdtType(
     Int64 paramIndex,
   ) {
-    final result = AstNode(valueType: ValueType.script);
+    final result = AstNode(valueType: ValueType.script)..doc = node.doc;
     result.addChild(
       bytesValue(findPropValue(props, 'UDT code hash') ?? defaultUdtCodeHash),
       result.addSlot('udt code hash').id,
@@ -391,15 +387,15 @@ class _UdtConverter {
   }
 
   AstNode _assembleSecpCellDep() {
-    final result = AstNode(valueType: ValueType.cellDep);
+    final result = AstNode(valueType: ValueType.cellDep)..doc = node.doc;
 
     final outPoint = AstNode(valueType: ValueType.outPoint);
+    result.addChild(outPoint, result.addSlot('out point').id);
     final secpCellBytes =
         bytesValue(findPropValue(props, 'Secp256k1 cell dep') ?? secpCellDepDevnet);
     outPoint.addChild(secpCellBytes, outPoint.addSlot('secp cell dep').id);
     final outPointIndex = uintValue(Int64(0));
     outPoint.addChild(outPointIndex, outPoint.addSlot('0').id);
-    result.addChild(outPoint, result.addSlot('out point').id);
 
     final indexValue = uintValue(Int64(1));
     result.addChild(indexValue, result.addSlot('1').id);
