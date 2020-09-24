@@ -1,5 +1,6 @@
 import 'dart:ui' show Offset, Size;
 
+import '../document.dart';
 import 'ast_node.dart';
 import 'prefabs/prefab_property.dart';
 import 'prefabs/balance.dart';
@@ -20,7 +21,7 @@ class PrefabNode extends AstNode {
   Map<String, dynamic> toJson() => NodeSerializer.toTypedJson(this, _$PrefabNodeToJson);
 
   @override
-  Value toAstValue() => flatten().first.toAstValue();
+  Value toAstValue() => flatten(container: Document(allNodes: {})).first.toAstValue();
 
   double get bodyHeight => 100;
 
@@ -66,7 +67,7 @@ class PrefabNode extends AstNode {
   /// converted back to the prefab node.
   /// In most cases flattened object should be a single ast node, but it could be
   /// multiple nodes, e.g. several nodes as a group of call results.
-  List<AstNode> flatten() {
+  List<AstNode> flatten({Document container}) {
     final map = {
       ValueType.prefabSecp256k1GetBalance: convertGetBalance,
       ValueType.prefabSecp256k1MapCapacities: convertMapCapacities,
@@ -77,20 +78,24 @@ class PrefabNode extends AstNode {
     };
 
     final convert = map[valueType];
-    if (convert != null) {
-      final results = convert(this);
-      for (final node in results) {
-        doc?.addNode(node);
-        if (node is PrefabNode) {
-          node.mergeProperties(properties);
-        }
-        for (final prefab in node.children.whereType<PrefabNode>()) {
-          prefab.mergeProperties(properties);
-        }
-      }
-      return results;
+    if (convert == null) {
+      throw UnimplementedError();
     }
 
-    throw UnimplementedError();
+    final document = doc; // Keep current context
+    container ??= doc;
+    doc = container;
+    final results = convert(this);
+    for (final node in results) {
+      container?.addNode(node);
+      if (node is PrefabNode) {
+        node.mergeProperties(properties);
+      }
+      for (final prefab in node.children.whereType<PrefabNode>()) {
+        prefab.mergeProperties(properties);
+      }
+    }
+    doc = document;
+    return results;
   }
 }
