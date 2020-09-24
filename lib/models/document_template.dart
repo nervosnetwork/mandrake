@@ -62,8 +62,9 @@ class DocumentTemplate {
   }
 
   Document _createDefaultDoc() {
-    final doc = Document(topLevelNodes: []);
+    final doc = Document(allNodes: {});
     final root = RootNode();
+    root.doc = doc;
     final callResult = NodeCreator.create(
       NodeTemplate(ValueType.uint64),
       root.position + Offset(root.size.width + 100, -50),
@@ -77,11 +78,12 @@ class DocumentTemplate {
   }
 
   Document _createUdtDoc() {
-    final doc = Document(topLevelNodes: []);
+    final doc = Document(allNodes: {});
     doc.fileName = 'simple_udt';
 
     final root = RootNode();
     root.name = 'simple udt';
+    root.doc = doc;
 
     final udt = NodeCreator.create(
       NT(ValueType.prefabUdt),
@@ -93,8 +95,8 @@ class DocumentTemplate {
     doc.addNode(root);
     doc.flattenPrefabNode(udt);
 
-    final balance = doc.topLevelNodes.where((n) => n.name == 'balance').first;
-    final transfer = doc.topLevelNodes.where((n) => n.name == 'transfer').first;
+    final balance = doc.nodes.where((n) => n.name == 'balance').first;
+    final transfer = doc.nodes.where((n) => n.name == 'transfer').first;
 
     doc.connectNode(
       parent: root,
@@ -112,11 +114,12 @@ class DocumentTemplate {
   }
 
   Document _createBalanceDoc() {
-    final doc = Document(topLevelNodes: []);
+    final doc = Document(allNodes: {});
     doc.fileName = 'balance';
 
     final root = RootNode();
     root.name = 'balance';
+    root.doc = doc;
 
     final balance = PrefabNode(
       valueType: ValueType.prefabSecp256k1GetBalance,

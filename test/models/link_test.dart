@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mandrake/models/document.dart';
 import 'package:mandrake/models/node.dart';
 import 'package:mandrake/models/link.dart';
 
@@ -32,11 +33,17 @@ void main() {
   });
 
   test("get a node's links recursively", () {
+    final doc = Document(allNodes: {});
+    final child1 = Node();
+    doc.addNode(child1);
     final grandson1 = Node();
     final grandson2 = Node();
-    final child1 = Node()..addChild(grandson1)..addChild(grandson2);
+    child1..addChild(grandson1)..addChild(grandson2);
     final child2 = Node();
-    final father = Node()..addChild(child1)..addChild(child2);
+    doc.addNode(child2);
+    final father = Node();
+    doc.addNode(father);
+    father..addChild(child1)..addChild(child2);
 
     final links = Link.linksOf(father);
     expect(links.length, 4);

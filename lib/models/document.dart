@@ -10,14 +10,13 @@ part 'document.g.dart';
 
 @JsonSerializable()
 class Document with ChangeNotifier, DirtyTracker {
-  final List<Node> topLevelNodes; // Reference to top level nodes only
-  final List<Node> allNodes;
-  final List<Node> _allNodes = [];
-  final List<Link> _links = [];
+  final Map<String, Node> allNodes;
 
-  UnmodifiableListView<Node> get nodes => UnmodifiableListView(_allNodes);
+  UnmodifiableListView<Node> get nodes => UnmodifiableListView(allNodes.values);
   UnmodifiableListView<Link> get links => UnmodifiableListView(_links);
-  RootNode get root => _allNodes.firstWhere((n) => n is RootNode);
+  RootNode get root => nodes.firstWhere((n) => n is RootNode);
+
+  final List<Link> _links = [];
 
   String _fileName = '';
   String get fileName {
@@ -60,25 +59,21 @@ class Document with ChangeNotifier, DirtyTracker {
   void markNotDirty() {
     markClean();
 
-    for (var node in _allNodes) {
+    for (var node in nodes) {
       node.markClean();
     }
   }
 
-  Document({this.topLevelNodes, this.allNodes = const []});
+  Document({this.allNodes});
 
   factory Document.fromJson(Map<String, dynamic> json) => _$DocumentFromJson(json);
   Map<String, dynamic> toJson() => _$DocumentToJson(this);
 
   Node findNode(String nodeId) => nodes.firstWhere((c) => c.id == nodeId, orElse: () => null);
 
-  void addNode(Node node, {Node parent}) {
-    if (parent != null) {
-      assert(_allNodes.contains(parent));
-      parent.addChild(node);
-    } else {
-      topLevelNodes.add(node);
-    }
+  void addNode(Node node) {
+    node.doc = this;
+    allNodes[node.id] = node;
 
     _nodesChanged();
   }
@@ -87,16 +82,33 @@ class Document with ChangeNotifier, DirtyTracker {
     disconnectNodeFromParent(node);
     disconnectAllChildren(node);
 
-    topLevelNodes.removeWhere((n) => n == node);
+    allNodes.remove(node.id);
 
     _nodesChanged();
   }
 
   void deleteNodeAndDescendants(Node node) {
     disconnectNodeFromParent(node);
-    for (final n in node.nodes) {
-      topLevelNodes.removeWhere((e) => e == n);
+
+    final childNodeIds = Set<String>.from(node.nodes.map((n) => n.id));
+    final otherNodeIds = Set<String>.from(allNodes.keys).difference(childNodeIds);
+    final otherNodes = otherNodeIds.map((id) => findNode(id)).toList();
+
+    final hasOutsideParent = (Node node) {
+      return otherNodes.any((n) => n.childIds.contains(node.id));
+    };
+
+    void processChildren(List<Node> children) {
+      for (final child in children) {
+        if (child != null && !hasOutsideParent(child)) {
+          processChildren(child.children);
+          allNodes.remove(child.id);
+        }
+      }
     }
+
+    processChildren(node.children);
+    allNodes.remove(node.id);
 
     _nodesChanged();
   }
@@ -117,27 +129,23 @@ class Document with ChangeNotifier, DirtyTracker {
     if (child is RootNode) {
       return false;
     }
-    return _allNodes.contains(parent); // && _topLevelNodes.contains(child);
+    return allNodes[parent.id] != null;
   }
 
   List<Node> parentsOf(Node node) {
-    return _allNodes.where((n) => n.children.contains(node)).toList();
+    return nodes.where((n) => n.children.contains(node)).toList();
   }
 
   void connectNode({@required Node parent, @required Node child, String slotId}) {
     assert(canConnect(parent: parent, child: child));
 
-    topLevelNodes.remove(child);
     parent.addChild(child, slotId);
 
     _nodesChanged();
   }
 
   void disconnectNode({@required Node parent, @required String childId, deleteSlot = false}) {
-    final child = _allNodes.firstWhere((n) => n.id == childId, orElse: () => null);
-    if (parentsOf(child).length == 1) {
-      topLevelNodes.add(child);
-    }
+    final child = nodes.firstWhere((n) => n.id == childId, orElse: () => null);
     if (deleteSlot) {
       final slotId = parent?.slotIdForChild(child);
       parent?.removeSlot(slotId);
@@ -172,14 +180,13 @@ class Document with ChangeNotifier, DirtyTracker {
       for (final parent in parents) {
         parent.replaceChild(node.id, first);
       }
-    } else {
-      final index = topLevelNodes.indexOf(node);
-      topLevelNodes[index] = first;
     }
 
     for (final other in flattened.sublist(1)) {
       addNode(other);
     }
+
+    allNodes.remove(node.id);
 
     _nodesChanged();
 
@@ -191,35 +198,19 @@ class Document with ChangeNotifier, DirtyTracker {
   }
 
   void rebuild() {
-    _rebuildNodes();
-    _rebuildLinks();
+    _links.clear();
+    for (final node in nodes) {
+      for (final link in Link.linksOf(node)) {
+        if (!_links.contains(link)) {
+          _links.add(link);
+        }
+      }
+    }
   }
 
   void _nodesChanged() {
     rebuild();
     markDirty();
     notifyListeners();
-  }
-
-  void _rebuildNodes() {
-    _allNodes.clear();
-    for (final root in topLevelNodes) {
-      for (final child in root.nodes) {
-        if (!_allNodes.contains(child)) {
-          _allNodes.add(child);
-        }
-      }
-    }
-  }
-
-  void _rebuildLinks() {
-    _links.clear();
-    for (final root in topLevelNodes) {
-      for (final link in Link.linksOf(root)) {
-        if (!_links.contains(link)) {
-          _links.add(link);
-        }
-      }
-    }
   }
 }

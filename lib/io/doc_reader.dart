@@ -18,6 +18,9 @@ class DocReader {
       if (!kIsWeb) {
         doc.fileName = path.basename(_handle.handle);
       }
+      for (final node in doc.allNodes.values) {
+        node.doc = doc;
+      }
       return doc;
     } catch (e) {
       print('Read and parse document error: $e');

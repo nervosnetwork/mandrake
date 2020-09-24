@@ -1,5 +1,6 @@
 import 'package:fixnum/fixnum.dart';
 
+import '../../document.dart';
 import '../../node.dart';
 
 String secpCellDepDevnet = '0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b708';
@@ -64,29 +65,29 @@ AstNode param(Int64 index) {
   return value;
 }
 
-AstNode equal(AstNode lhs, AstNode rhs) {
-  final result = OperationNode(valueType: ValueType.equal);
+AstNode equal(AstNode lhs, AstNode rhs, Document doc) {
+  final result = OperationNode(valueType: ValueType.equal)..doc = doc;
   result.addChild(lhs, result.slots.first.id);
   result.addChild(rhs, result.slots.last.id);
   return result;
 }
 
-AstNode add(AstNode lhs, AstNode rhs) {
-  final result = OperationNode(valueType: ValueType.add);
+AstNode add(AstNode lhs, AstNode rhs, Document doc) {
+  final result = OperationNode(valueType: ValueType.add)..doc = doc;
   result.addChild(lhs, result.slots.first.id);
   result.addChild(rhs, result.slots.last.id);
   return result;
 }
 
-AstNode subtract(AstNode lhs, AstNode rhs) {
-  final result = OperationNode(valueType: ValueType.subtract);
+AstNode subtract(AstNode lhs, AstNode rhs, Document doc) {
+  final result = OperationNode(valueType: ValueType.subtract)..doc = doc;
   result.addChild(lhs, result.slots.first.id);
   result.addChild(rhs, result.slots.last.id);
   return result;
 }
 
-AstNode getField(ValueType valueType, AstNode value) {
-  final result = GetOpNode(valueType: valueType);
+AstNode getField(ValueType valueType, AstNode value, Document doc) {
+  final result = GetOpNode(valueType: valueType)..doc = doc;
   result.addChild(value, result.slots.first.id);
   return result;
 }

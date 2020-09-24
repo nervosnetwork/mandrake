@@ -48,12 +48,10 @@ class Command<T> extends Change {
         } else {
           node = NodeCreator.create(template, pos);
         }
-        nodeId = node.id;
-        if (!doc.nodes.contains((node))) {
-          // NodeCreator is free to add the node to document if it wants to.
-          doc.addNode(node);
-        }
+        node.doc = doc;
+        doc.addNode(node);
         selection.select(node);
+        nodeId = node.id;
       },
       (previousSelectedNodeId) {
         selection.select(doc.findNode(previousSelectedNodeId as String));
@@ -78,6 +76,7 @@ class Command<T> extends Change {
       },
       (slotIds) {
         final node = Node.fromJson(jsonDecode(serialized));
+        node.doc = doc;
         doc.addNode(node);
 
         final parents = (slotIds as List<Map<String, String>>)[0];
@@ -107,8 +106,10 @@ class Command<T> extends Change {
         selection.select(null);
       },
       (jsonString) {
+        /// TODO: fix undo
         final json = jsonDecode(jsonString as String);
         final node = Node.fromJson(json);
+        node.setDocDeep(doc);
         doc.addNode(node);
         for (final parentId in slotIds.keys) {
           final parent = doc.findNode(parentId);
@@ -388,19 +389,21 @@ class Command<T> extends Change {
       (serializedNode) {
         final json = jsonDecode(serializedNode as String);
         final node = Node.fromJson(json);
+        node.doc = doc;
         selection.select(node);
 
         List<Object> flattenedJson = jsonDecode(serializedFlattened);
-        final flattened = flattenedJson.map((j) => Node.fromJson(j)).toList();
+        final flattened = flattenedJson.map((j) {
+          final n = Node.fromJson(j);
+          n.setDocDeep(doc);
+          return n;
+        }).toList();
         final firstFlattened = flattened.first;
         final parents = doc.parentsOf(firstFlattened);
         if (parents.isNotEmpty) {
           for (final parent in parents) {
             parent.replaceChild(firstFlattened.id, node);
           }
-        } else {
-          final index = doc.topLevelNodes.indexOf(firstFlattened);
-          doc.topLevelNodes[index] = node;
         }
 
         for (final n in flattened) {
