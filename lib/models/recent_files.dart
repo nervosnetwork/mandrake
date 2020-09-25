@@ -15,6 +15,7 @@ class RecentFiles with ChangeNotifier {
 
   void init() async {
     _prefs = await SharedPreferences.getInstance();
+    notifyListeners();
   }
 
   static final String _storageKey = 'recent-files';
