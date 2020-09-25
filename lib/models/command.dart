@@ -387,10 +387,9 @@ class Command<T> extends Change {
         serializedFlattened = jsonEncode(flattened);
       },
       (serializedNode) {
-        /// TODO: fix undo
         final json = jsonDecode(serializedNode as String);
         final node = Node.fromJson(json);
-        node.doc = doc;
+        doc.addNode(node);
         selection.select(node);
 
         List<Object> flattenedJson = jsonDecode(serializedFlattened);
