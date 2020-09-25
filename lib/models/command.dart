@@ -208,8 +208,9 @@ class Command<T> extends Change {
         );
       },
       (_) {
-        doc.disconnectNodeFromParent(
-          doc.findNode(nodeId),
+        doc.disconnectNode(
+          parent: doc.findNode(parentId),
+          childId: nodeId,
           deleteSlot: addNewSlot,
         );
       },
