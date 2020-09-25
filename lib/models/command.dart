@@ -100,17 +100,17 @@ class Command<T> extends Change {
     final parents = doc.parentsOf(node);
     final slotIds = {for (var parent in parents) parent.id: parent.slotIdForChild(node)};
     return Command(
-      jsonEncode(node),
+      node.nodes.map((e) => jsonEncode(e)).toList(),
       () {
         doc.deleteNodeAndDescendants(node);
         selection.select(null);
       },
-      (jsonString) {
-        /// TODO: fix undo
-        final json = jsonDecode(jsonString as String);
-        final node = Node.fromJson(json);
-        node.setDocDeep(doc);
-        doc.addNode(node);
+      (jsons) {
+        final nodes = (jsons as List<String>).map(jsonDecode).map((json) => Node.fromJson(json));
+        for (final node in nodes) {
+          doc.addNode(node);
+        }
+
         for (final parentId in slotIds.keys) {
           final parent = doc.findNode(parentId);
           doc.connectNode(
