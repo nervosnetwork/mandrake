@@ -66,7 +66,13 @@ class Document with ChangeNotifier, DirtyTracker {
 
   Document({this.allNodes});
 
-  factory Document.fromJson(Map<String, dynamic> json) => _$DocumentFromJson(json);
+  factory Document.fromJson(Map<String, dynamic> json) {
+    final doc = _$DocumentFromJson(json);
+    for (final node in doc.allNodes.values) {
+      node.doc = doc;
+    }
+    return doc;
+  }
   Map<String, dynamic> toJson() => _$DocumentToJson(this);
 
   Node findNode(String nodeId) => nodes.firstWhere((c) => c.id == nodeId, orElse: () => null);
