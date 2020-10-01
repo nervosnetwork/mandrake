@@ -75,7 +75,7 @@ class Document with ChangeNotifier, DirtyTracker {
   }
   Map<String, dynamic> toJson() => _$DocumentToJson(this);
 
-  Node findNode(String nodeId) => nodes.firstWhere((c) => c.id == nodeId, orElse: () => null);
+  Node findNode(String nodeId) => allNodes[nodeId];
 
   void addNode(Node node) {
     node.doc = this;
