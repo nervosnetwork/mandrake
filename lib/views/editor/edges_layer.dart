@@ -22,7 +22,7 @@ class EdgesLayer extends StatelessWidget {
       return CustomPaint(
         painter: _EdgesPainter(
           links,
-          selection.selectedNode(document.nodes),
+          selection.selectedNode,
           editorState.canvasOffset,
         ),
         child: Container(),

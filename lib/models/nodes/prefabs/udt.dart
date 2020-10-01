@@ -104,7 +104,6 @@ class _UdtConverter {
     return result;
   }
 
-  /// TODO: tweak performance
   AstNode _transfer() {
     final transaction = AstNode(valueType: ValueType.transaction)..doc = node.doc;
     transaction.addChild(

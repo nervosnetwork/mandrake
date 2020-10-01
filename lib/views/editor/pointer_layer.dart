@@ -67,7 +67,7 @@ class _PointerLayerState extends State<PointerLayer> {
               child: ContextMenu(
                 NodeActionBuilder(
                   document,
-                  selection.selectedNode(document.nodes),
+                  selection.selectedNode,
                 ).build(),
                 handleActionItem,
               ),
@@ -113,7 +113,7 @@ class _PointerLayerState extends State<PointerLayer> {
       /// Canvas is drawing outside thus should be affected by the zoom scale.
       editorState.moveCanvas(event.delta / editorState.zoomScale);
     } else if (isDraggingConnector) {
-      final source = selection.selectedNode(document.nodes);
+      final source = selection.selectedNode;
       final target = hitTest(localPosition);
       if (document.canConnect(parent: source, child: target)) {
         selection.hover(target);
@@ -125,7 +125,7 @@ class _PointerLayerState extends State<PointerLayer> {
       });
     } else {
       /// Dragging a node
-      final node = selection.selectedNode(document.nodes);
+      final node = selection.selectedNode;
       node.position = node.position + event.delta / editorState.zoomScale;
     }
   }
@@ -200,7 +200,7 @@ class _PointerLayerState extends State<PointerLayer> {
     isDragging = false;
     isDraggingCanvas = false;
 
-    final source = selection.selectedNode(document.nodes);
+    final source = selection.selectedNode;
     if (source == null) {
       return;
     }
@@ -254,7 +254,7 @@ class _PointerLayerState extends State<PointerLayer> {
   Size menuSize() {
     final actions = NodeActionBuilder(
       document,
-      selection.selectedNode(document.nodes),
+      selection.selectedNode,
     ).build();
 
     if (actions.isEmpty) {

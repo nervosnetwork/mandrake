@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/document.dart';
 import '../models/selection.dart';
 import '../models/node.dart';
 
@@ -14,8 +13,7 @@ class PropertyInspector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<Selection>(builder: (context, selection, child) {
-      final document = Provider.of<Document>(context, listen: false);
-      final node = selection.selectedNode(document.nodes);
+      final node = selection.selectedNode;
 
       return Container(
         decoration: BoxDecoration(
