@@ -151,7 +151,7 @@ class Document with ChangeNotifier, DirtyTracker {
   }
 
   void disconnectNode({@required Node parent, @required String childId, deleteSlot = false}) {
-    final child = nodes.firstWhere((n) => n.id == childId, orElse: () => null);
+    final child = findNode(childId);
     if (deleteSlot) {
       final slotId = parent?.slotIdForChild(child);
       parent?.removeSlot(slotId);
