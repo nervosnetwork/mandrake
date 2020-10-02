@@ -78,7 +78,7 @@ class Toolbar extends StatelessWidget {
                   onPressed: editorState.zoomOutAction,
                 ),
                 SizedBox(
-                  width: 30,
+                  width: 35,
                   child: Text(
                     '${(editorState.zoomScale * 100).round()}%',
                     textAlign: TextAlign.center,
