@@ -54132,7 +54132,7 @@ o=o.c
 s.push(m.iz(q,!o.gL(o)?new M.ZN():n))
 s.push(T.be(Z.a_n(8,8),40,20))
 s.push(m.iz(L.eI(C.zT,n,n),c.gIG()))
-s.push(T.be(L.aj(""+C.e.aY(c.b*100)+"%",n,n,n,A.df(n,n,C.eB,n,n,n,n,n,n,n,n,11,n,n,n,n,!0,n,n,n,n,n,n),C.lj),n,35))
+s.push(T.be(L.aj(""+C.e.aY(c.b*100)+"%",n,n,n,A.df(n,n,C.eB,n,n,n,n,n,n,n,n,11,n,n,n,n,!0,n,n,n,n,n,n),C.lj),n,30))
 s.push(m.iz(L.eI(C.zS,n,n),c.gIF()))
 s.push(T.be(Z.a_n(8,8),40,20))
 s.push(m.iz(L.eI(C.zG,n,n),new M.ZO(c)))
