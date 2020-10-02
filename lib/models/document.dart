@@ -206,9 +206,10 @@ class Document with ChangeNotifier, DirtyTracker {
   void rebuild() {
     _links.clear();
     for (final node in nodes) {
-      for (final link in Link.linksOf(node)) {
-        if (!_links.contains(link)) {
-          _links.add(link);
+      for (final childId in node.childIds) {
+        final child = findNode(childId);
+        if (child != null) {
+          _links.add(Link(parent: node, child: child));
         }
       }
     }

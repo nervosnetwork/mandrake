@@ -15,12 +15,4 @@ class Link {
 
   @override
   int get hashCode => parent.hashCode + child.hashCode;
-
-  static List<Link> linksOf(Node node) {
-    final links = node.children.map((e) => Link(parent: node, child: e)).toList();
-    final childLinks = node.children
-        .map((child) => linksOf(child))
-        .fold(<Link>[], (previousValue, element) => previousValue + element);
-    return links + childLinks;
-  }
 }
