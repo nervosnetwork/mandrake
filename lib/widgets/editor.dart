@@ -49,7 +49,7 @@ class _EditorState extends State<Editor> {
   RecentFiles recentFiles;
 
   void resetState() {
-    selection = Selection();
+    selection = Selection(doc);
     editorState = EditorState();
     UndoManager.shared().clear();
   }

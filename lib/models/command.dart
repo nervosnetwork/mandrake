@@ -38,7 +38,7 @@ class Command<T> extends Change {
     String nodeId;
     String serializedNode;
     return Command(
-      selection.selectedNode(doc.nodes)?.id,
+      selection.selectedNode?.id,
       () {
         Node node;
         if (serializedNode != null) {

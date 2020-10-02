@@ -101,7 +101,7 @@ class NodeActionExecutor {
 
   final Document document;
   final Selection selection;
-  Node get node => selection.selectedNode(document.nodes);
+  Node get node => selection.selectedNode;
 
   void execute(NodeAction action) {
     switch (action) {

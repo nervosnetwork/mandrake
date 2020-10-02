@@ -75,7 +75,7 @@ class Document with ChangeNotifier, DirtyTracker {
   }
   Map<String, dynamic> toJson() => _$DocumentToJson(this);
 
-  Node findNode(String nodeId) => nodes.firstWhere((c) => c.id == nodeId, orElse: () => null);
+  Node findNode(String nodeId) => allNodes[nodeId];
 
   void addNode(Node node) {
     node.doc = this;
@@ -151,7 +151,7 @@ class Document with ChangeNotifier, DirtyTracker {
   }
 
   void disconnectNode({@required Node parent, @required String childId, deleteSlot = false}) {
-    final child = nodes.firstWhere((n) => n.id == childId, orElse: () => null);
+    final child = findNode(childId);
     if (deleteSlot) {
       final slotId = parent?.slotIdForChild(child);
       parent?.removeSlot(slotId);
@@ -206,9 +206,10 @@ class Document with ChangeNotifier, DirtyTracker {
   void rebuild() {
     _links.clear();
     for (final node in nodes) {
-      for (final link in Link.linksOf(node)) {
-        if (!_links.contains(link)) {
-          _links.add(link);
+      for (final childId in node.childIds) {
+        final child = findNode(childId);
+        if (child != null) {
+          _links.add(Link(parent: node, child: child));
         }
       }
     }
