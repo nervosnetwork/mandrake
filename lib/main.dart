@@ -10,12 +10,15 @@ class MandrakeApp extends StatefulWidget {
 }
 
 class _MandrakeAppState extends State<MandrakeApp> {
-  String _gistUrl;
+  final RouterDelegate _routerDelegate = AppRouterDelegate();
+  final RouteInformationParser _routeInformationParser = AppRouteInformationParser();
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Mandrake',
+      routerDelegate: _routerDelegate,
+      routeInformationParser: _routeInformationParser,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         accentColor: Colors.blue[600],
@@ -31,34 +34,106 @@ class _MandrakeAppState extends State<MandrakeApp> {
         dialogBackgroundColor: Colors.grey[600],
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Navigator(
-        pages: [
+    );
+  }
+}
+
+class RoutePath {
+  final String gistUrl;
+
+  RoutePath.home() : gistUrl = null;
+  RoutePath.gist(this.gistUrl);
+
+  bool get isHomePage => gistUrl == null;
+  bool get isGistPage => gistUrl != null;
+}
+
+class AppRouterDelegate extends RouterDelegate<RoutePath>
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<RoutePath> {
+  String _gistUrl;
+
+  AppRouterDelegate() : navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  @override
+  RoutePath get currentConfiguration {
+    return _gistUrl == null ? RoutePath.home() : RoutePath.gist(_gistUrl);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      key: navigatorKey,
+      pages: [
+        MaterialPage(
+          key: ValueKey('DefaultEditor'),
+          child: Scaffold(
+            body: Editor(),
+          ),
+        ),
+        if (_gistUrl != null)
           MaterialPage(
-            key: ValueKey('DefaultEditor'),
+            key: ValueKey(_gistUrl),
             child: Scaffold(
-              body: Editor(),
+              body: Editor(gistUrl: _gistUrl),
             ),
           ),
-          if (_gistUrl != null)
-            MaterialPage(
-              key: ValueKey(_gistUrl),
-              child: Scaffold(
-                body: Editor(gistUrl: _gistUrl),
-              ),
-            ),
-        ],
-        onPopPage: (route, result) {
-          if (!route.didPop(result)) {
-            return false;
-          }
+      ],
+      onPopPage: (route, result) {
+        if (!route.didPop(result)) {
+          return false;
+        }
 
-          setState(() {
-            _gistUrl = null;
-          });
+        _gistUrl = null;
+        notifyListeners();
 
-          return true;
-        },
-      ),
+        return true;
+      },
     );
+  }
+
+  @override
+  Future<void> setNewRoutePath(RoutePath path) {
+    if (path.isGistPage) {
+      _gistUrl = path.gistUrl;
+    } else {
+      _gistUrl = null;
+    }
+    return null;
+  }
+}
+
+class AppRouteInformationParser extends RouteInformationParser<RoutePath> {
+  @override
+  Future<RoutePath> parseRouteInformation(RouteInformation routeInformation) async {
+    final uri = Uri.parse(routeInformation.location);
+    // `/`
+    if (uri.pathSegments.isEmpty) {
+      return RoutePath.home();
+    }
+
+    // `/gist/:id`
+    if (uri.pathSegments.length == 2) {
+      if (uri.pathSegments[0] != 'gist') {
+        return null;
+      }
+      var id = uri.pathSegments[1];
+      return RoutePath.gist(id);
+    }
+
+    return null;
+  }
+
+  @override
+  RouteInformation restoreRouteInformation(RoutePath path) {
+    if (path.isHomePage) {
+      return RouteInformation(location: '/');
+    }
+    if (path.isGistPage) {
+      return RouteInformation(location: '/gist/${path.gistUrl}');
+    }
+    return null;
   }
 }
