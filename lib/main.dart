@@ -4,7 +4,14 @@ import 'widgets/editor.dart';
 
 void main() => runApp(MandrakeApp());
 
-class MandrakeApp extends StatelessWidget {
+class MandrakeApp extends StatefulWidget {
+  @override
+  _MandrakeAppState createState() => _MandrakeAppState();
+}
+
+class _MandrakeAppState extends State<MandrakeApp> {
+  String _gistUrl;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,8 +31,33 @@ class MandrakeApp extends StatelessWidget {
         dialogBackgroundColor: Colors.grey[600],
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Scaffold(
-        body: Editor(),
+      home: Navigator(
+        pages: [
+          MaterialPage(
+            key: ValueKey('DefaultEditor'),
+            child: Scaffold(
+              body: Editor(),
+            ),
+          ),
+          if (_gistUrl != null)
+            MaterialPage(
+              key: ValueKey(_gistUrl),
+              child: Scaffold(
+                body: Editor(gistUrl: _gistUrl),
+              ),
+            ),
+        ],
+        onPopPage: (route, result) {
+          if (!route.didPop(result)) {
+            return false;
+          }
+
+          setState(() {
+            _gistUrl = null;
+          });
+
+          return true;
+        },
       ),
     );
   }

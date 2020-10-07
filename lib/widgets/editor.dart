@@ -37,6 +37,10 @@ import '../views/editor/nodes_layer.dart';
 import '../views/editor/pointer_layer.dart';
 
 class Editor extends StatefulWidget {
+  final String gistUrl; // Open remote gist
+
+  Editor({this.gistUrl});
+
   @override
   _EditorState createState() => _EditorState();
 }
@@ -491,24 +495,28 @@ class _EditorState extends State<Editor> {
       if (url == null) {
         return;
       }
-      final docRead = await GistDocReader(url).read();
-      if (docRead != null) {
-        setState(() {
-          doc = docRead;
-          doc.rebuild();
-          doc.markNotDirty();
-          docHandle = null;
-          resetState();
-        });
-      } else {
-        setState(() {
-          doc = DocumentTemplate(DocumentTemplateType.blank).create();
-          docHandle = null;
-          resetState();
-          showReadError();
-        });
-      }
+      readGist(url);
     });
+  }
+
+  void readGist(String url) async {
+    final docRead = await GistDocReader(url).read();
+    if (docRead != null) {
+      setState(() {
+        doc = docRead;
+        doc.rebuild();
+        doc.markNotDirty();
+        docHandle = null;
+        resetState();
+      });
+    } else {
+      setState(() {
+        doc = DocumentTemplate(DocumentTemplateType.blank).create();
+        docHandle = null;
+        resetState();
+        showReadError();
+      });
+    }
   }
 
   Future<bool> saveDocument() async {
@@ -695,12 +703,19 @@ class _EditorState extends State<Editor> {
     doc = DocumentTemplate(DocumentTemplateType.blank).create();
     docHandle = null;
     resetState();
+
     recentFiles = RecentFiles();
     recentFiles.init();
 
     super.initState();
 
-    Timer.run(() => promptToRestoreIfNecessary());
+    Timer.run(() {
+      if (widget.gistUrl != null) {
+        readGist(widget.gistUrl);
+      } else {
+        promptToRestoreIfNecessary();
+      }
+    });
   }
 
   @override
