@@ -3,6 +3,13 @@ import 'dart:convert';
 
 import '../models/document.dart';
 
+class Gist {
+  String url;
+  String id;
+
+  Gist(this.url, this.id);
+}
+
 class GistDocWriter {
   GistDocWriter(this._doc, this._filename, this._token);
   final Document _doc;
@@ -10,7 +17,7 @@ class GistDocWriter {
   final String _token;
 
   // Return gist URL if successful.
-  Future<String> write() async {
+  Future<Gist> write() async {
     final endpoint = 'https://api.github.com/gists';
     final content = JsonEncoder.withIndent('  ').convert(_doc);
     final body = {
@@ -27,6 +34,7 @@ class GistDocWriter {
 
     final response = await request.close();
     final result = await response.transform(utf8.decoder).join();
-    return jsonDecode(result)['html_url'];
+    final decoded = jsonDecode(result);
+    return Gist(decoded['html_url'], decoded['id']);
   }
 }

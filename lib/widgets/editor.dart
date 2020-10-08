@@ -382,8 +382,9 @@ class _EditorState extends State<Editor> {
     }
 
     try {
-      final url = await GistDocWriter(doc, result[0], result[1]).write();
-      if (url == null) {
+      final gist = await GistDocWriter(doc, result[0], result[1]).write();
+      final mandrakeUrl = 'https://nervosnetwork.github.io/mandrake/#/gist/${gist.id}';
+      if (gist == null) {
         throw 'Creating gist failed. Please check that the personal access token is correct';
       }
 
@@ -397,41 +398,65 @@ class _EditorState extends State<Editor> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          final controller = TextEditingController(text: url);
-          controller.selection = TextSelection(baseOffset: 0, extentOffset: url.length);
+          final mandrakeUrlController = TextEditingController(text: mandrakeUrl);
+          final gistUrlController = TextEditingController(text: gist.url);
+          gistUrlController.selection = TextSelection(baseOffset: 0, extentOffset: gist.url.length);
 
           return AlertDialog(
             title: Text('Shared to gists.'),
             content: Container(
-              width: 500,
-              height: 150,
+              width: 680,
+              height: 350,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Your gist URL is:'),
                   TextField(
-                    controller: controller,
+                    controller: gistUrlController,
                     readOnly: true,
                     autofocus: true,
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      RaisedButton(
+                        child: Text('Copy gist URL'),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: gist.url));
+                        },
+                      ),
+                      SizedBox(width: 20),
+                      RaisedButton(
+                        child: Text('View gist'),
+                        onPressed: () {
+                          launch(gist.url);
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 40),
+                  Text('Mandrake quick URL is:'),
+                  TextField(
+                    controller: mandrakeUrlController,
+                    readOnly: true,
+                    autofocus: true,
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RaisedButton(
+                        child: Text('Copy mandrake URL'),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: mandrakeUrl));
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
             actions: [
-              FlatButton(
-                child: Text('Copy URL'),
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: url));
-                },
-              ),
-              SizedBox(width: 20),
-              FlatButton(
-                child: Text('View gist'),
-                onPressed: () {
-                  launch(url);
-                },
-              ),
-              SizedBox(width: 20),
               FlatButton(
                 child: Text('OK'),
                 onPressed: () {
